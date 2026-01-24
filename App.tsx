@@ -6,6 +6,7 @@ import Reports from './components/Reports';
 import AIAssistant from './components/AIAssistant';
 import ThemeToggle from './components/ThemeToggle'; // Import added
 import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteTransactionFromDb, clearDatabase, updateTransactionStatus } from './services/transactionService';
+import { isSupabaseConfigured } from './services/supabase';
 import { Transaction, FinancialSummary } from './types';
 import { Menu, Database, Trash2, CheckCircle2, Lock, User } from 'lucide-react';
 
@@ -240,13 +241,13 @@ function App() {
 
                 {activeTab === 'settings' && (
                   <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-                    <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 p-8 rounded-2xl shadow-xl">
                       <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
                         <Database className="h-6 w-6 text-indigo-600" />
                         Gerenciamento de Dados
                       </h2>
-                      <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
-                        Os dados são armazenados de forma {isSupabaseConfigured ? 'segura na nuvem (Supabase)' : 'local no seu navegador (IndexedDB)'}.
+                      <p className="text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
+                        Os dados são armazenados de forma {typeof isSupabaseConfigured !== 'undefined' && isSupabaseConfigured ? 'segura na nuvem (Supabase)' : 'local no seu navegador (IndexedDB)'}.
                         Isso garante total privacidade e controle sobre suas informações financeiras.
                       </p>
 
