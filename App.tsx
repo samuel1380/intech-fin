@@ -158,8 +158,15 @@ function App() {
     return titles[tab] || tab;
   };
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
+    <div className="flex h-screen supports-[height:100dvh]:h-[100dvh] bg-slate-50 overflow-hidden font-sans">
       {/* Overlay para fechar sidebar no mobile */}
       {sidebarOpen && (
         <div
@@ -170,7 +177,7 @@ function App() {
 
       <Sidebar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleTabChange}
         onLogout={handleLogout}
         isOpen={sidebarOpen}
       />
