@@ -18,7 +18,8 @@
     "jspdf-autotable": "^5.0.7",
     "date-fns": "^4.1.0",
     "@google/genai": "^1.38.0",
-    "dexie": "^4.0.1"
+    "dexie": "^4.0.1",
+    "@supabase/supabase-js": "^2.48.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

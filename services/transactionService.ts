@@ -1,39 +1,81 @@
-import { db } from '../db';
+import { supabase } from './supabase';
 import { Transaction, FinancialSummary, TransactionType, TransactionStatus } from '../types';
 
 // Adicionar Transação
 export const addTransactionToDb = async (transaction: Omit<Transaction, 'id'>): Promise<Transaction> => {
-  const newTransaction: Transaction = {
+  const newTransaction = {
     ...transaction,
-    id: crypto.randomUUID(), // Gera um ID único real
+    id: crypto.randomUUID(),
   };
-  await db.transactions.add(newTransaction);
-  return newTransaction;
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .insert([newTransaction])
+    .select();
+
+  if (error) {
+    console.error('Erro ao salvar no Supabase:', error);
+    throw error;
+  }
+  
+  return data[0];
 };
 
 // Ler todas as transações
 export const getAllTransactionsFromDb = async (): Promise<Transaction[]> => {
-  const txs = await db.transactions.toArray();
-  // Ordenar por data decrescente
-  return txs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .order('date', { ascending: false });
+
+  if (error) {
+    console.error('Erro ao buscar do Supabase:', error);
+    return [];
+  }
+
+  return data || [];
 };
 
 // Deletar Transação
 export const deleteTransactionFromDb = async (id: string): Promise<void> => {
-  await db.transactions.delete(id);
+  const { error } = await supabase
+    .from('transactions')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Erro ao deletar no Supabase:', error);
+    throw error;
+  }
 };
 
 // Atualizar Status
 export const updateTransactionStatus = async (id: string, status: TransactionStatus): Promise<void> => {
-    await db.transactions.update(id, { status });
-}
+  const { error } = await supabase
+    .from('transactions')
+    .update({ status })
+    .eq('id', id);
 
-// Limpar Banco de Dados (Para configurações)
-export const clearDatabase = async (): Promise<void> => {
-  await db.transactions.clear();
+  if (error) {
+    console.error('Erro ao atualizar status no Supabase:', error);
+    throw error;
+  }
 };
 
-// Calcular Resumo Financeiro (Mantendo a lógica de negócio separada do banco)
+// Limpar Banco de Dados (Cuidado: deleta tudo na nuvem)
+export const clearDatabase = async (): Promise<void> => {
+  const { error } = await supabase
+    .from('transactions')
+    .delete()
+    .neq('id', '0'); // Deleta todos
+
+  if (error) {
+    console.error('Erro ao limpar Supabase:', error);
+    throw error;
+  }
+};
+
+// Calcular Resumo Financeiro (Lógica permanece a mesma)
 export const calculateSummary = (transactions: Transaction[]): FinancialSummary => {
   const income = transactions
     .filter(t => t.type === TransactionType.INCOME && t.status === TransactionStatus.COMPLETED)
@@ -48,8 +90,6 @@ export const calculateSummary = (transactions: Transaction[]): FinancialSummary 
     .reduce((acc, curr) => acc + curr.amount, 0);
 
   const profit = income - expense;
-  
-  // Lógica de Imposto (Ex: 15% sobre lucro positivo)
   const tax = profit > 0 ? profit * 0.15 : 0;
 
   return {
