@@ -49,7 +49,6 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
     setMessages(prev => [...prev, { role: 'ai', text: response }]);
     setChatLoading(false);
   };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
       {/* Strategic Insights Panel */}
@@ -71,8 +70,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                  <div dangerouslySetInnerHTML={{ __html: insights }} />
             </div>
         )}
-        
-        <div className="mt-8 p-4 bg-white/5 rounded-xl border border-white/10">
+          <div className="mt-8 p-4 bg-white/5 rounded-xl border border-white/10">
             <div className="flex items-start gap-3">
                 <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>

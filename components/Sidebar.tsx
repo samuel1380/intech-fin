@@ -21,7 +21,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
     <aside 
       className={`
         fixed left-0 top-0 z-40 h-screen bg-slate-900 text-white transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-        ${isOpen ? 'w-64' : 'w-20'} 
+        ${isOpen ? 'w-64 translate-x-0' : 'w-20 lg:translate-x-0 -translate-x-full'} 
         flex flex-col shadow-2xl border-r border-slate-800 overflow-hidden
       `}
     >

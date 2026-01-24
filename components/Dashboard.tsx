@@ -175,7 +175,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
   };
 
   return (
-    <div className="space-y-8 animate-fade-in w-full pb-8">
+ <div className="space-y-8 animate-fade-in w-full pb-8">
       {/* Header & Filter */}
       <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 border-b border-slate-200 pb-6">
         <div>
@@ -187,7 +187,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-3 items-center">
+  <div className="flex flex-col sm:flex-row gap-3 items-center">
             {/* View Toggle */}
             <div className="bg-slate-100 p-1 rounded-xl flex border border-slate-200">
                 <button 
@@ -232,7 +232,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <KPICard 
           title={viewMode === 'month' ? "Receita Mensal" : "Receita do Dia"} 
           value={currentSummary.income} 
