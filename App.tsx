@@ -133,9 +133,13 @@ function App() {
 
   const handleResetDatabase = async () => {
     if (confirm('PERIGO: Isso apagará TODOS os registros financeiros. Deseja continuar?')) {
-      await clearDatabase();
-      await loadData();
-      alert('Sistema resetado para configurações de fábrica.');
+      try {
+        await clearDatabase();
+        await loadData();
+        alert('Sistema resetado para configurações de fábrica.');
+      } catch (error: any) {
+        alert(error.message || 'Ocorreu um erro ao resetar os dados.');
+      }
     }
   }
 
@@ -145,7 +149,7 @@ function App() {
 
   const getHeaderTitle = (tab: string) => {
     const titles: Record<string, string> = {
-      'dashboard': 'Painel de Controle Executivo',
+      'dashboard': '',
       'transactions': 'Gestão de Fluxo de Caixa',
       'reports': 'Relatórios & Auditoria Fiscal',
       'ai-advisor': 'Consultoria Inteligente (IA)',
@@ -173,7 +177,7 @@ function App() {
 
       <div className={`flex-1 flex flex-col h-full transition-[margin] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} w-full`}>
 
-        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 md:px-8 py-4 flex items-center justify-between z-20 shrink-0 sticky top-0 transition-all">
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5 px-4 md:px-8 py-4 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-all">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -229,37 +233,37 @@ function App() {
 
                 {activeTab === 'settings' && (
                   <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-                      <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5">
+                      <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
                         <Database className="h-6 w-6 text-indigo-600" />
                         Gerenciamento de Dados
                       </h2>
-                      <p className="text-slate-600 mb-8 leading-relaxed">
-                        Os dados são armazenados localmente no seu navegador utilizando <strong>IndexedDB</strong>.
-                        Isso garante total privacidade, latência zero e funcionamento offline. Nenhuma informação financeira sai do seu dispositivo sem sua permissão.
+                      <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+                        Os dados são armazenados de forma {isSupabaseConfigured ? 'segura na nuvem (Supabase)' : 'local no seu navegador (IndexedDB)'}.
+                        Isso garante total privacidade e controle sobre suas informações financeiras.
                       </p>
 
                       <div className="space-y-4">
-                        <div className="p-6 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-4">
-                          <div className="p-3 bg-white rounded-full text-emerald-600 shadow-sm ring-1 ring-emerald-100">
+                        <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30 rounded-xl flex items-center gap-4">
+                          <div className="p-3 bg-white dark:bg-slate-800 rounded-full text-emerald-600 dark:text-emerald-400 shadow-sm ring-1 ring-emerald-100 dark:ring-emerald-800/50">
                             <CheckCircle2 className="h-6 w-6" />
                           </div>
                           <div>
-                            <h4 className="font-bold text-emerald-800">Sistema Operacional</h4>
-                            <p className="text-sm text-emerald-700">Todas as funções estão ativas e o banco de dados está saudável.</p>
+                            <h4 className="font-bold text-emerald-800 dark:text-emerald-400">Sistema Operacional</h4>
+                            <p className="text-sm text-emerald-700 dark:text-emerald-500">Todas as funções estão ativas e o banco de dados está saudável.</p>
                           </div>
                         </div>
 
-                        <div className="p-6 bg-rose-50 border border-rose-100 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="p-6 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/30 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
                           <div>
-                            <h4 className="font-bold text-rose-800 flex items-center gap-2">
+                            <h4 className="font-bold text-rose-800 dark:text-rose-400 flex items-center gap-2">
                               <Trash2 className="h-4 w-4" /> Zona de Perigo
                             </h4>
-                            <p className="text-sm text-rose-700 mt-1">A exclusão do banco de dados remove todo o histórico.</p>
+                            <p className="text-sm text-rose-700 dark:text-rose-500 mt-1">A exclusão do banco de dados remove todo o histórico.</p>
                           </div>
                           <button
                             onClick={handleResetDatabase}
-                            className="px-6 py-3 bg-white border border-rose-200 text-rose-600 font-semibold rounded-lg hover:bg-rose-600 hover:text-white transition-all shadow-sm w-full sm:w-auto"
+                            className="px-6 py-3 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 text-rose-600 dark:text-rose-400 font-semibold rounded-lg hover:bg-rose-600 hover:text-white transition-all shadow-sm w-full sm:w-auto"
                           >
                             Resetar Banco de Dados
                           </button>

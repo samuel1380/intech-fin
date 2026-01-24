@@ -84,19 +84,22 @@ export const updateTransactionStatus = async (id: string, status: TransactionSta
 
 // Limpar Banco de Dados
 export const clearDatabase = async (): Promise<void> => {
-  if (isSupabaseConfigured) {
-    const { error } = await supabase
-      .from('transactions')
-      .delete()
-      .neq('id', '0'); // Deleta todos
+  try {
+    if (isSupabaseConfigured) {
+      // Deleta todos os registros. O filtro 'not.is.null' é o mais seguro para UUIDs e para limpar tabelas inteiras
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .not('id', 'is', null);
 
-    if (error) {
-      console.error('Erro ao limpar Supabase:', error);
-      throw error;
+      if (error) throw error;
+    } else {
+      // IndexedDB Fallback
+      await db.transactions.clear();
     }
-  } else {
-    // IndexedDB Fallback
-    await db.transactions.clear();
+  } catch (error: any) {
+    console.error('Erro ao limpar banco de dados:', error);
+    throw new Error('Falha ao resetar os dados: ' + (error.message || 'Erro de conexão'));
   }
 };
 

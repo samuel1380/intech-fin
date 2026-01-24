@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>FinNexus Enterprise - Gestão Financeira</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -90,6 +90,15 @@
     /* Clean Table Styles */
     .table-row-hover:hover td {
       transition: background-color 0.2s;
+    }
+
+    /* Mobile Safe Area Padding */
+    .safe-padding-bottom {
+      padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+
+    .safe-padding-top {
+      padding-top: env(safe-area-inset-top, 0px);
     }
 
     /* body background handled by tailwind classes */
