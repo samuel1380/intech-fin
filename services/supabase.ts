@@ -1,13 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Variáveis de ambiente podem estar ausentes no build/preview ou se não configuradas no Render
-// Para evitar CRASH (Tela Branca), retornamos um cliente mockado que retorna erros amigáveis.
-const isConfigured = supabaseUrl && supabaseAnonKey;
+// Para evitar CRASH (Tela Branca), usamos a flag para decidir entre Supabase ou IndexedDB
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 
-export const supabase = isConfigured
+export const supabase = isSupabaseConfigured
     ? createClient(supabaseUrl, supabaseAnonKey)
     : {
         from: () => ({
