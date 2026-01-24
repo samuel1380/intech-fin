@@ -275,7 +275,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             {/* Charts Section */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 {/* Main Flow Chart */}
-                <div className="xl:col-span-2 bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col min-h-[350px]">
+                <div className="xl:col-span-2 bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col min-h-[350px]">
                     <div className="flex justify-between items-start mb-8">
                         <div>
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -345,7 +345,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 </div>
 
                 {/* Breakdown Bar Chart */}
-                <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col min-h-[350px]">
+                <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col min-h-[350px]">
                     <div>
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">Entradas vs Saídas</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Comparativo de volume {viewMode === 'month' ? 'diário' : 'no mês'}.</p>
@@ -369,8 +369,8 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             </div>
 
             {/* Recent Transactions Preview */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden w-full">
-                <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-white dark:bg-slate-800">
+            <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden w-full">
+                <div className="px-8 py-6 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-white dark:bg-transparent">
                     <div>
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                             {viewMode === 'month' ? 'Transações Recentes' : `Transações de ${format(selectedDate, 'dd/MM')}`}
@@ -478,7 +478,7 @@ const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, in
     const valueStr = cleanFormatted.replace("R$", "").trim();
 
     return (
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-700 flex flex-col justify-between h-full group relative overflow-hidden">
+        <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-white/5 flex flex-col justify-between h-full group relative overflow-hidden">
             {/* Background blob removed as per request */}
 
             <div className="flex justify-between items-start mb-2 relative z-10">

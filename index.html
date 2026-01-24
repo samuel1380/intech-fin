@@ -89,18 +89,16 @@
 
     /* Clean Table Styles */
     .table-row-hover:hover td {
-      background-color: #f8fafc;
+      transition: background-color 0.2s;
     }
 
-    body {
-      background-color: #f8fafc;
-      /* Slate 50 base */
-    }
+    /* body background handled by tailwind classes */
   </style>
 
 </head>
 
-<body class="text-slate-900 antialiased overflow-hidden selection:bg-indigo-100 selection:text-indigo-900">
+<body
+  class="text-slate-900 dark:text-slate-100 dark:bg-slate-950 antialiased overflow-hidden selection:bg-indigo-100 selection:text-indigo-900">
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

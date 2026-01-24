@@ -197,7 +197,7 @@ function App() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 pb-20 scroll-smooth bg-slate-50/50">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 pb-20 scroll-smooth bg-slate-50/50 dark:bg-slate-950/50">
           <div className="max-w-[1600px] mx-auto min-w-0">
             {isLoading ? (
               <div className="flex flex-col justify-center items-center h-[60vh] text-slate-500 gap-4">

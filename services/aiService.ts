@@ -5,7 +5,7 @@ const MODEL = process.env.AI_MODEL || 'xiaomi/mimo-v2-flash:free';
 const API_KEY = process.env.OPENAI_API_KEY;
 
 export const getFinancialInsights = async (
-  summary: FinancialSummary, 
+  summary: FinancialSummary,
   recentTransactions: Transaction[]
 ): Promise<string> => {
   if (!API_KEY) {
@@ -13,29 +13,37 @@ export const getFinancialInsights = async (
   }
 
   try {
-    const transactionContext = recentTransactions.slice(0, 10).map(t => 
+    const transactionContext = recentTransactions.slice(0, 10).map(t =>
       `${t.date}: ${t.type} de R$${t.amount} em ${t.category} (${t.description})`
     ).join('\n');
 
     const prompt = `
-      Você é um consultor financeiro sênior (CFO) especializado em empresas brasileiras. Analise o seguinte resumo financeiro e forneça 3 insights estratégicos ou alertas importantes.
-      
-      Resumo Financeiro (Valores em Reais - BRL):
-      - Receita Total: R$${summary.totalIncome}
-      - Despesas Totais: R$${summary.totalExpense}
-      - Lucro Líquido: R$${summary.netProfit}
-      - Recebíveis Pendentes: R$${summary.pendingInvoices}
-      - Estimativa de Impostos: R$${summary.taxLiabilityEstimate}
+      [SISTEMA: CARTA DE TREINAMENTO]
+      Você é um Consultor Financeiro Sênior (CFO) e Auditor especializado em empresas brasileiras de pequeno e médio porte.
+      Sua missão é fornecer análises de elite, funcionais e diretas para otimizar o fluxo de caixa do usuário.
 
-      Amostra de Transações Recentes:
+      [DADOS DO CLIENTE]
+      Resumo Financeiro (BRL):
+      - Receita Total: R$${summary.totalIncome.toFixed(2)}
+      - Despesas Totais: R$${summary.totalExpense.toFixed(2)}
+      - Lucro Líquido: R$${summary.netProfit.toFixed(2)}
+      - Pendências: R$${summary.pendingInvoices.toFixed(2)}
+      - Provisão de Impostos (Est.): R$${summary.taxLiabilityEstimate.toFixed(2)}
+
+      Contexto Transacional Recente (Últimos 10 registros):
       ${transactionContext}
 
-      Regras:
-      1. Responda estritamente em Português do Brasil (pt-BR).
-      2. Use terminologia de negócios brasileira.
-      3. Formate a saída como uma string HTML limpa (usando <ul>, <li>, <strong> tags).
-      4. Não use blocos de código markdown.
-      5. Seja direto e profissional.
+      [DIRETRIZES ESTRITAS DE RESPOSTA]
+      1. **Identidade**: Aja como um parceiro de negócios experiente. Seja sério, mas encorajador.
+      2. **Formato**: 
+         - Use uma lista não ordenada HTML (<ul>) com 3 (três) itens (<li>).
+         - Use <strong> para destacar números e termos-chave.
+         - *NUNCA* use markdown (como ** ou -). Use apenas tags HTML.
+      3. **Conteúdo**:
+         - Item 1: Uma análise de *Eficiência Operacional* (Receita vs Despesa).
+         - Item 2: Um alerta de *Risco* ou *Oportunidade* imediata (baseado nas transações ou pendências).
+         - Item 3: Uma *Ação Recomendada* prática para executar hoje.
+      4. **Idioma**: Português do Brasil (pt-BR) formal e corporativo.
     `;
 
     const response = await fetch(`${BASE_URL}/chat/completions`, {
@@ -62,7 +70,7 @@ export const getFinancialInsights = async (
 
 export const chatWithFinanceAI = async (message: string, contextData: string): Promise<string> => {
   if (!API_KEY) return "Chave de API ausente.";
-  
+
   try {
     const response = await fetch(`${BASE_URL}/chat/completions`, {
       method: 'POST',
@@ -75,7 +83,17 @@ export const chatWithFinanceAI = async (message: string, contextData: string): P
       body: JSON.stringify({
         model: MODEL,
         messages: [
-          { role: 'system', content: `Você é um assistente financeiro prestativo para uma empresa brasileira. Contexto atual: ${contextData}` },
+          {
+            role: 'system', content: `
+            [PROTOCOLO DE ASSISTENTE FINANCEIRO]
+            Você é o 'Consultor FinNexus', uma IA otimizada para suporte empresarial rápido.
+            
+            SUAS REGRAS DE OURO:
+            1. **Funcionalidade**: Responda APENAS o que foi perguntado. Sem enrolação.
+            2. **Baseado em Dados**: Use o contexto fornecido (${contextData}) para embasar suas respostas. Se o usuário perguntar "qual meu lucro?", não explique o que é lucro, diga "Seu lucro é R$ X".
+            3. **Organização**: Se a resposta for longa, quebre em parágrafos curtos.
+            4. **Profissionalismo**: Mantenha um tom executivo e prestativo.
+          ` },
           { role: 'user', content: message }
         ],
       }),
