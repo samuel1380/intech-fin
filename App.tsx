@@ -10,52 +10,70 @@ import { isSupabaseConfigured } from './services/supabase';
 import { Transaction, FinancialSummary } from './types';
 import { Menu, Database, Trash2, CheckCircle2, Lock, User } from 'lucide-react';
 
-// Login Component
-const LoginScreen = ({ onLogin }: { onLogin: () => void }) => (
-  <div className="min-h-screen flex items-center justify-center bg-slate-950 relative overflow-hidden">
-    {/* Background Effects */}
-    <div
-      className="absolute inset-0 bg-cover bg-center opacity-40 transition-opacity duration-1000"
-      style={{
-        backgroundImage: `url('/login-background/background.jpg'), url('/login-background/background.png'), url('/login-background/background.webp'), url('https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&fit=crop&q=80')`
-      }}
-    ></div>
-    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
-    <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-violet-600/30 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
+const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => void }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-    <div className="relative z-10 w-full max-w-md p-8 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl animate-fade-in-up m-4 ring-1 ring-white/10">
-      <div className="text-center mb-10">
-        <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/30 mb-4">
-          <Lock className="w-8 h-8 text-white" />
-        </div>
-        <h1 className="text-4xl font-bold text-white tracking-tight mb-2">FinNexus</h1>
-        <p className="text-slate-400 font-medium">Acesso Restrito Enterprise</p>
-      </div>
-      <form onSubmit={(e) => { e.preventDefault(); onLogin(); }} className="space-y-5">
-        <div className="space-y-1">
-          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Credencial</label>
-          <div className="relative group">
-            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
-            <input type="email" defaultValue="admin@empresa.com.br" className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none placeholder-slate-600 transition-all font-medium" />
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 relative overflow-hidden">
+      {/* Background Effects */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-40 transition-opacity duration-1000"
+        style={{
+          backgroundImage: `url('/login-background/background.jpg'), url('/login-background/background.png'), url('/login-background/background.webp'), url('https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&fit=crop&q=80')`
+        }}
+      ></div>
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-violet-600/30 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
+
+      <div className="relative z-10 w-full max-w-md p-8 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl animate-fade-in-up m-4 ring-1 ring-white/10">
+        <div className="text-center mb-10">
+          <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/30 mb-4">
+            <Lock className="w-8 h-8 text-white" />
           </div>
+          <h1 className="text-4xl font-bold text-white tracking-tight mb-2">FinNexus</h1>
+          <p className="text-slate-400 font-medium">Acesso Restrito Enterprise</p>
         </div>
-        <div className="space-y-1">
-          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Senha</label>
-          <div className="relative group">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
-            <input type="password" defaultValue="password" className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none placeholder-slate-600 transition-all font-medium" />
+        <form onSubmit={(e) => { e.preventDefault(); onLogin(email, password); }} className="space-y-5">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Credencial</label>
+            <div className="relative group">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none placeholder-slate-600 transition-all font-medium"
+                placeholder="Digite seu e-mail"
+                required
+              />
+            </div>
           </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Senha</label>
+            <div className="relative group">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none placeholder-slate-600 transition-all font-medium"
+                placeholder="Digite sua senha"
+                required
+              />
+            </div>
+          </div>
+          <button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-500/25 transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2 mt-4">
+            Acessar Dashboard
+          </button>
+        </form>
+        <div className="mt-8 pt-6 border-t border-white/5 text-center">
+          <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">Segurança de Nível Bancário • Criptografia AES-256</p>
         </div>
-        <button className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-500/25 transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2 mt-4">
-          Acessar Dashboard
-        </button>
-      </form>
-      <div className="mt-8 pt-6 border-t border-white/5 text-center">
-        <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">Segurança de Nível Bancário • Criptografia AES-256</p>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -75,9 +93,17 @@ function App() {
     }
   }, []);
 
-  const handleLogin = () => {
-    localStorage.setItem('finnexus_auth', 'true');
-    setIsAuthenticated(true);
+  const handleLogin = (email: string, pass: string) => {
+    // Credenciais Definitivas
+    const VALID_EMAIL = 'intechfin@financeiro.com.br';
+    const VALID_PASS = 'Intech2026#';
+
+    if (email === VALID_EMAIL && pass === VALID_PASS) {
+      localStorage.setItem('finnexus_auth', 'true');
+      setIsAuthenticated(true);
+    } else {
+      alert('Credenciais inválidas. Verifique seu e-mail e senha.');
+    }
   }
 
   const handleLogout = () => {
