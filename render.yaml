@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: finnexus-enterprise
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: AI_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: AI_MODEL
+        value: xiaomi/mimo-v2-flash:free
+      - key: AI_PROVIDER
+        value: openrouter
+      - key: OPENAI_API_KEY
+        sync: false
+    routing:
+      routes:
+        - type: rewrite
+          source: /.*
+          destination: /index.html
