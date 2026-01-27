@@ -8,7 +8,7 @@ import ThemeToggle from './components/ThemeToggle'; // Import added
 import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteTransactionFromDb, clearDatabase, updateTransactionStatus } from './services/transactionService';
 import { isSupabaseConfigured } from './services/supabase';
 import { Transaction, FinancialSummary } from './types';
-import { Menu, Database, Trash2, CheckCircle2, Lock, User } from 'lucide-react';
+import { Menu, Database, Trash2, CheckCircle2, Lock, User, Cloud, AlertTriangle } from 'lucide-react';
 
 const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => void }) => {
   const [email, setEmail] = useState('');
@@ -118,8 +118,11 @@ function App() {
       const data = await getAllTransactionsFromDb();
       setTransactions(data);
       setSummary(calculateSummary(data));
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao carregar banco de dados:", error);
+      if (!isSupabaseConfigured) {
+        alert("ERRO DE CONFIGURAÇÃO: O banco de dados Supabase não está configurado. Os dados não serão salvos localmente por segurança.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -278,22 +281,34 @@ function App() {
                       </p>
 
                       <div className="space-y-4">
-                        <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30 rounded-xl flex items-center gap-4">
-                          <div className="p-3 bg-white dark:bg-slate-800 rounded-full text-emerald-600 dark:text-emerald-400 shadow-sm ring-1 ring-emerald-100 dark:ring-emerald-800/50">
-                            <CheckCircle2 className="h-6 w-6" />
+                        {isSupabaseConfigured ? (
+                          <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30 rounded-xl flex items-center gap-4">
+                            <div className="p-3 bg-white dark:bg-slate-800 rounded-full text-emerald-600 dark:text-emerald-400 shadow-sm ring-1 ring-emerald-100 dark:ring-emerald-800/50">
+                              <Cloud className="h-6 w-6" />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-emerald-800 dark:text-emerald-400">Banco de Dados em Nuvem Ativo</h4>
+                              <p className="text-sm text-emerald-700 dark:text-emerald-500">Sincronização em tempo real ativada via Supabase.</p>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-bold text-emerald-800 dark:text-emerald-400">Sistema Operacional</h4>
-                            <p className="text-sm text-emerald-700 dark:text-emerald-500">Todas as funções estão ativas e o banco de dados está saudável.</p>
+                        ) : (
+                          <div className="p-6 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/30 rounded-xl flex items-center gap-4 text-center sm:text-left">
+                            <div className="p-3 bg-white dark:bg-slate-800 rounded-full text-rose-600 dark:text-rose-400 shadow-sm ring-1 ring-rose-100 dark:ring-rose-800/50">
+                              <AlertTriangle className="h-6 w-6" />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-rose-800 dark:text-rose-400">Sistema Desconectado</h4>
+                              <p className="text-sm text-rose-700 dark:text-rose-500 font-medium">O banco de dados não está configurado. Por segurança, o salvamento local foi desativado.</p>
+                            </div>
                           </div>
-                        </div>
+                        )}
 
                         <div className="p-6 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/30 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
                           <div>
                             <h4 className="font-bold text-rose-800 dark:text-rose-400 flex items-center gap-2">
                               <Trash2 className="h-4 w-4" /> Zona de Perigo
                             </h4>
-                            <p className="text-sm text-rose-700 dark:text-rose-500 mt-1">A exclusão do banco de dados remove todo o histórico.</p>
+                            <p className="text-sm text-rose-700 dark:text-rose-500 mt-1">A exclusão do banco de dados remove todo o histórico na nuvem.</p>
                           </div>
                           <button
                             onClick={handleResetDatabase}
