@@ -1,5 +1,4 @@
-import React from 'react';
-import { Transaction, TransactionType } from '../types';
+import { Transaction, TransactionType, TaxSetting } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, CartesianGrid } from 'recharts';
 import { Download, PieChart as PieIcon, FileText } from 'lucide-react';
 import { jsPDF } from "jspdf";
@@ -8,11 +7,12 @@ import { format } from 'date-fns';
 
 interface Props {
     transactions: Transaction[];
+    taxSettings: TaxSetting[];
 }
 
 const COLORS = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#f43f5e'];
 
-const Reports: React.FC<Props> = ({ transactions }) => {
+const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
     const hasData = transactions.length > 0;
 
     // Dados para Gráfico de Pizza (Despesas por Categoria)
