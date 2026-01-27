@@ -6,9 +6,10 @@ import Reports from './components/Reports';
 import AIAssistant from './components/AIAssistant';
 import ThemeToggle from './components/ThemeToggle'; // Import added
 import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteTransactionFromDb, clearDatabase, updateTransactionStatus } from './services/transactionService';
+import { getTaxSettingsFromDb, addTaxSettingToDb, deleteTaxSettingFromDb } from './services/taxService';
 import { isSupabaseConfigured } from './services/supabase';
-import { Transaction, FinancialSummary } from './types';
-import { Menu, Database, Trash2, CheckCircle2, Lock, User, Cloud, AlertTriangle } from 'lucide-react';
+import { Transaction, FinancialSummary, TaxSetting } from './types';
+import { Menu, Database, Trash2, CheckCircle2, Lock, User, Cloud, AlertTriangle, Percent, Plus } from 'lucide-react';
 
 const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => void }) => {
   const [email, setEmail] = useState('');
@@ -84,6 +85,9 @@ function App() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
+  const [taxSettings, setTaxSettings] = useState<TaxSetting[]>([]);
+  const [newTaxName, setNewTaxName] = useState('');
+  const [newTaxPercent, setNewTaxPercent] = useState('');
 
   // Check login persistence
   useEffect(() => {
@@ -115,9 +119,13 @@ function App() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const data = await getAllTransactionsFromDb();
+      const [data, taxes] = await Promise.all([
+        getAllTransactionsFromDb(),
+        getTaxSettingsFromDb()
+      ]);
       setTransactions(data);
-      setSummary(calculateSummary(data));
+      setTaxSettings(taxes);
+      setSummary(calculateSummary(data, taxes));
     } catch (error: any) {
       console.error("Erro ao carregar banco de dados:", error);
       if (!isSupabaseConfigured) {
@@ -172,6 +180,29 @@ function App() {
       }
     }
   }
+
+  const handleAddTax = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTaxName || !newTaxPercent) return;
+    try {
+      await addTaxSettingToDb({
+        name: newTaxName,
+        percentage: parseFloat(newTaxPercent)
+      });
+      setNewTaxName('');
+      setNewTaxPercent('');
+      await loadData();
+    } catch (error) {
+      alert('Erro ao adicionar imposto.');
+    }
+  };
+
+  const handleDeleteTax = async (id: string) => {
+    if (confirm('Remover este imposto?')) {
+      await deleteTaxSettingFromDb(id);
+      await loadData();
+    }
+  };
 
   if (!isAuthenticated) {
     return <LoginScreen onLogin={handleLogin} />;
@@ -254,6 +285,7 @@ function App() {
                   <Dashboard
                     transactions={transactions}
                     summary={summary}
+                    taxSettings={taxSettings}
                     onNavigateToTransactions={() => setActiveTab('transactions')}
                   />
                 )}
@@ -265,7 +297,7 @@ function App() {
                     onUpdateStatus={handleUpdateStatus}
                   />
                 )}
-                {activeTab === 'reports' && <Reports transactions={transactions} />}
+                {activeTab === 'reports' && <Reports transactions={transactions} taxSettings={taxSettings} />}
                 {activeTab === 'ai-advisor' && <AIAssistant summary={summary} transactions={transactions} />}
 
                 {activeTab === 'settings' && (
@@ -318,6 +350,74 @@ function App() {
                           </button>
                         </div>
                       </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 p-8 rounded-2xl shadow-xl">
+                      <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
+                        <Percent className="h-6 w-6 text-indigo-600" />
+                        Configuração de Impostos
+                      </h2>
+                      <p className="text-slate-600 dark:text-slate-300 mb-6">
+                        Configure os impostos incidentes sobre o faturamento. O sistema somará as porcentagens para calcular a provisão fiscal.
+                      </p>
+
+                      <div className="space-y-3 mb-8">
+                        {taxSettings.map(tax => (
+                          <div key={tax.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800 transition-all hover:border-indigo-200">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs ring-1 ring-indigo-100 dark:ring-indigo-800/50">
+                                %
+                              </div>
+                              <div>
+                                <h5 className="font-bold text-slate-800 dark:text-slate-200">{tax.name}</h5>
+                                <p className="text-xs text-slate-500 font-medium">{tax.percentage}% do lucro </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => handleDeleteTax(tax.id)}
+                              className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                        {taxSettings.length === 0 && (
+                          <div className="text-center py-6 bg-slate-50 dark:bg-slate-800/20 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+                            <p className="text-sm text-slate-500">Nenhum imposto configurado. Usando padrão de 15%.</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <form onSubmit={handleAddTax} className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                        <div className="md:col-span-2">
+                          <input
+                            required
+                            placeholder="Nome (Ex: ISS)"
+                            value={newTaxName}
+                            onChange={e => setNewTaxName(e.target.value)}
+                            className="w-full h-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-medium dark:text-white"
+                          />
+                        </div>
+                        <div className="md:col-span-2 relative">
+                          <input
+                            required
+                            type="number"
+                            step="0.01"
+                            placeholder="Porcentagem (%)"
+                            value={newTaxPercent}
+                            onChange={e => setNewTaxPercent(e.target.value)}
+                            className="w-full h-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-medium dark:text-white pr-10"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
+                        </div>
+                        <button
+                          type="submit"
+                          className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2"
+                        >
+                          <Plus className="h-4 w-4" />
+                          <span>Adicionar</span>
+                        </button>
+                      </form>
                     </div>
                   </div>
                 )}

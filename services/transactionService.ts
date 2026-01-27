@@ -87,7 +87,7 @@ export const clearDatabase = async (): Promise<void> => {
 };
 
 // Calcular Resumo Financeiro
-export const calculateSummary = (transactions: Transaction[]): FinancialSummary => {
+export const calculateSummary = (transactions: Transaction[], taxSettings: TaxSetting[] = []): FinancialSummary => {
   const income = transactions
     .filter(t => t.type === TransactionType.INCOME && t.status === TransactionStatus.COMPLETED)
     .reduce((acc, curr) => acc + curr.amount, 0);
@@ -101,7 +101,13 @@ export const calculateSummary = (transactions: Transaction[]): FinancialSummary 
     .reduce((acc, curr) => acc + curr.amount, 0);
 
   const profit = income - expense;
-  const tax = profit > 0 ? profit * 0.15 : 0;
+
+  // Cálculo de imposto dinâmico
+  const totalTaxRate = taxSettings.length > 0
+    ? taxSettings.reduce((acc, curr) => acc + (curr.percentage / 100), 0)
+    : 0.15; // Fallback se não houver taxas configuradas
+
+  const tax = profit > 0 ? profit * totalTaxRate : 0;
 
   return {
     totalIncome: income,

@@ -12,6 +12,7 @@ interface DashboardProps {
     transactions: Transaction[];
     summary?: FinancialSummary;
     onNavigateToTransactions: () => void;
+    taxSettings?: TaxSetting[];
 }
 
 type ViewMode = 'month' | 'day';
@@ -29,7 +30,7 @@ const subDays = (date: Date, amount: number) => {
     return newDate;
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransactions }) => {
+const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransactions, taxSettings = [] }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [viewMode, setViewMode] = useState<ViewMode>('month');
 
@@ -144,6 +145,11 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
         }
         return data;
     }, [chartContextTransactions, selectedDate, viewMode]);
+
+    // Calcula taxa total para exibição
+    const totalTaxRate = taxSettings.length > 0
+        ? taxSettings.reduce((acc, curr) => acc + (curr.percentage / 100), 0)
+        : 0.15;
 
     const formatCurrency = (val: number) =>
         new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
@@ -263,12 +269,12 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 />
                 <KPICard
                     title="Provisão Fiscal"
-                    value={currentSummary.profit > 0 ? currentSummary.profit * 0.15 : 0}
+                    value={currentSummary.profit > 0 ? currentSummary.profit * totalTaxRate : 0}
                     icon={AlertCircle}
                     trend="--%"
                     trendUp={false}
                     color="amber"
-                    subtitle="Estimativa (15%)"
+                    subtitle={`Estimativa (${(totalTaxRate * 100).toFixed(1)}%)`}
                 />
             </div>
 

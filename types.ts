@@ -48,3 +48,9 @@ export interface UserProfile {
   role: 'admin' | 'viewer';
   companyName: string;
 }
+
+export interface TaxSetting {
+  id: string;
+  name: string;
+  percentage: number;
+}

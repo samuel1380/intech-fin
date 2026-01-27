@@ -142,11 +142,17 @@ const Reports: React.FC<Props> = ({ transactions }) => {
         doc.save(`Relatorio_Financeiro_FinNexus_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
     };
 
-    // Cálculo de impostos apenas para exibição
+    // Cálculo de impostos dinâmico
     const totalIncome = transactions.filter(t => t.type === 'RECEITA').reduce((s, t) => s + t.amount, 0);
     const totalExpense = transactions.filter(t => t.type === 'DESPESA').reduce((s, t) => s + t.amount, 0);
     const grossProfit = totalIncome - totalExpense;
-    const estimatedTax = grossProfit > 0 ? grossProfit * 0.15 : 0;
+
+    // Calcula taxa total
+    const totalTaxRate = taxSettings.length > 0
+        ? taxSettings.reduce((acc, curr) => acc + (curr.percentage / 100), 0)
+        : 0.15;
+
+    const estimatedTax = grossProfit > 0 ? grossProfit * totalTaxRate : 0;
     const netAfterTax = grossProfit - estimatedTax;
 
     // Dados para gráfico de barras (Receita x Despesa)
