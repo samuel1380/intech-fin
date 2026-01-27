@@ -19,7 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 bg-slate-900 dark:bg-slate-950 text-white transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-full border-r border-slate-800 dark:border-white/5
+      className={`fixed inset-y-0 left-0 z-40 bg-slate-900 dark:bg-slate-950 text-white transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-full border-r border-slate-800 dark:border-white/5 overflow-x-hidden
             ${isOpen ? 'w-64 translate-x-0' : 'w-20 -translate-x-full lg:translate-x-0'}
             `}
     >
@@ -29,7 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
             <Wallet className="h-5 w-5 text-white" />
           </div>
-          <div className={`transition-opacity duration-300 ${!isOpen && 'lg:hidden'}`}>
+          <div className={`transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 lg:hidden pointer-events-none'}`}>
             <span className="font-bold text-lg tracking-tight block leading-none">FinNexus</span>
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Enterprise</span>
           </div>
@@ -37,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
         {menuItems.map((item) => (
           <button
             key={item.id}
@@ -49,7 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
                         `}
           >
             <item.icon className={`h-5 w-5 shrink-0 transition-colors ${activeTab === item.id ? 'text-white' : 'text-slate-500 group-hover:text-indigo-400'}`} />
-            <span className={`whitespace-nowrap transition-opacity duration-300 ${!isOpen && 'lg:hidden'}`}>{item.label}</span>
+            <span className={`whitespace-nowrap transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 lg:hidden pointer-events-none'}`}>{item.label}</span>
 
             {!isOpen && (
               <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
           className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all group"
         >
           <LogOut className="h-5 w-5 shrink-0 group-hover:-translate-x-1 transition-transform" />
-          <span className={`whitespace-nowrap duration-300 ${!isOpen && 'lg:hidden'}`}>Desconectar</span>
+          <span className={`whitespace-nowrap transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 lg:hidden pointer-events-none'}`}>Desconectar</span>
         </button>
       </div>
     </aside>
