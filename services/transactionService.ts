@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabase';
-import { Transaction, FinancialSummary, TransactionType, TransactionStatus } from '../types';
+import { Transaction, FinancialSummary, TransactionType, TransactionStatus, TaxSetting } from '../types';
 
 const ensureConfig = () => {
   if (!isSupabaseConfigured) {

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Transaction, FinancialSummary, TransactionType } from '../types';
+import { Transaction, FinancialSummary, TransactionType, TaxSetting } from '../types';
 import { ArrowUpRight, ArrowDownRight, Activity, AlertCircle, TrendingUp, Calendar, ArrowRight, Wallet, CreditCard, ChevronDown, Clock } from 'lucide-react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,

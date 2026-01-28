@@ -55,9 +55,13 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         doc.text(`Solicitado por: Admin`, 195, 28, { align: 'right' });
 
         // Seção de Resumo Executivo
-        const totalIncome = transactions.filter(t => t.type === 'RECEITA').reduce((sum, t) => sum + t.amount, 0);
-        const totalExpense = transactions.filter(t => t.type === 'DESPESA').reduce((sum, t) => sum + t.amount, 0);
-        const grossProfit = totalIncome - totalExpense;
+        const totalIncome = transactions
+            .filter(t => t.type === 'RECEITA' && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
+            .reduce((sum, t) => sum + t.amount, 0);
+
+        const totalExpense = transactions
+            .filter(t => t.type === 'DESPESA' && t.status === 'CONCLUÍDO')
+            .reduce((sum, t) => sum + t.amount, 0);
 
         // Cálculo de impostos
         const totalTaxRate = taxSettings.length > 0
