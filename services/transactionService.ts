@@ -118,18 +118,19 @@ export const calculateSummary = (transactions: Transaction[], taxSettings: TaxSe
     .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
 
   const profit = income - expense - commissions;
-
-  // Cálculo de imposto dinâmico
+  
+  // Cálculo de imposto dinâmico baseado na receita total (conforme solicitado)
   const totalTaxRate = taxSettings.length > 0
     ? taxSettings.reduce((acc, curr) => acc + (curr.percentage / 100), 0)
     : 0.15; // Fallback se não houver taxas configuradas
 
-  const tax = profit > 0 ? profit * totalTaxRate : 0;
+  const tax = income * totalTaxRate;
+  const netProfitAfterTax = profit - tax;
 
   return {
     totalIncome: income,
     totalExpense: expense + commissions,
-    netProfit: profit,
+    netProfit: netProfitAfterTax,
     pendingInvoices: pending,
     taxLiabilityEstimate: tax,
     totalCommissions: commissions,

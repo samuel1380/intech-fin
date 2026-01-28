@@ -73,7 +73,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
 
         const grossProfit = totalIncome - totalExpense - totalCommissions;
-        const estimatedTax = grossProfit > 0 ? grossProfit * totalTaxRate : 0;
+        const estimatedTax = totalIncome * totalTaxRate;
         const netProfit = grossProfit - estimatedTax;
 
         doc.setTextColor(40, 40, 40);
