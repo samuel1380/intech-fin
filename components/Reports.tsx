@@ -70,7 +70,16 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             
         const totalCommissions = transactions
             .filter(t => t.commissionAmount && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
-            .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+            .reduce((acc, curr) => {
+                // Se for pagamento parcial, a comissão é proporcional ao valor recebido
+                if (curr.status === 'PAGTO PARCIAL' && curr.pendingAmount && curr.amount > curr.pendingAmount) {
+                    const receivedAmount = curr.amount - curr.pendingAmount;
+                    const totalAmount = curr.amount;
+                    const proportion = receivedAmount / totalAmount;
+                    return acc + ((curr.commissionAmount || 0) * proportion);
+                }
+                return acc + (curr.commissionAmount || 0);
+            }, 0);
 
         const grossProfit = totalIncome - totalExpense - totalCommissions;
         const estimatedTax = totalIncome * totalTaxRate;
@@ -153,7 +162,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         doc.setFontSize(14);
         doc.text("Detalhamento de Transações", 14, secondRowY + 40);
 
-        const tableColumn = ["Data", "Descrição", "Categoria", "Valor", "Status", "Funcionário", "Comissão", "Pgto Comis."];
+        const tableColumn = ["Data", "Descrição", "Categoria", "Valor", "Pendente", "Status", "Funcionário", "Comissão", "Pgto Comis."];
         const tableRows = transactions.map(t => {
             const [year, month, day] = t.date.split('-');
             
@@ -168,6 +177,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                 t.description,
                 t.category,
                 formatBRL(t.amount),
+                t.pendingAmount ? formatBRL(t.pendingAmount) : 'R$ 0,00',
                 t.status,
                 t.employeeName || '-',
                 t.commissionAmount ? formatBRL(t.commissionAmount) : '-',
@@ -181,11 +191,12 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             body: tableRows,
             theme: 'grid',
             headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold' },
-            styles: { fontSize: 7, cellPadding: 2 },
+            styles: { fontSize: 6.5, cellPadding: 2 },
             alternateRowStyles: { fillColor: [249, 250, 251] },
             columnStyles: {
                 3: { halign: 'right', fontStyle: 'bold' },
-                6: { halign: 'right' }
+                4: { halign: 'right', textColor: [225, 29, 72] }, // Vermelho para pendente
+                7: { halign: 'right' }
             }
         });
 

@@ -43,6 +43,7 @@ export interface Transaction {
   status: TransactionStatus;
   notes?: string;
   employeeName?: string;
+  commissionRate?: number;
   commissionAmount?: number;
   commissionPaymentDate?: string;
   pendingAmount?: number;

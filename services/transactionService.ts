@@ -106,7 +106,16 @@ export const calculateSummary = (transactions: Transaction[], taxSettings: TaxSe
 
   const commissions = transactions
     .filter(t => t.commissionAmount && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
-    .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+    .reduce((acc, curr) => {
+      // Se for pagamento parcial, a comissão é proporcional ao valor recebido
+      if (curr.status === TransactionStatus.PARTIAL && curr.pendingAmount && curr.amount > curr.pendingAmount) {
+        const receivedAmount = curr.amount - curr.pendingAmount;
+        const totalAmount = curr.amount;
+        const proportion = receivedAmount / totalAmount;
+        return acc + ((curr.commissionAmount || 0) * proportion);
+      }
+      return acc + (curr.commissionAmount || 0);
+    }, 0);
 
   const pending = transactions
     .filter(t => t.type === TransactionType.INCOME && t.status === TransactionStatus.PENDING)

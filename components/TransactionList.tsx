@@ -30,6 +30,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         date: format(new Date(), 'yyyy-MM-dd'),
         status: TransactionStatus.COMPLETED,
         employeeName: '',
+        commissionRate: '',
         commissionAmount: '',
         commissionPaymentDate: '',
         pendingAmount: ''
@@ -59,6 +60,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
             date: t.date,
             status: t.status,
             employeeName: t.employeeName || '',
+            commissionRate: t.commissionRate?.toString() || '',
             commissionAmount: t.commissionAmount?.toString() || '',
             commissionPaymentDate: t.commissionPaymentDate || '',
             pendingAmount: t.pendingAmount?.toString() || ''
@@ -79,6 +81,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                 date: formData.date,
                 status: formData.status as TransactionStatus,
                 employeeName: formData.employeeName || undefined,
+                commissionRate: formData.commissionRate ? parseFloat(formData.commissionRate) : undefined,
                 commissionAmount: formData.commissionAmount ? parseFloat(formData.commissionAmount) : undefined,
                 commissionPaymentDate: formData.commissionPaymentDate || undefined,
                 pendingAmount: formData.pendingAmount ? parseFloat(formData.pendingAmount) : undefined
@@ -101,6 +104,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                 date: format(new Date(), 'yyyy-MM-dd'),
                 status: TransactionStatus.COMPLETED,
                 employeeName: '',
+                commissionRate: '',
                 commissionAmount: '',
                 commissionPaymentDate: '',
                 pendingAmount: ''
@@ -480,7 +484,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                             <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 space-y-4">
                                 <h4 className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Equipe, Comissão & Pagamento</h4>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
+                                    <div className="col-span-2">
                                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Funcionário</label>
                                         <input
                                             type="text"
@@ -491,15 +495,33 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                         />
                                     </div>
                                     <div>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Comissão (%)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                step="0.1"
+                                                className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-mono font-bold text-slate-800 dark:text-slate-200"
+                                                value={formData.commissionRate}
+                                                onChange={e => {
+                                                    const rate = e.target.value;
+                                                    const amount = formData.amount ? (parseFloat(formData.amount) * parseFloat(rate) / 100).toFixed(2) : '';
+                                                    setFormData({ ...formData, commissionRate: rate, commissionAmount: amount });
+                                                }}
+                                                placeholder="Ex: 10"
+                                            />
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
+                                        </div>
+                                    </div>
+                                    <div>
                                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Comissão (R$)</label>
                                         <div className="relative">
                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R$</span>
                                             <input
                                                 type="number"
                                                 step="0.01"
-                                                className="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-mono font-bold text-slate-800 dark:text-slate-200"
+                                                className="w-full pl-11 pr-4 py-3 bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none font-mono font-bold text-slate-500 dark:text-slate-400 cursor-not-allowed"
                                                 value={formData.commissionAmount}
-                                                onChange={e => setFormData({ ...formData, commissionAmount: e.target.value })}
+                                                readOnly
                                                 placeholder="0,00"
                                             />
                                         </div>

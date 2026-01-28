@@ -104,7 +104,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             
         const commissions = txs
             .filter(t => t.commissionAmount && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
-            .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+            .reduce((acc, curr) => {
+                if (curr.status === 'PAGTO PARCIAL' && curr.pendingAmount && curr.amount > curr.pendingAmount) {
+                    const receivedAmount = curr.amount - curr.pendingAmount;
+                    const totalAmount = curr.amount;
+                    const proportion = receivedAmount / totalAmount;
+                    return acc + ((curr.commissionAmount || 0) * proportion);
+                }
+                return acc + (curr.commissionAmount || 0);
+            }, 0);
 
         const today = new Date().toISOString().split('T')[0];
         const pendingCommissions = txs
