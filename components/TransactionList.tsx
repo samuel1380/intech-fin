@@ -70,41 +70,47 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         e.preventDefault();
         setIsSubmitting(true);
         
-        const data = {
-            description: formData.description,
-            amount: parseFloat(formData.amount),
-            type: formData.type,
-            category: formData.category as TransactionCategory,
-            date: formData.date,
-            status: formData.status as TransactionStatus,
-            employeeName: formData.employeeName || undefined,
-            commissionAmount: formData.commissionAmount ? parseFloat(formData.commissionAmount) : undefined,
-            commissionPaymentDate: formData.commissionPaymentDate || undefined,
-            pendingAmount: formData.pendingAmount ? parseFloat(formData.pendingAmount) : undefined
-        };
+        try {
+            const data = {
+                description: formData.description,
+                amount: parseFloat(formData.amount),
+                type: formData.type,
+                category: formData.category as TransactionCategory,
+                date: formData.date,
+                status: formData.status as TransactionStatus,
+                employeeName: formData.employeeName || undefined,
+                commissionAmount: formData.commissionAmount ? parseFloat(formData.commissionAmount) : undefined,
+                commissionPaymentDate: formData.commissionPaymentDate || undefined,
+                pendingAmount: formData.pendingAmount ? parseFloat(formData.pendingAmount) : undefined
+            };
 
-        if (isEditing && editingId) {
-            await onUpdateTransaction(editingId, data);
-        } else {
-            await onAddTransaction(data);
+            if (isEditing && editingId) {
+                await onUpdateTransaction(editingId, data);
+            } else {
+                await onAddTransaction(data);
+            }
+
+            setShowModal(false);
+            setIsEditing(false);
+            setEditingId(null);
+            setFormData({
+                description: '',
+                amount: '',
+                type: TransactionType.EXPENSE,
+                category: TransactionCategory.OPERATIONS,
+                date: format(new Date(), 'yyyy-MM-dd'),
+                status: TransactionStatus.COMPLETED,
+                employeeName: '',
+                commissionAmount: '',
+                commissionPaymentDate: '',
+                pendingAmount: ''
+            });
+        } catch (error: any) {
+            console.error('Erro ao salvar transação:', error);
+            alert(`Erro ao salvar: ${error.message || 'Erro desconhecido'}`);
+        } finally {
+            setIsSubmitting(false);
         }
-
-        setIsSubmitting(false);
-        setShowModal(false);
-        setIsEditing(false);
-        setEditingId(null);
-        setFormData({
-            description: '',
-            amount: '',
-            type: TransactionType.EXPENSE,
-            category: TransactionCategory.OPERATIONS,
-            date: format(new Date(), 'yyyy-MM-dd'),
-            status: TransactionStatus.COMPLETED,
-            employeeName: '',
-            commissionAmount: '',
-            commissionPaymentDate: '',
-            pendingAmount: ''
-        });
     };
 
     const handleExportCSV = () => {
@@ -538,7 +544,10 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                         <div className="pt-2">
                             <button disabled={isSubmitting} type="submit" className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 disabled:opacity-70 transition-all transform active:scale-[0.98] flex justify-center items-center gap-2">
                                 {isSubmitting ? (
-                                    <>Salavando...</>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                        Salvando...
+                                    </div>
                                 ) : (
                                     <>
                                         <CheckCircle className="h-5 w-5" />

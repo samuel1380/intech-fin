@@ -22,7 +22,10 @@ export const addTransactionToDb = async (transaction: Omit<Transaction, 'id'>): 
 
   if (error) {
     console.error('Erro ao salvar no Supabase:', error);
-    throw error;
+    throw new Error(`Erro no Banco de Dados: ${error.message}`);
+  }
+  if (!data || data.length === 0) {
+    throw new Error('Erro ao salvar: O banco de dados não retornou os dados salvos.');
   }
   return data[0];
 };
