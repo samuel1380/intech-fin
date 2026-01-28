@@ -57,7 +57,14 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         // Seção de Resumo Executivo
         const totalIncome = transactions.filter(t => t.type === 'RECEITA').reduce((sum, t) => sum + t.amount, 0);
         const totalExpense = transactions.filter(t => t.type === 'DESPESA').reduce((sum, t) => sum + t.amount, 0);
-        const net = totalIncome - totalExpense;
+        const grossProfit = totalIncome - totalExpense;
+
+        // Cálculo de impostos
+        const totalTaxRate = taxSettings.length > 0
+            ? taxSettings.reduce((acc, curr) => acc + (curr.percentage / 100), 0)
+            : 0.15;
+        const estimatedTax = grossProfit > 0 ? grossProfit * totalTaxRate : 0;
+        const netProfit = grossProfit - estimatedTax;
 
         doc.setTextColor(40, 40, 40);
         doc.setFontSize(14);
@@ -87,21 +94,44 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         doc.setFontSize(14);
         doc.text(formatBRL(totalExpense), 79, startY + 18);
 
-        // Lucro
+        // Resultado Bruto
         doc.setFillColor(238, 242, 255); // Indigo 50
         doc.setDrawColor(79, 70, 229); // Indigo 600
         doc.roundedRect(134, startY, 55, 25, 3, 3, 'FD');
         doc.setFontSize(10);
         doc.setTextColor(79, 70, 229);
-        doc.text("Resultado Líquido", 139, startY + 8);
+        doc.text("Resultado Bruto", 139, startY + 8);
         doc.setFontSize(14);
-        doc.text(formatBRL(net), 139, startY + 18);
+        doc.text(formatBRL(grossProfit), 139, startY + 18);
+
+        // SEGUNDA LINHA DE CARDS
+        const secondRowY = startY + 30;
+
+        // Impostos
+        doc.setFillColor(254, 249, 195); // Yellow 50
+        doc.setDrawColor(202, 138, 4); // Yellow 600
+        doc.roundedRect(14, secondRowY, 92, 25, 3, 3, 'FD');
+        doc.setFontSize(10);
+        doc.setTextColor(161, 98, 7);
+        doc.text(`Impostos Estimados (${(totalTaxRate * 100).toFixed(1)}%)`, 19, secondRowY + 8);
+        doc.setFontSize(14);
+        doc.text(formatBRL(estimatedTax), 19, secondRowY + 18);
+
+        // Resultado Líquido
+        doc.setFillColor(236, 253, 245); // Emerald 50
+        doc.setDrawColor(5, 150, 105); // Emerald 600
+        doc.roundedRect(111, secondRowY, 85, 25, 3, 3, 'FD');
+        doc.setFontSize(10);
+        doc.setTextColor(5, 150, 105);
+        doc.text("Resultado Líquido (Real)", 116, secondRowY + 8);
+        doc.setFontSize(14);
+        doc.text(formatBRL(netProfit), 116, secondRowY + 18);
 
         // Tabela Detalhada
         doc.setFont("helvetica", "normal");
         doc.setTextColor(40);
         doc.setFontSize(14);
-        doc.text("Detalhamento de Transações", 14, startY + 40);
+        doc.text("Detalhamento de Transações", 14, secondRowY + 40);
 
         const tableColumn = ["ID", "Data", "Descrição", "Categoria", "Tipo", "Status", "Valor"];
         const tableRows = transactions.map(t => {
@@ -118,7 +148,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         });
 
         autoTable(doc, {
-            startY: startY + 45,
+            startY: secondRowY + 45,
             head: [tableColumn],
             body: tableRows,
             theme: 'grid',

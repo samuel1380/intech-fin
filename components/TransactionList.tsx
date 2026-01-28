@@ -65,18 +65,28 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
     };
 
     const handleExportCSV = () => {
-        const headers = ['ID,Data,Descrição,Categoria,Tipo,Valor,Status'];
-        const rows = filtered.map(t =>
-            `${t.id},${t.date},"${t.description}",${t.category},${t.type},${t.amount},${t.status}`
-        );
-        const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
-        const encodedUri = encodeURI(csvContent);
+        // Excel em português usa ponto e vírgula (;) como separador
+        const headers = ['ID;Data;Descrição;Categoria;Tipo;Valor;Status'];
+        const rows = filtered.map(t => {
+            const [year, month, day] = t.date.split('-');
+            const formattedDate = `${day}/${month}/${year}`;
+            // Formata o valor para o padrão brasileiro (vírgula como decimal) para o Excel
+            const formattedAmount = t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return `${t.id.substring(0, 8)};${formattedDate};"${t.description.replace(/"/g, '""')}";${t.category};${t.type};${formattedAmount};${t.status}`;
+        });
+
+        // Adiciona BOM (Byte Order Mark) para o Excel reconhecer como UTF-8 corretamente
+        const csvContent = "\uFEFF" + [headers, ...rows].join("\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        
         const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
+        link.setAttribute("href", url);
         link.setAttribute("download", `transacoes_${format(new Date(), 'dd-MM-yyyy')}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const formatBRL = (val: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
