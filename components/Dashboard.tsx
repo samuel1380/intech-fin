@@ -94,9 +94,30 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
     // --- SUMMARY CALCULATIONS ---
 
     const calculateSummary = (txs: Transaction[]) => {
-        const income = txs.filter(t => t.type === TransactionType.INCOME && t.status === 'CONCLUÍDO').reduce((acc, curr) => acc + curr.amount, 0);
-        const expense = txs.filter(t => t.type === TransactionType.EXPENSE && t.status === 'CONCLUÍDO').reduce((acc, curr) => acc + curr.amount, 0);
-        return { income, expense, profit: income - expense };
+        const income = txs
+            .filter(t => t.type === TransactionType.INCOME && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
+            .reduce((acc, curr) => acc + curr.amount, 0);
+            
+        const expense = txs
+            .filter(t => t.type === TransactionType.EXPENSE && t.status === 'CONCLUÍDO')
+            .reduce((acc, curr) => acc + curr.amount, 0);
+            
+        const commissions = txs
+            .filter(t => t.commissionAmount && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
+            .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+
+        const today = new Date().toISOString().split('T')[0];
+        const pendingCommissions = txs
+            .filter(t => t.commissionAmount && t.commissionPaymentDate && t.commissionPaymentDate > today)
+            .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+
+        return { 
+            income, 
+            expense: expense + commissions, 
+            commissions,
+            pendingCommissions,
+            profit: income - expense - commissions 
+        };
     };
 
     const currentSummary = useMemo(() => calculateSummary(filteredTransactions), [filteredTransactions]);
@@ -238,9 +259,9 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
                 <KPICard
-                    title={viewMode === 'month' ? "Receita Mensal" : "Receita do Dia"}
+                    title={viewMode === 'month' ? "Receita Total" : "Receita do Dia"}
                     value={currentSummary.income}
                     icon={Wallet}
                     trend={trends.income}
@@ -249,14 +270,14 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     subtitle={viewMode === 'month' ? "Vs. Mês Anterior" : "Vs. Ontem"}
                 />
                 <KPICard
-                    title={viewMode === 'month' ? "Despesas" : "Despesas do Dia"}
+                    title={viewMode === 'month' ? "Despesas + Comis." : "Saídas do Dia"}
                     value={currentSummary.expense}
                     icon={CreditCard}
                     trend={trends.expense}
                     trendUp={trends.expenseIsGood}
                     invertColor={true}
                     color="rose"
-                    subtitle={viewMode === 'month' ? "Vs. Mês Anterior" : "Vs. Ontem"}
+                    subtitle="Inclui comissões"
                 />
                 <KPICard
                     title="Lucro Líquido"
@@ -265,16 +286,25 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     trend={trends.profit}
                     trendUp={trends.profitIsUp}
                     color="emerald"
-                    subtitle="Saldo operacional"
+                    subtitle="Após despesas e comissões"
+                />
+                <KPICard
+                    title="Comis. Pendentes"
+                    value={currentSummary.pendingCommissions}
+                    icon={Clock}
+                    trend="A Pagar"
+                    trendUp={false}
+                    color="amber"
+                    subtitle="Pagamento futuro"
                 />
                 <KPICard
                     title="Provisão Fiscal"
                     value={currentSummary.profit > 0 ? currentSummary.profit * totalTaxRate : 0}
                     icon={AlertCircle}
-                    trend="--%"
+                    trend="Estimativa"
                     trendUp={false}
-                    color="amber"
-                    subtitle={`Estimativa (${(totalTaxRate * 100).toFixed(1)}%)`}
+                    color="slate"
+                    subtitle={`${(totalTaxRate * 100).toFixed(1)}% sobre lucro`}
                 />
             </div>
 

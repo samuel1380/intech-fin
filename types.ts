@@ -6,12 +6,22 @@ export enum TransactionType {
 export enum TransactionStatus {
   COMPLETED = 'CONCLUÍDO',
   PENDING = 'PENDENTE',
+  PARTIAL = 'PAGTO PARCIAL',
   FAILED = 'FALHOU'
 }
 
 export enum TransactionCategory {
   SALES = 'Vendas',
-  SERVICES = 'Serviços',
+  // Serviços de Desentupidora
+  SERVICE_PIA = 'Serviço: Pia',
+  SERVICE_RALO = 'Serviço: Ralo',
+  SERVICE_ESGOTO = 'Serviço: Esgoto',
+  SERVICE_VASO = 'Serviço: Vaso Sanitário',
+  SERVICE_CAIXA_GORDURA = 'Serviço: Caixa de Gordura',
+  SERVICE_COLUNA = 'Serviço: Coluna de Prédio',
+  SERVICE_HIDROJATEAMENTO = 'Serviço: Hidrojateamento',
+  SERVICE_OUTROS = 'Serviço: Outros',
+  
   INVESTMENT = 'Investimentos',
   OPERATIONS = 'Operacional',
   PAYROLL = 'Folha de Pagamento',
@@ -32,6 +42,10 @@ export interface Transaction {
   category: TransactionCategory;
   status: TransactionStatus;
   notes?: string;
+  employeeName?: string;
+  commissionAmount?: number;
+  commissionPaymentDate?: string;
+  pendingAmount?: number;
 }
 
 export interface FinancialSummary {
@@ -40,6 +54,8 @@ export interface FinancialSummary {
   netProfit: number;
   pendingInvoices: number;
   taxLiabilityEstimate: number;
+  totalCommissions: number;
+  pendingCommissions: number;
 }
 
 export interface UserProfile {

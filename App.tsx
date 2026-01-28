@@ -5,7 +5,7 @@ import TransactionList from './components/TransactionList';
 import Reports from './components/Reports';
 import AIAssistant from './components/AIAssistant';
 import ThemeToggle from './components/ThemeToggle'; // Import added
-import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteTransactionFromDb, clearDatabase, updateTransactionStatus } from './services/transactionService';
+import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteTransactionFromDb, clearDatabase, updateTransactionStatus, updateTransactionInDb } from './services/transactionService';
 import { getTaxSettingsFromDb, addTaxSettingToDb, deleteTaxSettingFromDb } from './services/taxService';
 import { isSupabaseConfigured } from './services/supabase';
 import { Transaction, FinancialSummary, TaxSetting } from './types';
@@ -169,6 +169,11 @@ function App() {
     await loadData();
   }
 
+  const handleUpdateTransaction = async (id: string, updates: any) => {
+    await updateTransactionInDb(id, updates);
+    await loadData();
+  }
+
   const handleResetDatabase = async () => {
     if (confirm('PERIGO: Isso apagará TODOS os registros financeiros. Deseja continuar?')) {
       try {
@@ -295,6 +300,7 @@ function App() {
                     onAddTransaction={handleAddTransaction}
                     onDeleteTransaction={handleDeleteTransaction}
                     onUpdateStatus={handleUpdateStatus}
+                    onUpdateTransaction={handleUpdateTransaction}
                   />
                 )}
                 {activeTab === 'reports' && <Reports transactions={transactions} taxSettings={taxSettings} />}

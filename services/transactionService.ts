@@ -56,18 +56,23 @@ export const deleteTransactionFromDb = async (id: string): Promise<void> => {
   }
 };
 
-// Atualizar Status
-export const updateTransactionStatus = async (id: string, status: TransactionStatus): Promise<void> => {
+// Atualizar Transação Completa
+export const updateTransactionInDb = async (id: string, updates: Partial<Transaction>): Promise<void> => {
   ensureConfig();
   const { error } = await supabase
     .from('transactions')
-    .update({ status })
+    .update(updates)
     .eq('id', id);
 
   if (error) {
-    console.error('Erro ao atualizar status no Supabase:', error);
+    console.error('Erro ao atualizar transação no Supabase:', error);
     throw error;
   }
+};
+
+// Atualizar Status
+export const updateTransactionStatus = async (id: string, status: TransactionStatus): Promise<void> => {
+  await updateTransactionInDb(id, { status });
 };
 
 // Limpar Banco de Dados
@@ -89,18 +94,27 @@ export const clearDatabase = async (): Promise<void> => {
 // Calcular Resumo Financeiro
 export const calculateSummary = (transactions: Transaction[], taxSettings: TaxSetting[] = []): FinancialSummary => {
   const income = transactions
-    .filter(t => t.type === TransactionType.INCOME && t.status === TransactionStatus.COMPLETED)
+    .filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
     .reduce((acc, curr) => acc + curr.amount, 0);
 
   const expense = transactions
     .filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED)
     .reduce((acc, curr) => acc + curr.amount, 0);
 
+  const commissions = transactions
+    .filter(t => t.commissionAmount && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
+    .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+
   const pending = transactions
     .filter(t => t.type === TransactionType.INCOME && t.status === TransactionStatus.PENDING)
     .reduce((acc, curr) => acc + curr.amount, 0);
 
-  const profit = income - expense;
+  const today = new Date().toISOString().split('T')[0];
+  const pendingCommissions = transactions
+    .filter(t => t.commissionAmount && t.commissionPaymentDate && t.commissionPaymentDate > today)
+    .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+
+  const profit = income - expense - commissions;
 
   // Cálculo de imposto dinâmico
   const totalTaxRate = taxSettings.length > 0
@@ -111,9 +125,11 @@ export const calculateSummary = (transactions: Transaction[], taxSettings: TaxSe
 
   return {
     totalIncome: income,
-    totalExpense: expense,
+    totalExpense: expense + commissions,
     netProfit: profit,
     pendingInvoices: pending,
-    taxLiabilityEstimate: tax
+    taxLiabilityEstimate: tax,
+    totalCommissions: commissions,
+    pendingCommissions: pendingCommissions
   };
 };

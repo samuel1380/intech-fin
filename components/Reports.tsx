@@ -63,6 +63,12 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         const totalTaxRate = taxSettings.length > 0
             ? taxSettings.reduce((acc, curr) => acc + (curr.percentage / 100), 0)
             : 0.15;
+            
+        const totalCommissions = transactions
+            .filter(t => t.commissionAmount && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
+            .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+
+        const grossProfit = totalIncome - totalExpense - totalCommissions;
         const estimatedTax = grossProfit > 0 ? grossProfit * totalTaxRate : 0;
         const netProfit = grossProfit - estimatedTax;
 
@@ -76,33 +82,43 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         // Receita
         doc.setFillColor(240, 253, 244); // Green 50
         doc.setDrawColor(22, 163, 74); // Green 600
-        doc.roundedRect(14, startY, 55, 25, 3, 3, 'FD');
-        doc.setFontSize(10);
+        doc.roundedRect(14, startY, 45, 25, 3, 3, 'FD');
+        doc.setFontSize(8);
         doc.setTextColor(22, 163, 74);
-        doc.text("Receita Total", 19, startY + 8);
-        doc.setFontSize(14);
+        doc.text("Receita Total", 17, startY + 8);
+        doc.setFontSize(11);
         doc.setFont("helvetica", "bold");
-        doc.text(formatBRL(totalIncome), 19, startY + 18);
+        doc.text(formatBRL(totalIncome), 17, startY + 18);
 
-        // Despesa
+        // Despesa (Operacional)
         doc.setFillColor(255, 241, 242); // Rose 50
         doc.setDrawColor(225, 29, 72); // Rose 600
-        doc.roundedRect(74, startY, 55, 25, 3, 3, 'FD');
-        doc.setFontSize(10);
+        doc.roundedRect(61, startY, 45, 25, 3, 3, 'FD');
+        doc.setFontSize(8);
         doc.setTextColor(225, 29, 72);
-        doc.text("Despesa Total", 79, startY + 8);
-        doc.setFontSize(14);
-        doc.text(formatBRL(totalExpense), 79, startY + 18);
+        doc.text("Despesa Operac.", 64, startY + 8);
+        doc.setFontSize(11);
+        doc.text(formatBRL(totalExpense), 64, startY + 18);
+
+        // Comissões
+        doc.setFillColor(254, 243, 232); // Orange 50
+        doc.setDrawColor(234, 88, 12); // Orange 600
+        doc.roundedRect(108, startY, 45, 25, 3, 3, 'FD');
+        doc.setFontSize(8);
+        doc.setTextColor(234, 88, 12);
+        doc.text("Comissões", 111, startY + 8);
+        doc.setFontSize(11);
+        doc.text(formatBRL(totalCommissions), 111, startY + 18);
 
         // Resultado Bruto
         doc.setFillColor(238, 242, 255); // Indigo 50
         doc.setDrawColor(79, 70, 229); // Indigo 600
-        doc.roundedRect(134, startY, 55, 25, 3, 3, 'FD');
-        doc.setFontSize(10);
+        doc.roundedRect(155, startY, 45, 25, 3, 3, 'FD');
+        doc.setFontSize(8);
         doc.setTextColor(79, 70, 229);
-        doc.text("Resultado Bruto", 139, startY + 8);
-        doc.setFontSize(14);
-        doc.text(formatBRL(grossProfit), 139, startY + 18);
+        doc.text("Resultado Bruto", 158, startY + 8);
+        doc.setFontSize(11);
+        doc.text(formatBRL(grossProfit), 158, startY + 18);
 
         // SEGUNDA LINHA DE CARDS
         const secondRowY = startY + 30;
@@ -133,17 +149,25 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         doc.setFontSize(14);
         doc.text("Detalhamento de Transações", 14, secondRowY + 40);
 
-        const tableColumn = ["ID", "Data", "Descrição", "Categoria", "Tipo", "Status", "Valor"];
+        const tableColumn = ["Data", "Descrição", "Categoria", "Valor", "Status", "Funcionário", "Comissão", "Pgto Comis."];
         const tableRows = transactions.map(t => {
             const [year, month, day] = t.date.split('-');
+            
+            let formattedCommDate = '-';
+            if (t.commissionPaymentDate) {
+                const [cYear, cMonth, cDay] = t.commissionPaymentDate.split('-');
+                formattedCommDate = `${cDay}/${cMonth}/${cYear}`;
+            }
+
             return [
-                t.id.substring(0, 6),
                 `${day}/${month}/${year}`,
                 t.description,
                 t.category,
-                t.type,
+                formatBRL(t.amount),
                 t.status,
-                formatBRL(t.amount)
+                t.employeeName || '-',
+                t.commissionAmount ? formatBRL(t.commissionAmount) : '-',
+                formattedCommDate
             ];
         });
 
@@ -153,10 +177,11 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             body: tableRows,
             theme: 'grid',
             headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold' },
-            styles: { fontSize: 8, cellPadding: 3 },
+            styles: { fontSize: 7, cellPadding: 2 },
             alternateRowStyles: { fillColor: [249, 250, 251] },
             columnStyles: {
-                6: { halign: 'right', fontStyle: 'bold' }
+                3: { halign: 'right', fontStyle: 'bold' },
+                6: { halign: 'right' }
             }
         });
 
@@ -173,9 +198,19 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
     };
 
     // Cálculo de impostos dinâmico
-    const totalIncome = transactions.filter(t => t.type === 'RECEITA').reduce((s, t) => s + t.amount, 0);
-    const totalExpense = transactions.filter(t => t.type === 'DESPESA').reduce((s, t) => s + t.amount, 0);
-    const grossProfit = totalIncome - totalExpense;
+    const totalIncome = transactions
+        .filter(t => t.type === 'RECEITA' && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
+        .reduce((s, t) => s + t.amount, 0);
+        
+    const totalExpense = transactions
+        .filter(t => t.type === 'DESPESA' && t.status === 'CONCLUÍDO')
+        .reduce((s, t) => s + t.amount, 0);
+        
+    const totalCommissions = transactions
+        .filter(t => t.commissionAmount && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
+        .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+
+    const grossProfit = totalIncome - totalExpense - totalCommissions;
 
     // Calcula taxa total
     const totalTaxRate = taxSettings.length > 0

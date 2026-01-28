@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Transaction, TransactionType, TransactionCategory, TransactionStatus } from '../types';
-import { Plus, Search, Trash2, Download, ChevronLeft, ChevronRight, CheckCircle, Clock, Filter, X, ArrowUpDown } from 'lucide-react';
+import { Plus, Search, Trash2, Download, ChevronLeft, ChevronRight, CheckCircle, Clock, Filter, X, ArrowUpDown, Edit2, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface Props {
@@ -8,16 +8,19 @@ interface Props {
     onAddTransaction: (t: Omit<Transaction, 'id'>) => Promise<void>;
     onDeleteTransaction: (id: string) => Promise<void>;
     onUpdateStatus: (id: string, status: TransactionStatus) => Promise<void>;
+    onUpdateTransaction: (id: string, updates: Partial<Transaction>) => Promise<void>;
 }
 
 const ITEMS_PER_PAGE = 10;
 
-const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDeleteTransaction, onUpdateStatus }) => {
+const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDeleteTransaction, onUpdateStatus, onUpdateTransaction }) => {
     const [filter, setFilter] = useState('ALL');
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         description: '',
@@ -25,7 +28,11 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         type: TransactionType.EXPENSE,
         category: TransactionCategory.OPERATIONS,
         date: format(new Date(), 'yyyy-MM-dd'),
-        status: TransactionStatus.COMPLETED
+        status: TransactionStatus.COMPLETED,
+        employeeName: '',
+        commissionAmount: '',
+        commissionPaymentDate: '',
+        pendingAmount: ''
     });
 
     const filtered = transactions.filter(t => {
@@ -41,42 +48,94 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         currentPage * ITEMS_PER_PAGE
     );
 
+    const handleEdit = (t: Transaction) => {
+        setIsEditing(true);
+        setEditingId(t.id);
+        setFormData({
+            description: t.description,
+            amount: t.amount.toString(),
+            type: t.type,
+            category: t.category,
+            date: t.date,
+            status: t.status,
+            employeeName: t.employeeName || '',
+            commissionAmount: t.commissionAmount?.toString() || '',
+            commissionPaymentDate: t.commissionPaymentDate || '',
+            pendingAmount: t.pendingAmount?.toString() || ''
+        });
+        setShowModal(true);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        await onAddTransaction({
+        
+        const data = {
             description: formData.description,
             amount: parseFloat(formData.amount),
             type: formData.type,
-            category: formData.category,
+            category: formData.category as TransactionCategory,
             date: formData.date,
-            status: formData.status
-        });
+            status: formData.status as TransactionStatus,
+            employeeName: formData.employeeName || undefined,
+            commissionAmount: formData.commissionAmount ? parseFloat(formData.commissionAmount) : undefined,
+            commissionPaymentDate: formData.commissionPaymentDate || undefined,
+            pendingAmount: formData.pendingAmount ? parseFloat(formData.pendingAmount) : undefined
+        };
+
+        if (isEditing && editingId) {
+            await onUpdateTransaction(editingId, data);
+        } else {
+            await onAddTransaction(data);
+        }
+
         setIsSubmitting(false);
         setShowModal(false);
+        setIsEditing(false);
+        setEditingId(null);
         setFormData({
             description: '',
             amount: '',
             type: TransactionType.EXPENSE,
             category: TransactionCategory.OPERATIONS,
             date: format(new Date(), 'yyyy-MM-dd'),
-            status: TransactionStatus.COMPLETED
+            status: TransactionStatus.COMPLETED,
+            employeeName: '',
+            commissionAmount: '',
+            commissionPaymentDate: '',
+            pendingAmount: ''
         });
     };
 
     const handleExportCSV = () => {
-        // Excel em português usa ponto e vírgula (;) como separador
-        const headers = ['ID;Data;Descrição;Categoria;Tipo;Valor;Status'];
+        // sep=; força o Excel a usar ponto e vírgula como separador independente da região
+        const excelSeparator = 'sep=;';
+        const headers = ['ID;Data;Descrição;Categoria;Tipo;Valor;Status;Funcionário;Comissão;Data Pagto Comissão;Valor Pendente'];
+        
         const rows = filtered.map(t => {
             const [year, month, day] = t.date.split('-');
             const formattedDate = `${day}/${month}/${year}`;
-            // Formata o valor para o padrão brasileiro (vírgula como decimal) para o Excel
+
+            let formattedCommDate = '';
+            if (t.commissionPaymentDate) {
+                const [cYear, cMonth, cDay] = t.commissionPaymentDate.split('-');
+                formattedCommDate = `${cDay}/${cMonth}/${cYear}`;
+            }
+
+            // Formata o valor para o padrão brasileiro (vírgula como decimal)
             const formattedAmount = t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            return `${t.id.substring(0, 8)};${formattedDate};"${t.description.replace(/"/g, '""')}";${t.category};${t.type};${formattedAmount};${t.status}`;
+            const formattedCommission = t.commissionAmount 
+                ? t.commissionAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                : '0,00';
+            const formattedPending = t.pendingAmount
+                ? t.pendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                : '0,00';
+            
+            return `${t.id.substring(0, 8)};${formattedDate};"${t.description.replace(/"/g, '""')}";${t.category};${t.type};${formattedAmount};${t.status};"${t.employeeName || ''}";${formattedCommission};${formattedCommDate};${formattedPending}`;
         });
 
-        // Adiciona BOM (Byte Order Mark) para o Excel reconhecer como UTF-8 corretamente
-        const csvContent = "\uFEFF" + [headers, ...rows].join("\n");
+        // Adiciona BOM (Byte Order Mark) e a instrução de separador para o Excel
+        const csvContent = "\uFEFF" + excelSeparator + "\n" + [headers, ...rows].join("\n");
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         
@@ -169,7 +228,24 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                             return (
                                 <tr key={t.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group table-row-hover">
                                     <td className="px-6 py-4 text-slate-500 font-medium tabular-nums text-sm">{day}/{month}/{year}</td>
-                                    <td className="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200 text-sm">{t.description}</td>
+                                    <td className="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200 text-sm">
+                                        {t.description}
+                                        {t.employeeName && (
+                                            <div className="text-[10px] text-indigo-500 font-bold uppercase mt-1 flex flex-col">
+                                                <span>Técnico: {t.employeeName}</span>
+                                                {t.commissionPaymentDate && (
+                                                    <span className="text-slate-400 normal-case font-medium">
+                                                        Pagto Comissão: {format(new Date(t.commissionPaymentDate + 'T12:00:00'), 'dd/MM/yyyy')}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                        {t.pendingAmount && t.pendingAmount > 0 && (
+                                            <div className="text-[10px] text-rose-500 font-bold uppercase mt-0.5">
+                                                Pendente: {t.pendingAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                            </div>
+                                        )}
+                                    </td>
                                     <td className="px-6 py-4">
                                         <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
                                             {t.category}
@@ -180,24 +256,41 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                     </td>
                                     <td className="px-6 py-4 text-center">
                                         <button
-                                            onClick={() => onUpdateStatus(t.id, t.status === TransactionStatus.COMPLETED ? TransactionStatus.PENDING : TransactionStatus.COMPLETED)}
-                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border shadow-sm cursor-pointer whitespace-nowrap ${t.status === TransactionStatus.COMPLETED
-                                                ? 'bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200'
-                                                : 'bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200'
-                                                }`}
+                                            onClick={() => {
+                                                const nextStatus = t.status === TransactionStatus.COMPLETED ? TransactionStatus.PENDING :
+                                                                 t.status === TransactionStatus.PENDING ? TransactionStatus.PARTIAL : 
+                                                                 TransactionStatus.COMPLETED;
+                                                onUpdateStatus(t.id, nextStatus);
+                                            }}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold transition-all border shadow-sm cursor-pointer whitespace-nowrap ${
+                                                t.status === TransactionStatus.COMPLETED ? 'bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200' :
+                                                t.status === TransactionStatus.PARTIAL ? 'bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200' :
+                                                'bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200'
+                                            }`}
                                         >
-                                            {t.status === TransactionStatus.COMPLETED ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                                            {t.status === TransactionStatus.COMPLETED ? <CheckCircle className="w-3 h-3" /> : 
+                                             t.status === TransactionStatus.PARTIAL ? <AlertCircle className="w-3 h-3" /> :
+                                             <Clock className="w-3 h-3" />}
                                             {t.status}
                                         </button>
                                     </td>
                                     <td className="px-6 py-4 text-center">
-                                        <button
-                                            onClick={() => onDeleteTransaction(t.id)}
-                                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all lg:opacity-0 group-hover:opacity-100"
-                                            title="Excluir Registro"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </button>
+                                        <div className="flex items-center justify-center gap-1">
+                                            <button
+                                                onClick={() => handleEdit(t)}
+                                                className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all lg:opacity-0 group-hover:opacity-100"
+                                                title="Editar Registro"
+                                            >
+                                                <Edit2 className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => onDeleteTransaction(t.id)}
+                                                className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all lg:opacity-0 group-hover:opacity-100"
+                                                title="Excluir Registro"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             )
@@ -246,8 +339,12 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up ring-1 ring-slate-900/5">
                     <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                         <div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Novo Lançamento</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Preencha os detalhes da transação.</p>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                                {isEditing ? 'Editar Lançamento' : 'Novo Lançamento'}
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                {isEditing ? 'Atualize os detalhes da transação.' : 'Preencha os detalhes da transação.'}
+                            </p>
                         </div>
                         <button onClick={() => setShowModal(false)} className="p-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition-colors shadow-sm">
                             <X className="h-4 w-4" />
@@ -331,9 +428,27 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             value={formData.category}
                                             onChange={e => setFormData({ ...formData, category: e.target.value as TransactionCategory })}
                                         >
-                                            {Object.values(TransactionCategory).map(c => (
-                                                <option key={c} value={c}>{c}</option>
-                                            ))}
+                                            <optgroup label="Serviços de Desentupidora">
+                                                <option value={TransactionCategory.SERVICE_PIA}>Pia</option>
+                                                <option value={TransactionCategory.SERVICE_RALO}>Ralo</option>
+                                                <option value={TransactionCategory.SERVICE_ESGOTO}>Esgoto</option>
+                                                <option value={TransactionCategory.SERVICE_VASO}>Vaso Sanitário</option>
+                                                <option value={TransactionCategory.SERVICE_CAIXA_GORDURA}>Caixa de Gordura</option>
+                                                <option value={TransactionCategory.SERVICE_COLUNA}>Coluna de Prédio</option>
+                                                <option value={TransactionCategory.SERVICE_HIDROJATEAMENTO}>Hidrojateamento</option>
+                                                <option value={TransactionCategory.SERVICE_OUTROS}>Outros Serviços</option>
+                                            </optgroup>
+                                            <optgroup label="Outras Categorias">
+                                                <option value={TransactionCategory.SALES}>Vendas</option>
+                                                <option value={TransactionCategory.OPERATIONS}>Operacional</option>
+                                                <option value={TransactionCategory.PAYROLL}>Folha de Pagamento</option>
+                                                <option value={TransactionCategory.MARKETING}>Marketing</option>
+                                                <option value={TransactionCategory.TAXES}>Impostos</option>
+                                                <option value={TransactionCategory.SOFTWARE}>Software/SaaS</option>
+                                                <option value={TransactionCategory.OFFICE}>Escritório</option>
+                                                <option value={TransactionCategory.INVESTMENT}>Investimentos</option>
+                                                <option value={TransactionCategory.OTHER}>Outros</option>
+                                            </optgroup>
                                         </select>
                                         <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                                     </div>
@@ -348,9 +463,74 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                         >
                                             <option value={TransactionStatus.COMPLETED}>Concluído</option>
                                             <option value={TransactionStatus.PENDING}>Pendente</option>
+                                            <option value={TransactionStatus.PARTIAL}>Pagto Parcial</option>
                                         </select>
                                         <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Campos de Funcionário, Comissão e Pendência */}
+                            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 space-y-4">
+                                <h4 className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Equipe, Comissão & Pagamento</h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Funcionário</label>
+                                        <input
+                                            type="text"
+                                            className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+                                            value={formData.employeeName}
+                                            onChange={e => setFormData({ ...formData, employeeName: e.target.value })}
+                                            placeholder="Nome do técnico"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Comissão (R$)</label>
+                                        <div className="relative">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R$</span>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                className="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-mono font-bold text-slate-800 dark:text-slate-200"
+                                                value={formData.commissionAmount}
+                                                onChange={e => setFormData({ ...formData, commissionAmount: e.target.value })}
+                                                placeholder="0,00"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Data de Pagamento da Comissão</label>
+                                    <input
+                                        type="date"
+                                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-800 dark:text-slate-200"
+                                        value={formData.commissionPaymentDate}
+                                        onChange={e => setFormData({ ...formData, commissionPaymentDate: e.target.value })}
+                                    />
+                                </div>
+                                
+                                <div className="pt-2 border-t border-indigo-100/50 dark:border-indigo-800/50">
+                                    <label className="block text-xs font-bold text-rose-500 uppercase mb-1.5 ml-1">Valor Pendente a Receber (R$)</label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-400 font-bold">R$</span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            className="w-full pl-11 pr-4 py-3 bg-rose-50/30 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-800/50 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-all font-mono font-bold text-rose-700 dark:text-rose-400"
+                                            value={formData.pendingAmount}
+                                            onChange={e => {
+                                                const val = e.target.value;
+                                                setFormData({ 
+                                                    ...formData, 
+                                                    pendingAmount: val,
+                                                    status: parseFloat(val) > 0 ? TransactionStatus.PARTIAL : formData.status
+                                                });
+                                            }}
+                                            placeholder="0,00"
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 mt-2 ml-1 italic">* Se houver valor pendente, o status mudará para "PAGTO PARCIAL" automaticamente.</p>
                                 </div>
                             </div>
                         </div>
