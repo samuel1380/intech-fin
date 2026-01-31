@@ -412,7 +412,12 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             step="0.01"
                                             className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-mono font-bold text-slate-800"
                                             value={formData.amount}
-                                            onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                                            onChange={e => {
+                                                const val = e.target.value;
+                                                const rate = formData.commissionRate;
+                                                const commAmount = val && rate ? (parseFloat(val) * parseFloat(rate) / 100).toFixed(2) : formData.commissionAmount;
+                                                setFormData({ ...formData, amount: val, commissionAmount: commAmount });
+                                            }}
                                             placeholder="0,00"
                                         />
                                     </div>

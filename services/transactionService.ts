@@ -98,7 +98,12 @@ export const clearDatabase = async (): Promise<void> => {
 export const calculateSummary = (transactions: Transaction[], taxSettings: TaxSetting[] = []): FinancialSummary => {
   const income = transactions
     .filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
-    .reduce((acc, curr) => acc + curr.amount, 0);
+    .reduce((acc, curr) => {
+      if (curr.status === TransactionStatus.PARTIAL && curr.pendingAmount) {
+        return acc + (curr.amount - curr.pendingAmount);
+      }
+      return acc + curr.amount;
+    }, 0);
 
   const expense = transactions
     .filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED)

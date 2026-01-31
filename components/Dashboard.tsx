@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Transaction, FinancialSummary, TransactionType, TaxSetting } from '../types';
+import { Transaction, FinancialSummary, TransactionType, TransactionStatus, TaxSetting } from '../types';
 import { ArrowUpRight, ArrowDownRight, Activity, AlertCircle, TrendingUp, Calendar, ArrowRight, Wallet, CreditCard, ChevronDown, Clock, User, DollarSign } from 'lucide-react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -95,17 +95,22 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
 
     const calculateSummary = (txs: Transaction[]) => {
         const income = txs
-            .filter(t => t.type === TransactionType.INCOME && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
-            .reduce((acc, curr) => acc + curr.amount, 0);
+            .filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
+            .reduce((acc, curr) => {
+                if (curr.status === TransactionStatus.PARTIAL && curr.pendingAmount) {
+                    return acc + (curr.amount - curr.pendingAmount);
+                }
+                return acc + curr.amount;
+            }, 0);
             
         const expense = txs
-            .filter(t => t.type === TransactionType.EXPENSE && t.status === 'CONCLUÍDO')
+            .filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED)
             .reduce((acc, curr) => acc + curr.amount, 0);
             
         const commissions = txs
-            .filter(t => t.commissionAmount && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
+            .filter(t => t.commissionAmount && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
             .reduce((acc, curr) => {
-                if (curr.status === 'PAGTO PARCIAL' && curr.pendingAmount && curr.amount > curr.pendingAmount) {
+                if (curr.status === TransactionStatus.PARTIAL && curr.pendingAmount && curr.amount > curr.pendingAmount) {
                     const receivedAmount = curr.amount - curr.pendingAmount;
                     const totalAmount = curr.amount;
                     const proportion = receivedAmount / totalAmount;
@@ -117,11 +122,25 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
         const todayStr = new Date().toISOString().split('T')[0];
         const pendingCommissions = txs
             .filter(t => t.commissionAmount && t.commissionPaymentDate && t.commissionPaymentDate > todayStr)
-            .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+            .reduce((acc, curr) => {
+                if (curr.status === TransactionStatus.PARTIAL && curr.pendingAmount && curr.amount > curr.pendingAmount) {
+                    const receivedAmount = curr.amount - curr.pendingAmount;
+                    const proportion = receivedAmount / curr.amount;
+                    return acc + ((curr.commissionAmount || 0) * proportion);
+                }
+                return acc + (curr.commissionAmount || 0);
+            }, 0);
 
         const totalPendingFromClients = txs
-            .filter(t => t.status === 'PAGTO PARCIAL' && t.pendingAmount)
+            .filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount)
             .reduce((acc, curr) => acc + (curr.pendingAmount || 0), 0);
+
+        const futureCommissionsFromPending = txs
+            .filter(t => t.status === TransactionStatus.PARTIAL && t.commissionAmount && t.pendingAmount)
+            .reduce((acc, curr) => {
+                const proportion = (curr.pendingAmount || 0) / curr.amount;
+                return acc + ((curr.commissionAmount || 0) * proportion);
+            }, 0);
 
         return { 
             income, 
@@ -129,6 +148,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             commissions,
             pendingCommissions,
             totalPendingFromClients,
+            futureCommissionsFromPending,
             profit: income - expense - commissions 
         };
     };
@@ -165,8 +185,14 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             // Filter specifically for the chart data (monthly context)
             const dailyTx = chartContextTransactions.filter(t => t.date === dateStr);
 
-            const dailyIncome = dailyTx.filter(t => t.type === TransactionType.INCOME && t.status === 'CONCLUÍDO').reduce((acc, t) => acc + t.amount, 0);
-            const dailyExpense = dailyTx.filter(t => t.type === TransactionType.EXPENSE && t.status === 'CONCLUÍDO').reduce((acc, t) => acc + t.amount, 0);
+            const dailyIncome = dailyTx.filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
+                .reduce((acc, t) => {
+                    if (t.status === TransactionStatus.PARTIAL && t.pendingAmount) {
+                        return acc + (t.amount - t.pendingAmount);
+                    }
+                    return acc + t.amount;
+                }, 0);
+            const dailyExpense = dailyTx.filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED).reduce((acc, t) => acc + t.amount, 0);
 
             data.push({
                 date: String(i),
@@ -305,10 +331,10 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     title="Comis. Pendentes"
                     value={currentSummary.pendingCommissions}
                     icon={Clock}
-                    trend="A Pagar"
+                    trend={formatCurrency(currentSummary.futureCommissionsFromPending)}
                     trendUp={false}
                     color="amber"
-                    subtitle="Pagamento futuro"
+                    subtitle="A pagar (proporcional)"
                 />
                 <KPICard
                     title="Pendente Clientes"
@@ -340,27 +366,53 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                             .filter(t => t.commissionAmount && t.commissionPaymentDate)
                             .sort((a, b) => new Date(a.commissionPaymentDate!).getTime() - new Date(b.commissionPaymentDate!).getTime())
                             .filter(t => new Date(t.commissionPaymentDate!) >= new Date(new Date().setHours(0,0,0,0)))
-                            .slice(0, 10)
-                            .map(t => (
-                                <div key={t.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 group hover:border-amber-200 dark:hover:border-amber-800/50 transition-all">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-slate-100 dark:border-slate-600">
-                                            <User className="h-5 w-5 text-slate-400" />
+                            .slice(0, 15)
+                            .map(t => {
+                                const isPartial = t.status === TransactionStatus.PARTIAL;
+                                const totalCommission = t.commissionAmount || 0;
+                                let dueAmount = totalCommission;
+                                let remainingAmount = 0;
+                                
+                                if (isPartial && t.pendingAmount && t.amount > t.pendingAmount) {
+                                    const receivedAmount = t.amount - t.pendingAmount;
+                                    const proportion = receivedAmount / t.amount;
+                                    dueAmount = totalCommission * proportion;
+                                    remainingAmount = totalCommission - dueAmount;
+                                }
+
+                                return (
+                                    <div key={t.id} className="flex flex-col p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 group hover:border-amber-200 dark:hover:border-amber-800/50 transition-all">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-slate-100 dark:border-slate-600">
+                                                    <User className="h-5 w-5 text-slate-400" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-bold text-slate-900 dark:text-white">{t.employeeName || 'Funcionário'}</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                                        <Calendar className="h-3 w-3" />
+                                                        Recebe em {format(parseDateLocal(t.commissionPaymentDate!), 'dd/MM/yyyy')}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-sm font-bold text-amber-600 dark:text-amber-400">{formatCurrency(dueAmount)}</p>
+                                                {isPartial && (
+                                                    <p className="text-[10px] text-rose-500 font-bold uppercase">Proporcional</p>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-900 dark:text-white">{t.employeeName || 'Funcionário'}</p>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                                                <Calendar className="h-3 w-3" />
-                                                Recebe em {format(parseDateLocal(t.commissionPaymentDate!), 'dd/MM/yyyy')}
-                                            </p>
+                                        <div className="flex items-center justify-between pt-2 border-t border-slate-200/50 dark:border-slate-700/50">
+                                            <p className="text-[10px] text-slate-400 uppercase font-bold truncate max-w-[200px]">{t.description}</p>
+                                            {isPartial && remainingAmount > 0 && (
+                                                <p className="text-[10px] text-slate-400 italic">
+                                                    Pendente: {formatCurrency(remainingAmount)}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-bold text-amber-600 dark:text-amber-400">{formatCurrency(t.commissionAmount || 0)}</p>
-                                        <p className="text-[10px] text-slate-400 uppercase font-bold truncate max-w-[120px]">{t.description}</p>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         {transactions.filter(t => t.commissionAmount && t.commissionPaymentDate && new Date(t.commissionPaymentDate) >= new Date(new Date().setHours(0,0,0,0))).length === 0 && (
                             <div className="text-center py-8">
                                 <p className="text-slate-400 text-sm italic">Nenhuma comissão agendada.</p>
@@ -383,7 +435,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
 
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                         {transactions
-                            .filter(t => t.status === 'PAGTO PARCIAL' && t.pendingAmount && t.pendingAmount > 0)
+                            .filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount && t.pendingAmount > 0)
                             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                             .map(t => (
                                 <div key={t.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 group hover:border-rose-200 dark:hover:border-rose-800/50 transition-all">
@@ -405,7 +457,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                     </div>
                                 </div>
                             ))}
-                        {transactions.filter(t => t.status === 'PAGTO PARCIAL' && t.pendingAmount && t.pendingAmount > 0).length === 0 && (
+                        {transactions.filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount && t.pendingAmount > 0).length === 0 && (
                             <div className="text-center py-8">
                                 <p className="text-slate-400 text-sm italic">Nenhum pagamento pendente.</p>
                             </div>

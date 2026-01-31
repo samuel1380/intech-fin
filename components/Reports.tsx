@@ -1,4 +1,4 @@
-import { Transaction, TransactionType, TaxSetting } from '../types';
+import { Transaction, TransactionType, TransactionStatus, TaxSetting } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, CartesianGrid } from 'recharts';
 import { Download, PieChart as PieIcon, FileText } from 'lucide-react';
 import { jsPDF } from "jspdf";
@@ -56,11 +56,16 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
         // Seção de Resumo Executivo
         const totalIncome = transactions
-            .filter(t => t.type === 'RECEITA' && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
-            .reduce((sum, t) => sum + t.amount, 0);
+            .filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
+            .reduce((sum, t) => {
+                if (t.status === TransactionStatus.PARTIAL && t.pendingAmount) {
+                    return sum + (t.amount - t.pendingAmount);
+                }
+                return sum + t.amount;
+            }, 0);
 
         const totalExpense = transactions
-            .filter(t => t.type === 'DESPESA' && t.status === 'CONCLUÍDO')
+            .filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED)
             .reduce((sum, t) => sum + t.amount, 0);
 
         // Cálculo de impostos
@@ -69,10 +74,10 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             : 0.15;
             
         const totalCommissions = transactions
-            .filter(t => t.commissionAmount && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
+            .filter(t => t.commissionAmount && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
             .reduce((acc, curr) => {
                 // Se for pagamento parcial, a comissão é proporcional ao valor recebido
-                if (curr.status === 'PAGTO PARCIAL' && curr.pendingAmount && curr.amount > curr.pendingAmount) {
+                if (curr.status === TransactionStatus.PARTIAL && curr.pendingAmount && curr.amount > curr.pendingAmount) {
                     const receivedAmount = curr.amount - curr.pendingAmount;
                     const totalAmount = curr.amount;
                     const proportion = receivedAmount / totalAmount;
@@ -172,6 +177,15 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                 formattedCommDate = `${cDay}/${cMonth}/${cYear}`;
             }
 
+            const isPartial = t.status === TransactionStatus.PARTIAL;
+            const totalComm = t.commissionAmount || 0;
+            let displayComm = totalComm;
+            
+            if (isPartial && t.pendingAmount && t.amount > t.pendingAmount) {
+                const received = t.amount - t.pendingAmount;
+                displayComm = totalComm * (received / t.amount);
+            }
+
             return [
                 `${day}/${month}/${year}`,
                 t.description,
@@ -180,7 +194,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                 t.pendingAmount ? formatBRL(t.pendingAmount) : 'R$ 0,00',
                 t.status,
                 t.employeeName || '-',
-                t.commissionAmount ? formatBRL(t.commissionAmount) : '-',
+                t.commissionAmount ? `${formatBRL(displayComm)}${isPartial ? ' (Prop.)' : ''}` : '-',
                 formattedCommDate
             ];
         });
@@ -214,16 +228,29 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
     // Cálculo de impostos dinâmico
     const totalIncome = transactions
-        .filter(t => t.type === 'RECEITA' && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
-        .reduce((s, t) => s + t.amount, 0);
+        .filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
+        .reduce((s, t) => {
+            if (t.status === TransactionStatus.PARTIAL && t.pendingAmount) {
+                return s + (t.amount - t.pendingAmount);
+            }
+            return s + t.amount;
+        }, 0);
         
     const totalExpense = transactions
-        .filter(t => t.type === 'DESPESA' && t.status === 'CONCLUÍDO')
+        .filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED)
         .reduce((s, t) => s + t.amount, 0);
         
     const totalCommissions = transactions
         .filter(t => t.commissionAmount && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
-        .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+        .reduce((acc, curr) => {
+            if (curr.status === 'PAGTO PARCIAL' && curr.pendingAmount && curr.amount > curr.pendingAmount) {
+                const receivedAmount = curr.amount - curr.pendingAmount;
+                const totalAmount = curr.amount;
+                const proportion = receivedAmount / totalAmount;
+                return acc + ((curr.commissionAmount || 0) * proportion);
+            }
+            return acc + (curr.commissionAmount || 0);
+        }, 0);
 
     const grossProfit = totalIncome - totalExpense - totalCommissions;
 
