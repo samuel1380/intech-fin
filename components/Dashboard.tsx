@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Transaction, FinancialSummary, TransactionType, TaxSetting } from '../types';
-import { ArrowUpRight, ArrowDownRight, Activity, AlertCircle, TrendingUp, Calendar, ArrowRight, Wallet, CreditCard, ChevronDown, Clock } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Activity, AlertCircle, TrendingUp, Calendar, ArrowRight, Wallet, CreditCard, ChevronDown, Clock, User, DollarSign } from 'lucide-react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar, ReferenceLine
@@ -114,16 +114,21 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 return acc + (curr.commissionAmount || 0);
             }, 0);
 
-        const today = new Date().toISOString().split('T')[0];
+        const todayStr = new Date().toISOString().split('T')[0];
         const pendingCommissions = txs
-            .filter(t => t.commissionAmount && t.commissionPaymentDate && t.commissionPaymentDate > today)
+            .filter(t => t.commissionAmount && t.commissionPaymentDate && t.commissionPaymentDate > todayStr)
             .reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+
+        const totalPendingFromClients = txs
+            .filter(t => t.status === 'PAGTO PARCIAL' && t.pendingAmount)
+            .reduce((acc, curr) => acc + (curr.pendingAmount || 0), 0);
 
         return { 
             income, 
             expense: expense + commissions, 
             commissions,
             pendingCommissions,
+            totalPendingFromClients,
             profit: income - expense - commissions 
         };
     };
@@ -306,14 +311,107 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     subtitle="Pagamento futuro"
                 />
                 <KPICard
-                    title="Provisão Fiscal"
-                    value={currentSummary.profit > 0 ? currentSummary.profit * totalTaxRate : 0}
+                    title="Pendente Clientes"
+                    value={currentSummary.totalPendingFromClients}
                     icon={AlertCircle}
-                    trend="Estimativa"
-                    trendUp={false}
-                    color="slate"
-                    subtitle={`${(totalTaxRate * 100).toFixed(1)}% sobre lucro`}
+                    trend="A Receber"
+                    trendUp={true}
+                    color="rose"
+                    subtitle="Pagamentos parciais"
                 />
+            </div>
+
+            {/* Commissions & Pending Payments Lists */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Próximas Comissões */}
+                <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                            <div className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
+                                <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Próximas Comissões</h3>
+                        </div>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Próximos Pagamentos</span>
+                    </div>
+
+                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        {transactions
+                            .filter(t => t.commissionAmount && t.commissionPaymentDate)
+                            .sort((a, b) => new Date(a.commissionPaymentDate!).getTime() - new Date(b.commissionPaymentDate!).getTime())
+                            .filter(t => new Date(t.commissionPaymentDate!) >= new Date(new Date().setHours(0,0,0,0)))
+                            .slice(0, 10)
+                            .map(t => (
+                                <div key={t.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 group hover:border-amber-200 dark:hover:border-amber-800/50 transition-all">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-slate-100 dark:border-slate-600">
+                                            <User className="h-5 w-5 text-slate-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-slate-900 dark:text-white">{t.employeeName || 'Funcionário'}</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                                <Calendar className="h-3 w-3" />
+                                                Recebe em {format(parseDateLocal(t.commissionPaymentDate!), 'dd/MM/yyyy')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm font-bold text-amber-600 dark:text-amber-400">{formatCurrency(t.commissionAmount || 0)}</p>
+                                        <p className="text-[10px] text-slate-400 uppercase font-bold truncate max-w-[120px]">{t.description}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        {transactions.filter(t => t.commissionAmount && t.commissionPaymentDate && new Date(t.commissionPaymentDate) >= new Date(new Date().setHours(0,0,0,0))).length === 0 && (
+                            <div className="text-center py-8">
+                                <p className="text-slate-400 text-sm italic">Nenhuma comissão agendada.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Pendências de Clientes */}
+                <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                            <div className="p-2 bg-rose-50 dark:bg-rose-900/30 rounded-lg">
+                                <AlertCircle className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Pagamentos Pendentes</h3>
+                        </div>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">A Receber</span>
+                    </div>
+
+                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        {transactions
+                            .filter(t => t.status === 'PAGTO PARCIAL' && t.pendingAmount && t.pendingAmount > 0)
+                            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                            .map(t => (
+                                <div key={t.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 group hover:border-rose-200 dark:hover:border-rose-800/50 transition-all">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-slate-100 dark:border-slate-600">
+                                            <DollarSign className="h-5 w-5 text-rose-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[180px]">{t.description}</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                                <Calendar className="h-3 w-3" />
+                                                Serviço em {format(parseDateLocal(t.date), 'dd/MM/yyyy')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm font-bold text-rose-600 dark:text-rose-400">{formatCurrency(t.pendingAmount || 0)}</p>
+                                        <p className="text-[10px] text-slate-400 uppercase font-bold">Total: {formatCurrency(t.amount)}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        {transactions.filter(t => t.status === 'PAGTO PARCIAL' && t.pendingAmount && t.pendingAmount > 0).length === 0 && (
+                            <div className="text-center py-8">
+                                <p className="text-slate-400 text-sm italic">Nenhum pagamento pendente.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* Charts Section */}
