@@ -1,6 +1,7 @@
+import React from 'react';
 import { Transaction, TransactionType, TransactionStatus, TaxSetting } from '../types';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, CartesianGrid } from 'recharts';
-import { Download, PieChart as PieIcon, FileText } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList } from 'recharts';
+import { Download, PieChart as PieIcon, FileText, TrendingUp, TrendingDown, DollarSign, Receipt, Users, Percent } from 'lucide-react';
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
@@ -10,12 +11,51 @@ interface Props {
     taxSettings: TaxSetting[];
 }
 
-const COLORS = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#f43f5e'];
+const COLORS = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#f43f5e', '#14b8a6', '#f97316', '#a855f7'];
 
 const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
     const hasData = transactions.length > 0;
+    const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
 
-    // Dados para Gráfico de Pizza (Despesas por Categoria)
+    // ===== CÁLCULOS FINANCEIROS =====
+    const totalIncome = transactions
+        .filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
+        .reduce((s, t) => {
+            if (t.status === TransactionStatus.PARTIAL && t.pendingAmount) {
+                return s + (t.amount - t.pendingAmount);
+            }
+            return s + t.amount;
+        }, 0);
+
+    const totalExpense = transactions
+        .filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED)
+        .reduce((s, t) => s + t.amount, 0);
+
+    const totalCommissions = transactions
+        .filter(t => t.commissionAmount && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
+        .reduce((acc, curr) => {
+            if (curr.status === TransactionStatus.PARTIAL && curr.pendingAmount && curr.amount > curr.pendingAmount) {
+                const receivedAmount = curr.amount - curr.pendingAmount;
+                const proportion = receivedAmount / curr.amount;
+                return acc + ((curr.commissionAmount || 0) * proportion);
+            }
+            return acc + (curr.commissionAmount || 0);
+        }, 0);
+
+    const grossProfit = totalIncome - totalExpense - totalCommissions;
+    const totalTaxRate = taxSettings.length > 0
+        ? taxSettings.reduce((acc, curr) => acc + (curr.percentage / 100), 0)
+        : 0.15;
+    const estimatedTax = grossProfit > 0 ? grossProfit * totalTaxRate : 0;
+    const netAfterTax = grossProfit - estimatedTax;
+    const profitMargin = totalIncome > 0 ? (netAfterTax / totalIncome) * 100 : 0;
+
+    const pendingTotal = transactions
+        .filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount)
+        .reduce((s, t) => s + (t.pendingAmount || 0), 0);
+
+    // ===== DADOS PARA GRÁFICOS =====
+    // Pizza: Despesas por categoria
     const expenseDataMap = transactions
         .filter(t => t.type === TransactionType.EXPENSE)
         .reduce((acc, curr) => {
@@ -23,83 +63,110 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             return acc;
         }, {} as Record<string, number>);
 
-    const pieData = Object.keys(expenseDataMap).map(key => ({
-        name: key,
-        value: expenseDataMap[key]
-    }));
+    const totalExpenseForPie = Object.values(expenseDataMap).reduce((s, v) => s + v, 0);
 
-    const formatBRL = (val: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+    const pieData = Object.keys(expenseDataMap)
+        .map(key => ({
+            name: key,
+            value: expenseDataMap[key],
+            percentage: totalExpenseForPie > 0 ? ((expenseDataMap[key] / totalExpenseForPie) * 100).toFixed(1) : '0'
+        }))
+        .sort((a, b) => b.value - a.value);
 
+    // Barras: Receita x Despesa x Comissões x Líquido
+    const barData = [
+        { name: 'Receita', value: totalIncome, fill: '#10b981' },
+        { name: 'Despesa Op.', value: totalExpense, fill: '#f43f5e' },
+        { name: 'Comissões', value: totalCommissions, fill: '#f59e0b' },
+        { name: 'Líquido', value: netAfterTax, fill: netAfterTax >= 0 ? '#6366f1' : '#ef4444' },
+    ];
+
+    const formatBRL = (val: number) =>
+        new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+
+    const formatCompact = (val: number) => {
+        if (val >= 1000000) return `R$${(val / 1000000).toFixed(1)}M`;
+        if (val >= 1000) return `R$${(val / 1000).toFixed(1)}K`;
+        return formatBRL(val);
+    };
+
+    // ===== TOOLTIP CUSTOMIZADO =====
+    const CustomTooltip = ({ active, payload }: any) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className="bg-white dark:bg-slate-800 px-4 py-3 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700">
+                    <p className="text-sm font-bold text-slate-800 dark:text-white">{payload[0].name || payload[0].payload.name}</p>
+                    <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 mt-1">
+                        {formatBRL(payload[0].value)}
+                    </p>
+                    {payload[0].payload.percentage && (
+                        <p className="text-xs text-slate-400 mt-0.5">{payload[0].payload.percentage}% do total</p>
+                    )}
+                </div>
+            );
+        }
+        return null;
+    };
+
+    // ===== CUSTOM PIE LABEL =====
+    const renderPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percentage }: any) => {
+        if (parseFloat(percentage) < 5) return null; // Não mostra labels muito pequenos
+        const RADIAN = Math.PI / 180;
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+        return (
+            <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight="bold">
+                {percentage}%
+            </text>
+        );
+    };
+
+    // ===== CUSTOM LEGEND =====
+    const renderLegend = (props: any) => {
+        const { payload } = props;
+        return (
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
+                {payload.map((entry: any, index: number) => (
+                    <div key={`legend-${index}`} className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                        <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{entry.value}</span>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    // ===== PDF GENERATION (same logic, kept intact) =====
     const handleDownloadPDF = () => {
         if (!hasData) return;
         const doc = new jsPDF();
 
-        // Configurações de Marca
         const companyName = "FinNexus Enterprise";
-        const reportTitle = "Relatório Financeiro Analítico";
-        const primaryColor = [79, 70, 229] as [number, number, number]; // Indigo 600
+        const primaryColor = [79, 70, 229] as [number, number, number];
 
-        // Header Colorido
+        // Header
         doc.setFillColor(...primaryColor);
         doc.rect(0, 0, 210, 40, 'F');
-
         doc.setFontSize(22);
         doc.setTextColor(255, 255, 255);
         doc.text(companyName, 14, 20);
-
         doc.setFontSize(12);
         doc.text("Controle & Auditoria", 14, 28);
-
         doc.setFontSize(10);
         doc.text(`Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`, 195, 20, { align: 'right' });
         doc.text(`Solicitado por: Admin`, 195, 28, { align: 'right' });
 
-        // Seção de Resumo Executivo
-        const totalIncome = transactions
-            .filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
-            .reduce((sum, t) => {
-                if (t.status === TransactionStatus.PARTIAL && t.pendingAmount) {
-                    return sum + (t.amount - t.pendingAmount);
-                }
-                return sum + t.amount;
-            }, 0);
-
-        const totalExpense = transactions
-            .filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED)
-            .reduce((sum, t) => sum + t.amount, 0);
-
-        // Cálculo de impostos
-        const totalTaxRate = taxSettings.length > 0
-            ? taxSettings.reduce((acc, curr) => acc + (curr.percentage / 100), 0)
-            : 0.15;
-
-        const totalCommissions = transactions
-            .filter(t => t.commissionAmount && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
-            .reduce((acc, curr) => {
-                // Se for pagamento parcial, a comissão é proporcional ao valor recebido
-                if (curr.status === TransactionStatus.PARTIAL && curr.pendingAmount && curr.amount > curr.pendingAmount) {
-                    const receivedAmount = curr.amount - curr.pendingAmount;
-                    const totalAmount = curr.amount;
-                    const proportion = receivedAmount / totalAmount;
-                    return acc + ((curr.commissionAmount || 0) * proportion);
-                }
-                return acc + (curr.commissionAmount || 0);
-            }, 0);
-
-        const grossProfit = totalIncome - totalExpense - totalCommissions;
-        const estimatedTax = totalIncome * totalTaxRate;
-        const netProfit = grossProfit - estimatedTax;
-
+        // Cards de Resumo
         doc.setTextColor(40, 40, 40);
         doc.setFontSize(14);
         doc.text("Resumo Executivo", 14, 55);
 
-        // Cards de Resumo no PDF
         const startY = 60;
 
         // Receita
-        doc.setFillColor(240, 253, 244); // Green 50
-        doc.setDrawColor(22, 163, 74); // Green 600
+        doc.setFillColor(240, 253, 244);
+        doc.setDrawColor(22, 163, 74);
         doc.roundedRect(14, startY, 45, 25, 3, 3, 'FD');
         doc.setFontSize(8);
         doc.setTextColor(22, 163, 74);
@@ -108,9 +175,9 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         doc.setFont("helvetica", "bold");
         doc.text(formatBRL(totalIncome), 17, startY + 18);
 
-        // Despesa (Operacional)
-        doc.setFillColor(255, 241, 242); // Rose 50
-        doc.setDrawColor(225, 29, 72); // Rose 600
+        // Despesa
+        doc.setFillColor(255, 241, 242);
+        doc.setDrawColor(225, 29, 72);
         doc.roundedRect(61, startY, 45, 25, 3, 3, 'FD');
         doc.setFontSize(8);
         doc.setTextColor(225, 29, 72);
@@ -119,8 +186,8 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         doc.text(formatBRL(totalExpense), 64, startY + 18);
 
         // Comissões
-        doc.setFillColor(254, 243, 232); // Orange 50
-        doc.setDrawColor(234, 88, 12); // Orange 600
+        doc.setFillColor(254, 243, 232);
+        doc.setDrawColor(234, 88, 12);
         doc.roundedRect(108, startY, 45, 25, 3, 3, 'FD');
         doc.setFontSize(8);
         doc.setTextColor(234, 88, 12);
@@ -129,8 +196,8 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         doc.text(formatBRL(totalCommissions), 111, startY + 18);
 
         // Resultado Bruto
-        doc.setFillColor(238, 242, 255); // Indigo 50
-        doc.setDrawColor(79, 70, 229); // Indigo 600
+        doc.setFillColor(238, 242, 255);
+        doc.setDrawColor(79, 70, 229);
         doc.roundedRect(155, startY, 45, 25, 3, 3, 'FD');
         doc.setFontSize(8);
         doc.setTextColor(79, 70, 229);
@@ -138,12 +205,11 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         doc.setFontSize(11);
         doc.text(formatBRL(grossProfit), 158, startY + 18);
 
-        // SEGUNDA LINHA DE CARDS
+        // Segunda linha
         const secondRowY = startY + 30;
 
-        // Impostos
-        doc.setFillColor(254, 249, 195); // Yellow 50
-        doc.setDrawColor(202, 138, 4); // Yellow 600
+        doc.setFillColor(254, 249, 195);
+        doc.setDrawColor(202, 138, 4);
         doc.roundedRect(14, secondRowY, 92, 25, 3, 3, 'FD');
         doc.setFontSize(10);
         doc.setTextColor(161, 98, 7);
@@ -151,17 +217,16 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         doc.setFontSize(14);
         doc.text(formatBRL(estimatedTax), 19, secondRowY + 18);
 
-        // Resultado Líquido
-        doc.setFillColor(236, 253, 245); // Emerald 50
-        doc.setDrawColor(5, 150, 105); // Emerald 600
+        doc.setFillColor(236, 253, 245);
+        doc.setDrawColor(5, 150, 105);
         doc.roundedRect(111, secondRowY, 85, 25, 3, 3, 'FD');
         doc.setFontSize(10);
         doc.setTextColor(5, 150, 105);
         doc.text("Resultado Líquido (Real)", 116, secondRowY + 8);
         doc.setFontSize(14);
-        doc.text(formatBRL(netProfit), 116, secondRowY + 18);
+        doc.text(formatBRL(netAfterTax), 116, secondRowY + 18);
 
-        // Tabela Detalhada
+        // Tabela
         doc.setFont("helvetica", "normal");
         doc.setTextColor(40);
         doc.setFontSize(14);
@@ -170,22 +235,18 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         const tableColumn = ["Data", "Descrição", "Categoria", "Valor", "Pendente", "Status", "Funcionário", "Comissão", "Pgto Comis."];
         const tableRows = transactions.map(t => {
             const [year, month, day] = t.date.split('-');
-
             let formattedCommDate = '-';
             if (t.commissionPaymentDate) {
                 const [cYear, cMonth, cDay] = t.commissionPaymentDate.split('-');
                 formattedCommDate = `${cDay}/${cMonth}/${cYear}`;
             }
-
             const isPartial = t.status === TransactionStatus.PARTIAL;
             const totalComm = t.commissionAmount || 0;
             let displayComm = totalComm;
-
             if (isPartial && t.pendingAmount && t.amount > t.pendingAmount) {
                 const received = t.amount - t.pendingAmount;
                 displayComm = totalComm * (received / t.amount);
             }
-
             return [
                 `${day}/${month}/${year}`,
                 t.description,
@@ -209,7 +270,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             alternateRowStyles: { fillColor: [249, 250, 251] },
             columnStyles: {
                 3: { halign: 'right', fontStyle: 'bold' },
-                4: { halign: 'right', textColor: [225, 29, 72] }, // Vermelho para pendente
+                4: { halign: 'right', textColor: [225, 29, 72] },
                 7: { halign: 'right' }
             }
         });
@@ -226,70 +287,114 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         doc.save(`Relatorio_Financeiro_FinNexus_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
     };
 
-    // Cálculo de impostos dinâmico
-    const totalIncome = transactions
-        .filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
-        .reduce((s, t) => {
-            if (t.status === TransactionStatus.PARTIAL && t.pendingAmount) {
-                return s + (t.amount - t.pendingAmount);
-            }
-            return s + t.amount;
-        }, 0);
-
-    const totalExpense = transactions
-        .filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED)
-        .reduce((s, t) => s + t.amount, 0);
-
-    const totalCommissions = transactions
-        .filter(t => t.commissionAmount && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
-        .reduce((acc, curr) => {
-            if (curr.status === 'PAGTO PARCIAL' && curr.pendingAmount && curr.amount > curr.pendingAmount) {
-                const receivedAmount = curr.amount - curr.pendingAmount;
-                const totalAmount = curr.amount;
-                const proportion = receivedAmount / totalAmount;
-                return acc + ((curr.commissionAmount || 0) * proportion);
-            }
-            return acc + (curr.commissionAmount || 0);
-        }, 0);
-
-    const grossProfit = totalIncome - totalExpense - totalCommissions;
-
-    // Calcula taxa total
-    const totalTaxRate = taxSettings.length > 0
-        ? taxSettings.reduce((acc, curr) => acc + (curr.percentage / 100), 0)
-        : 0.15;
-
-    const estimatedTax = grossProfit > 0 ? grossProfit * totalTaxRate : 0;
-    const netAfterTax = grossProfit - estimatedTax;
-
-    // Dados para gráfico de barras (Receita x Despesa)
-    const barData = [
-        { name: 'Receita', value: totalIncome, fill: '#10b981' },
-        { name: 'Despesa', value: totalExpense, fill: '#f43f5e' },
-    ];
-
+    // ===== RENDER =====
     return (
-        <div className="space-y-6 w-full animate-fade-in">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="space-y-8 w-full animate-fade-in pb-8">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-200 dark:border-slate-700/40 pb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Relatórios & Auditoria</h2>
-                    <p className="text-slate-500 dark:text-slate-400">Emissão de documentos oficiais e análise fiscal.</p>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Relatórios & Auditoria</h2>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">Emissão de documentos oficiais e análise fiscal completa.</p>
                 </div>
                 <button
                     onClick={handleDownloadPDF}
                     disabled={!hasData}
-                    className={`flex items-center px-6 py-3 rounded-lg transition-all shadow-lg w-full md:w-auto justify-center font-bold transform hover:scale-105
-            ${hasData ? 'bg-indigo-900 text-white hover:bg-indigo-800' : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}`}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all w-full md:w-auto justify-center font-bold text-sm
+                        ${hasData
+                            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 active:scale-[0.98]'
+                            : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                        }`}
                 >
-                    <FileText className="h-5 w-5 mr-2" />
-                    Gerar Relatório PDF Profissional
+                    <FileText className="h-5 w-5" />
+                    Gerar Relatório PDF
+                    <Download className="h-4 w-4" />
                 </button>
             </div>
 
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
+                            <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Receita</span>
+                    </div>
+                    <p className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">{formatCompact(totalIncome)}</p>
+                </div>
+
+                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1.5 bg-rose-50 dark:bg-rose-900/30 rounded-lg">
+                            <TrendingDown className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Despesa</span>
+                    </div>
+                    <p className="text-lg font-extrabold text-rose-600 dark:text-rose-400">{formatCompact(totalExpense)}</p>
+                </div>
+
+                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
+                            <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Comissões</span>
+                    </div>
+                    <p className="text-lg font-extrabold text-amber-600 dark:text-amber-400">{formatCompact(totalCommissions)}</p>
+                </div>
+
+                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1.5 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
+                            <Receipt className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Impostos</span>
+                    </div>
+                    <p className="text-lg font-extrabold text-yellow-600 dark:text-yellow-400">{formatCompact(estimatedTax)}</p>
+                    <p className="text-[10px] text-slate-400 font-medium">{(totalTaxRate * 100).toFixed(1)}% sobre lucro</p>
+                </div>
+
+                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
+                            <DollarSign className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Líquido</span>
+                    </div>
+                    <p className={`text-lg font-extrabold ${netAfterTax >= 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                        {formatCompact(netAfterTax)}
+                    </p>
+                </div>
+
+                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1.5 bg-violet-50 dark:bg-violet-900/30 rounded-lg">
+                            <Percent className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Margem</span>
+                    </div>
+                    <p className={`text-lg font-extrabold ${profitMargin >= 20 ? 'text-emerald-600 dark:text-emerald-400' : profitMargin >= 0 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                        {profitMargin.toFixed(1)}%
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-medium">{profitMargin >= 20 ? 'Saudável' : profitMargin >= 10 ? 'Aceitável' : profitMargin >= 0 ? 'Baixa' : 'Negativa'}</p>
+                </div>
+            </div>
+
+            {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Gráfico de Pizza */}
-                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 flex flex-col min-h-[400px]">
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Distribuição de Despesas</h3>
+                {/* Gráfico de Pizza - Despesas por Categoria */}
+                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 flex flex-col min-h-[420px]">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Distribuição de Despesas</h3>
+                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Por categoria de gasto</p>
+                        </div>
+                        {pieData.length > 0 && (
+                            <span className="text-xs font-bold px-2.5 py-1 bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 rounded-full">
+                                {pieData.length} categorias
+                            </span>
+                        )}
+                    </div>
                     <div className="flex-1 w-full relative">
                         {hasData && pieData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
@@ -297,22 +402,26 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                                     <Pie
                                         data={pieData}
                                         cx="50%"
-                                        cy="50%"
-                                        innerRadius={80}
-                                        outerRadius={120}
+                                        cy="45%"
+                                        innerRadius={70}
+                                        outerRadius={110}
                                         fill="#8884d8"
-                                        paddingAngle={5}
+                                        paddingAngle={3}
                                         dataKey="value"
+                                        label={renderPieLabel}
+                                        labelLine={false}
                                     >
-                                        {pieData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} strokeWidth={2} stroke="#fff" />
+                                        {pieData.map((_, index) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={COLORS[index % COLORS.length]}
+                                                strokeWidth={2}
+                                                stroke={isDark ? '#0c1222' : '#fff'}
+                                            />
                                         ))}
                                     </Pie>
-                                    <Tooltip
-                                        formatter={(value: number) => [formatBRL(value), 'Valor']}
-                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                    />
-                                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend content={renderLegend} />
                                 </PieChart>
                             </ResponsiveContainer>
                         ) : (
@@ -320,47 +429,81 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                                 <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-full mb-3">
                                     <PieIcon className="h-6 w-6 text-slate-300 dark:text-slate-600" />
                                 </div>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm">Adicione despesas para gerar a análise gráfica.</p>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Adicione despesas para gerar a análise gráfica.</p>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* Auditoria Fiscal */}
+                {/* Coluna Direita: Auditoria + Balanço */}
                 <div className="space-y-6">
-                    <div className="bg-gradient-to-br from-indigo-900 to-slate-900 p-8 rounded-2xl shadow-xl text-white relative overflow-hidden">
+                    {/* Auditoria Fiscal */}
+                    <div className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 p-8 rounded-2xl shadow-xl text-white relative overflow-hidden">
                         <div className="relative z-10">
-                            <h3 className="text-xl font-bold mb-2">Auditoria Automática</h3>
-                            <p className="text-indigo-200 text-sm mb-6 max-w-sm">O sistema analisa suas transações em tempo real para calcular impostos e prever o fluxo de caixa.</p>
+                            <h3 className="text-xl font-bold mb-1">Auditoria Automática</h3>
+                            <p className="text-indigo-200/70 text-sm mb-6">Análise fiscal em tempo real baseada em {transactions.length} transações.</p>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-3">
                                 <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
-                                    <span className="text-xs text-indigo-300 uppercase tracking-wider font-bold">Impostos (Estimado)</span>
-                                    <div className="text-2xl font-bold mt-1 text-white">{formatBRL(estimatedTax)}</div>
+                                    <span className="text-[11px] text-indigo-300/80 uppercase tracking-wider font-bold">Lucro Bruto</span>
+                                    <div className={`text-xl font-extrabold mt-1 ${grossProfit >= 0 ? 'text-white' : 'text-rose-400'}`}>
+                                        {formatBRL(grossProfit)}
+                                    </div>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
-                                    <span className="text-xs text-emerald-300 uppercase tracking-wider font-bold">Líquido Real</span>
-                                    <div className="text-2xl font-bold mt-1 text-emerald-400">{formatBRL(netAfterTax)}</div>
+                                    <span className="text-[11px] text-amber-300/80 uppercase tracking-wider font-bold">Impostos ({(totalTaxRate * 100).toFixed(1)}%)</span>
+                                    <div className="text-xl font-extrabold mt-1 text-amber-400">{formatBRL(estimatedTax)}</div>
+                                </div>
+                                <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+                                    <span className="text-[11px] text-emerald-300/80 uppercase tracking-wider font-bold">Resultado Líquido</span>
+                                    <div className={`text-xl font-extrabold mt-1 ${netAfterTax >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                        {formatBRL(netAfterTax)}
+                                    </div>
+                                </div>
+                                <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+                                    <span className="text-[11px] text-violet-300/80 uppercase tracking-wider font-bold">Pendências</span>
+                                    <div className={`text-xl font-extrabold mt-1 ${pendingTotal > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                                        {formatBRL(pendingTotal)}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        {/* Decorative circles */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600 rounded-full blur-3xl opacity-20 -mr-16 -mt-16"></div>
                         <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-600 rounded-full blur-2xl opacity-20 -ml-10 -mb-10"></div>
                     </div>
 
-                    <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 flex-1">
-                        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Balanço Geral</h3>
+                    {/* Gráfico de Barras - Balanço Geral */}
+                    <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40">
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-white">Balanço Geral</h3>
+                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Comparativo financeiro completo</p>
+                            </div>
+                        </div>
                         <div className="h-[200px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart layout="vertical" data={barData} margin={{ left: 20 }}>
-                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                                <BarChart layout="vertical" data={barData} margin={{ left: 10, right: 60 }}>
+                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={isDark ? '#1e293b' : '#f1f5f9'} />
                                     <XAxis type="number" hide />
-                                    <Tooltip cursor={{ fill: 'transparent' }} formatter={(val: number) => formatBRL(val)} contentStyle={{ borderRadius: '8px' }} />
-                                    <Bar dataKey="value" barSize={32} radius={[0, 4, 4, 0]} background={{ fill: '#f8fafc' }}>
+                                    <YAxis
+                                        type="category"
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fontSize: 12, fontWeight: 600, fill: isDark ? '#94a3b8' : '#64748b' }}
+                                        width={85}
+                                    />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' }} />
+                                    <Bar dataKey="value" barSize={28} radius={[0, 6, 6, 0]} background={{ fill: isDark ? '#1e293b40' : '#f8fafc', radius: 6 }}>
                                         {barData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.fill} />
                                         ))}
+                                        <LabelList
+                                            dataKey="value"
+                                            position="right"
+                                            formatter={(val: number) => formatCompact(val)}
+                                            style={{ fontSize: 11, fontWeight: 700, fill: isDark ? '#94a3b8' : '#64748b' }}
+                                        />
                                     </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
