@@ -16,13 +16,13 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
-        'process.env.AI_BASE_URL': JSON.stringify(env.AI_BASE_URL),
-        'process.env.AI_MODEL': JSON.stringify(env.AI_MODEL),
-        'process.env.AI_PROVIDER': JSON.stringify(env.AI_PROVIDER),
-        'process.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY),
-        'process.env.GROQ_API_KEY': JSON.stringify(env.GROQ_API_KEY),
-        'process.env.VITE_SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL),
-        'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(env.VITE_SUPABASE_ANON_KEY)
+        'process.env.AI_BASE_URL': JSON.stringify(env.AI_BASE_URL || ''),
+        'process.env.AI_MODEL': JSON.stringify(env.AI_MODEL || ''),
+        'process.env.AI_PROVIDER': JSON.stringify(env.AI_PROVIDER || ''),
+        'process.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY || ''),
+        'process.env.GROQ_API_KEY': JSON.stringify(env.GROQ_API_KEY || ''),
+        'process.env.VITE_SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL || ''),
+        'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(env.VITE_SUPABASE_ANON_KEY || '')
       },
       resolve: {
         alias: {

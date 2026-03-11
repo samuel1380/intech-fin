@@ -20,7 +20,7 @@ const PROVIDER_CONFIGS: Record<AIProvider, ProviderConfig> = {
   groq: {
     baseUrl: 'https://api.groq.com/openai/v1',
     apiKey: process.env.GROQ_API_KEY,
-    model: process.env.AI_MODEL || 'llama-3.3-70b-versatile',
+    model: process.env.AI_MODEL || 'llama3-70b-8192',
     name: 'Groq',
     extraHeaders: {},
   },
