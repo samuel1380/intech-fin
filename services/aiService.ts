@@ -20,7 +20,7 @@ const PROVIDER_CONFIGS: Record<AIProvider, ProviderConfig> = {
   groq: {
     baseUrl: 'https://api.groq.com/openai/v1',
     apiKey: process.env.GROQ_API_KEY,
-    model: process.env.AI_MODEL || 'llama3-70b-8192',
+    model: process.env.AI_MODEL || 'llama-3.1-8b-instant',
     name: 'Groq',
     extraHeaders: {},
   },
@@ -84,14 +84,15 @@ const callAI = async (messages: { role: string; content: string }[]): Promise<st
         model: config.model,
         messages,
         temperature: 0.7,
-        max_tokens: 2048,
+        max_tokens: 1500,
       }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorData = await response.json().catch(() => ({} as any));
+      const detail = errorData?.error?.message || errorData?.message || '';
       console.error(`Erro na API ${config.name}:`, response.status, errorData);
-      return `Erro na API ${config.name} (${response.status}). Verifique sua chave de API e tente novamente.`;
+      return `Erro na API ${config.name} (${response.status}): ${detail || 'Verifique sua chave de API e tente novamente.'}`;
     }
 
     const data = await response.json();
@@ -171,9 +172,9 @@ export const buildFinancialContext = (summary: FinancialSummary, transactions: T
     .map(t => `  - ${t.employeeName || 'Técnico'}: R$${t.commissionAmount!.toFixed(2)} em ${t.commissionPaymentDate}`)
     .join('\n') || '  Nenhuma comissão pendente.';
 
-  // Recent transactions (last 15)
-  const recentTx = transactions.slice(0, 15).map(t =>
-    `  ${t.date} | ${t.type} | R$${t.amount.toFixed(2)} | ${t.category} | ${t.description} | Status: ${t.status}${t.pendingAmount ? ` | Pendente: R$${t.pendingAmount.toFixed(2)}` : ''}${t.employeeName ? ` | Técnico: ${t.employeeName}` : ''}`
+  // Recent transactions (last 8 — kept small to avoid token limits)
+  const recentTx = transactions.slice(0, 8).map(t =>
+    `  ${t.date} | ${t.type} | R$${t.amount.toFixed(2)} | ${t.category} | ${t.description} | ${t.status}${t.pendingAmount ? ` | Pend: R$${t.pendingAmount.toFixed(2)}` : ''}${t.employeeName ? ` | ${t.employeeName}` : ''}`
   ).join('\n');
 
   // Monthly comparison
