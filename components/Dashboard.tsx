@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Transaction, FinancialSummary, TransactionType, TransactionStatus, TaxSetting } from '../types';
-import { ArrowUpRight, ArrowDownRight, Activity, AlertCircle, TrendingUp, Calendar, ArrowRight, Wallet, CreditCard, ChevronDown, Clock, User, DollarSign } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Activity, AlertCircle, TrendingUp, Calendar, ArrowRight, Wallet, CreditCard, ChevronDown, Clock, User, DollarSign, Bell } from 'lucide-react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar, ReferenceLine
@@ -296,6 +296,76 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     </div>
                 </div>
             </div>
+
+            {/* === ALERTAS DE CONTAS VENCENDO === */}
+            {(() => {
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                const pendingAccounts = transactions.filter(t =>
+                    (t.status === TransactionStatus.PENDING || t.status === TransactionStatus.PARTIAL)
+                );
+                const overdue = pendingAccounts.filter(t => {
+                    const [y, m, d] = t.date.split('-').map(Number);
+                    return new Date(y, m - 1, d) < now;
+                });
+                const dueToday = pendingAccounts.filter(t => {
+                    const [y, m, d] = t.date.split('-').map(Number);
+                    const td = new Date(y, m - 1, d);
+                    return td.getTime() === now.getTime();
+                });
+                const dueSoon = pendingAccounts.filter(t => {
+                    const [y, m, d] = t.date.split('-').map(Number);
+                    const td = new Date(y, m - 1, d);
+                    const diff = (td.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+                    return diff >= 1 && diff <= 3;
+                });
+
+                const formatBRL = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+                const overdueTotal = overdue.reduce((s, t) => s + (t.pendingAmount || t.amount), 0);
+                const todayTotal = dueToday.reduce((s, t) => s + (t.pendingAmount || t.amount), 0);
+                const soonTotal = dueSoon.reduce((s, t) => s + (t.pendingAmount || t.amount), 0);
+
+                if (overdue.length === 0 && dueToday.length === 0 && dueSoon.length === 0) return null;
+
+                return (
+                    <div className="space-y-2">
+                        {overdue.length > 0 && (
+                            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl flex items-center gap-3 animate-fade-in">
+                                <div className="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg shrink-0">
+                                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 animate-pulse" />
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-red-800 dark:text-red-300 text-sm">⚠️ {overdue.length} conta{overdue.length > 1 ? 's' : ''} vencida{overdue.length > 1 ? 's' : ''}!</h4>
+                                    <p className="text-xs text-red-600 dark:text-red-400">Total: {formatBRL(overdueTotal)}</p>
+                                </div>
+                                <span className="text-xs font-bold text-red-500 dark:text-red-400 shrink-0">Ver em Contas →</span>
+                            </div>
+                        )}
+                        {dueToday.length > 0 && (
+                            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl flex items-center gap-3 animate-fade-in">
+                                <div className="p-2 bg-amber-100 dark:bg-amber-900/40 rounded-lg shrink-0">
+                                    <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-amber-800 dark:text-amber-300 text-sm">📅 {dueToday.length} conta{dueToday.length > 1 ? 's' : ''} vence{dueToday.length > 1 ? 'm' : ''} HOJE</h4>
+                                    <p className="text-xs text-amber-600 dark:text-amber-400">Total: {formatBRL(todayTotal)}</p>
+                                </div>
+                            </div>
+                        )}
+                        {dueSoon.length > 0 && (
+                            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 rounded-xl flex items-center gap-3 animate-fade-in">
+                                <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg shrink-0">
+                                    <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-blue-800 dark:text-blue-300 text-sm">🔔 {dueSoon.length} conta{dueSoon.length > 1 ? 's' : ''} nos próximos 3 dias</h4>
+                                    <p className="text-xs text-blue-600 dark:text-blue-400">Total: {formatBRL(soonTotal)}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            })()}
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">

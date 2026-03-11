@@ -4,7 +4,8 @@ import Dashboard from './components/Dashboard';
 import TransactionList from './components/TransactionList';
 import Reports from './components/Reports';
 import AIAssistant from './components/AIAssistant';
-import ThemeToggle from './components/ThemeToggle'; // Import added
+import Accounts from './components/Accounts';
+import ThemeToggle from './components/ThemeToggle';
 import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteTransactionFromDb, clearDatabase, updateTransactionStatus, updateTransactionInDb } from './services/transactionService';
 import { getTaxSettingsFromDb, addTaxSettingToDb, deleteTaxSettingFromDb } from './services/taxService';
 import { isSupabaseConfigured } from './services/supabase';
@@ -272,6 +273,7 @@ function App() {
     const titles: Record<string, string> = {
       'dashboard': '',
       'transactions': 'Gestão de Fluxo de Caixa',
+      'accounts': 'Contas a Pagar & Receber',
       'reports': 'Relatórios & Auditoria Fiscal',
       'ai-advisor': 'Consultoria Inteligente (IA)',
       'settings': 'Configurações do Sistema'
@@ -355,6 +357,12 @@ function App() {
                     onAddTransaction={handleAddTransaction}
                     onDeleteTransaction={handleDeleteTransaction}
                     onUpdateStatus={handleUpdateStatus}
+                    onUpdateTransaction={handleUpdateTransaction}
+                  />
+                )}
+                {activeTab === 'accounts' && (
+                  <Accounts
+                    transactions={transactions}
                     onUpdateTransaction={handleUpdateTransaction}
                   />
                 )}

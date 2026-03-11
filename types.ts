@@ -30,6 +30,7 @@ export enum TransactionCategory {
   SOFTWARE = 'Software/SaaS',
   OFFICE = 'Escritório',
   TRAVEL = 'Viagens Corporativas',
+  PERSONAL = 'Pessoal',
   OTHER = 'Outros'
 }
 

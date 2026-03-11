@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Transaction, TransactionType, TransactionCategory, TransactionStatus } from '../types';
-import { Plus, Search, Trash2, Download, ChevronLeft, ChevronRight, CheckCircle, Clock, Filter, X, ArrowUpDown, Edit2, AlertCircle, RefreshCw, Check } from 'lucide-react';
+import { Plus, Search, Trash2, Download, ChevronLeft, ChevronRight, CheckCircle, Clock, Filter, X, ArrowUpDown, Edit2, AlertCircle, RefreshCw, Check, Users, UserPlus, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface Props {
@@ -22,6 +22,36 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [markingPaidId, setMarkingPaidId] = useState<string | null>(null);
+    const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
+    const [employeeSearch, setEmployeeSearch] = useState('');
+    const employeeDropdownRef = useRef<HTMLDivElement>(null);
+
+    // Extrair funcionários únicos das transações existentes
+    const savedEmployees = useMemo(() => {
+        const names = transactions
+            .map(t => t.employeeName)
+            .filter((name): name is string => !!name && name.trim() !== '');
+        return [...new Set(names)].sort();
+    }, [transactions]);
+
+    // Filtrar funcionários pela busca
+    const filteredEmployees = useMemo(() => {
+        if (!employeeSearch) return savedEmployees;
+        return savedEmployees.filter(name =>
+            name.toLowerCase().includes(employeeSearch.toLowerCase())
+        );
+    }, [savedEmployees, employeeSearch]);
+
+    // Fechar dropdown ao clicar fora
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (employeeDropdownRef.current && !employeeDropdownRef.current.contains(e.target as Node)) {
+                setShowEmployeeDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const [formData, setFormData] = useState({
         description: '',
@@ -521,6 +551,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                 <option value={TransactionCategory.SOFTWARE}>Software/SaaS</option>
                                                 <option value={TransactionCategory.OFFICE}>Escritório</option>
                                                 <option value={TransactionCategory.INVESTMENT}>Investimentos</option>
+                                                <option value={TransactionCategory.PERSONAL}>Pessoal</option>
                                                 <option value={TransactionCategory.OTHER}>Outros</option>
                                             </optgroup>
                                         </select>
@@ -606,17 +637,93 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
 
                             {/* Campos de Funcionário, Comissão e Pendência */}
                             <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 space-y-4">
-                                <h4 className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Equipe, Comissão & Pagamento</h4>
+                                <h4 className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
+                                    <Users className="h-3 w-3" />
+                                    Equipe, Comissão & Pagamento
+                                </h4>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="col-span-2">
+                                    <div className="col-span-2" ref={employeeDropdownRef}>
                                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Funcionário</label>
-                                        <input
-                                            type="text"
-                                            className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
-                                            value={formData.employeeName}
-                                            onChange={e => setFormData({ ...formData, employeeName: e.target.value })}
-                                            placeholder="Nome do técnico"
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                className="w-full px-4 py-3 pr-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+                                                value={formData.employeeName}
+                                                onChange={e => {
+                                                    setFormData({ ...formData, employeeName: e.target.value });
+                                                    setEmployeeSearch(e.target.value);
+                                                    setShowEmployeeDropdown(true);
+                                                }}
+                                                onFocus={() => {
+                                                    setEmployeeSearch(formData.employeeName);
+                                                    setShowEmployeeDropdown(true);
+                                                }}
+                                                placeholder={savedEmployees.length > 0 ? 'Selecione ou digite um nome' : 'Nome do técnico'}
+                                            />
+                                            {savedEmployees.length > 0 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowEmployeeDropdown(!showEmployeeDropdown)}
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-indigo-500 transition-colors rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                                >
+                                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${showEmployeeDropdown ? 'rotate-180' : ''}`} />
+                                                </button>
+                                            )}
+
+                                            {/* Dropdown de funcionários salvos */}
+                                            {showEmployeeDropdown && savedEmployees.length > 0 && (
+                                                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden animate-fade-in">
+                                                    <div className="max-h-48 overflow-y-auto">
+                                                        {filteredEmployees.length > 0 ? (
+                                                            filteredEmployees.map((name) => (
+                                                                <button
+                                                                    type="button"
+                                                                    key={name}
+                                                                    onClick={() => {
+                                                                        setFormData({ ...formData, employeeName: name });
+                                                                        setShowEmployeeDropdown(false);
+                                                                        setEmployeeSearch('');
+                                                                    }}
+                                                                    className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors flex items-center gap-3 ${
+                                                                        formData.employeeName === name
+                                                                            ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
+                                                                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                                                                    }`}
+                                                                >
+                                                                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                                                                        {name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
+                                                                    </div>
+                                                                    <span>{name}</span>
+                                                                    {formData.employeeName === name && (
+                                                                        <CheckCircle className="h-4 w-4 text-indigo-500 ml-auto" />
+                                                                    )}
+                                                                </button>
+                                                            ))
+                                                        ) : (
+                                                            <div className="px-4 py-3 text-sm text-slate-400 text-center">
+                                                                Nenhum funcionário encontrado
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    {/* Opção de adicionar novo se o texto digitado não é um dos existentes */}
+                                                    {formData.employeeName && !savedEmployees.includes(formData.employeeName) && (
+                                                        <div className="border-t border-slate-100 dark:border-slate-700">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setShowEmployeeDropdown(false);
+                                                                    setEmployeeSearch('');
+                                                                }}
+                                                                className="w-full text-left px-4 py-2.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors flex items-center gap-2"
+                                                            >
+                                                                <UserPlus className="h-4 w-4" />
+                                                                Adicionar "{formData.employeeName}" como novo
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Comissão (%)</label>
