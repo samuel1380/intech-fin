@@ -1,10 +1,10 @@
 import { Transaction, FinancialSummary, TransactionType, TransactionStatus } from "../types";
 
 // ===== PROVIDER CONFIGURATION =====
-// AI_PROVIDER: 'groq' | 'openrouter' (default: 'openrouter')
-// Each provider has its own API key and default model
+// AI_PROVIDER: 'groq' | 'mistral' | 'openrouter' (default: 'groq')
+// Fallback automático: se o primário falhar, tenta os outros
 
-type AIProvider = 'groq' | 'openrouter';
+type AIProvider = 'groq' | 'mistral' | 'openrouter';
 
 interface ProviderConfig {
   baseUrl: string;
@@ -14,7 +14,7 @@ interface ProviderConfig {
   extraHeaders: Record<string, string>;
 }
 
-const PROVIDER: AIProvider = (process.env.AI_PROVIDER as AIProvider) || 'openrouter';
+const PROVIDER: AIProvider = (process.env.AI_PROVIDER as AIProvider) || 'groq';
 
 const PROVIDER_CONFIGS: Record<AIProvider, ProviderConfig> = {
   groq: {
@@ -22,6 +22,13 @@ const PROVIDER_CONFIGS: Record<AIProvider, ProviderConfig> = {
     apiKey: process.env.GROQ_API_KEY,
     model: process.env.AI_MODEL || 'llama-3.1-8b-instant',
     name: 'Groq',
+    extraHeaders: {},
+  },
+  mistral: {
+    baseUrl: 'https://api.mistral.ai/v1',
+    apiKey: process.env.MISTRAL_API_KEY,
+    model: 'mistral-small-latest',
+    name: 'Mistral',
     extraHeaders: {},
   },
   openrouter: {
@@ -36,16 +43,20 @@ const PROVIDER_CONFIGS: Record<AIProvider, ProviderConfig> = {
   },
 };
 
-// Get active config — tries primary provider, falls back to the other if no key
+// Fallback order: primary → others that have keys
+const getProviderChain = (): ProviderConfig[] => {
+  const order: AIProvider[] = PROVIDER === 'groq'
+    ? ['groq', 'mistral', 'openrouter']
+    : PROVIDER === 'mistral'
+      ? ['mistral', 'groq', 'openrouter']
+      : ['openrouter', 'groq', 'mistral'];
+
+  return order.map(p => PROVIDER_CONFIGS[p]).filter(c => !!c.apiKey);
+};
+
 const getActiveConfig = (): ProviderConfig => {
-  const primary = PROVIDER_CONFIGS[PROVIDER];
-  if (primary.apiKey) return primary;
-
-  // Fallback: try the other provider
-  const fallback = PROVIDER === 'groq' ? PROVIDER_CONFIGS.openrouter : PROVIDER_CONFIGS.groq;
-  if (fallback.apiKey) return fallback;
-
-  return primary; // Return primary even without key (will show error message)
+  const chain = getProviderChain();
+  return chain.length > 0 ? chain[0] : PROVIDER_CONFIGS[PROVIDER];
 };
 
 // Export for UI display
@@ -64,14 +75,8 @@ export const isAIConfigured = (): boolean => {
   return !!config.apiKey;
 };
 
-// ===== UNIFIED API CALL =====
-const callAI = async (messages: { role: string; content: string }[]): Promise<string> => {
-  const config = getActiveConfig();
-
-  if (!config.apiKey) {
-    return `Chave de API não configurada. Configure ${PROVIDER === 'groq' ? 'GROQ_API_KEY' : 'OPENAI_API_KEY'} no seu ambiente (Render).`;
-  }
-
+// ===== UNIFIED API CALL WITH AUTO-FALLBACK =====
+const callSingleProvider = async (config: ProviderConfig, messages: { role: string; content: string }[]): Promise<{ ok: boolean; text: string }> => {
   try {
     const response = await fetch(`${config.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -91,16 +96,42 @@ const callAI = async (messages: { role: string; content: string }[]): Promise<st
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({} as any));
       const detail = errorData?.error?.message || errorData?.message || '';
-      console.error(`Erro na API ${config.name}:`, response.status, errorData);
-      return `Erro na API ${config.name} (${response.status}): ${detail || 'Verifique sua chave de API e tente novamente.'}`;
+      console.warn(`⚠️ ${config.name} falhou (${response.status}): ${detail}`);
+      return { ok: false, text: `Erro na API ${config.name} (${response.status}): ${detail}` };
     }
 
     const data = await response.json();
-    return data.choices?.[0]?.message?.content || "Não foi possível gerar uma resposta.";
-  } catch (error) {
-    console.error(`Erro ao conectar com ${config.name}:`, error);
-    return `Erro ao conectar com ${config.name}. Verifique sua conexão com a internet.`;
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) return { ok: false, text: 'Resposta vazia' };
+
+    console.log(`✅ Resposta gerada via ${config.name} (${config.model})`);
+    return { ok: true, text: content };
+  } catch (error: any) {
+    console.warn(`⚠️ ${config.name} erro de conexão:`, error.message);
+    return { ok: false, text: `Erro ao conectar com ${config.name}.` };
   }
+};
+
+const callAI = async (messages: { role: string; content: string }[]): Promise<string> => {
+  const chain = getProviderChain();
+
+  if (chain.length === 0) {
+    return 'Nenhuma chave de API configurada. Configure GROQ_API_KEY, MISTRAL_API_KEY ou OPENAI_API_KEY no Render.';
+  }
+
+  // Try each provider in order
+  let lastError = '';
+  for (const config of chain) {
+    const result = await callSingleProvider(config, messages);
+    if (result.ok) return result.text;
+    lastError = result.text;
+    // If not last, log that we're trying fallback
+    if (config !== chain[chain.length - 1]) {
+      console.log(`🔄 Tentando próximo provedor...`);
+    }
+  }
+
+  return lastError || 'Todos os provedores de IA falharam. Tente novamente mais tarde.';
 };
 
 // ===== HELPER: Build rich context from transactions =====

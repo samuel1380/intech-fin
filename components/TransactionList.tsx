@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Transaction, TransactionType, TransactionCategory, TransactionStatus } from '../types';
-import { Plus, Search, Trash2, Download, ChevronLeft, ChevronRight, CheckCircle, Clock, Filter, X, ArrowUpDown, Edit2, AlertCircle } from 'lucide-react';
+import { Plus, Search, Trash2, Download, ChevronLeft, ChevronRight, CheckCircle, Clock, Filter, X, ArrowUpDown, Edit2, AlertCircle, RefreshCw, Check } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface Props {
@@ -21,6 +21,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
     const [currentPage, setCurrentPage] = useState(1);
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [markingPaidId, setMarkingPaidId] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         description: '',
@@ -33,7 +34,10 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         commissionRate: '',
         commissionAmount: '',
         commissionPaymentDate: '',
-        pendingAmount: ''
+        pendingAmount: '',
+        isRecurring: false,
+        recurringIntervalMonths: '1',
+        recurringDay: new Date().getDate().toString()
     });
 
     const filtered = transactions.filter(t => {
@@ -63,9 +67,31 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
             commissionRate: t.commissionRate?.toString() || '',
             commissionAmount: t.commissionAmount?.toString() || '',
             commissionPaymentDate: t.commissionPaymentDate || '',
-            pendingAmount: t.pendingAmount?.toString() || ''
+            pendingAmount: t.pendingAmount?.toString() || '',
+            isRecurring: t.isRecurring || false,
+            recurringIntervalMonths: t.recurringIntervalMonths?.toString() || '1',
+            recurringDay: t.recurringDay?.toString() || new Date().getDate().toString()
         });
         setShowModal(true);
+    };
+
+    const resetForm = () => {
+        setFormData({
+            description: '',
+            amount: '',
+            type: TransactionType.EXPENSE,
+            category: TransactionCategory.OPERATIONS,
+            date: format(new Date(), 'yyyy-MM-dd'),
+            status: TransactionStatus.COMPLETED,
+            employeeName: '',
+            commissionRate: '',
+            commissionAmount: '',
+            commissionPaymentDate: '',
+            pendingAmount: '',
+            isRecurring: false,
+            recurringIntervalMonths: '1',
+            recurringDay: new Date().getDate().toString()
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -73,7 +99,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         setIsSubmitting(true);
 
         try {
-            const data = {
+            const data: any = {
                 description: formData.description,
                 amount: parseFloat(formData.amount),
                 type: formData.type,
@@ -84,7 +110,10 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                 commissionRate: formData.commissionRate ? parseFloat(formData.commissionRate) : undefined,
                 commissionAmount: formData.commissionAmount ? parseFloat(formData.commissionAmount) : undefined,
                 commissionPaymentDate: formData.commissionPaymentDate || undefined,
-                pendingAmount: formData.pendingAmount ? parseFloat(formData.pendingAmount) : undefined
+                pendingAmount: formData.pendingAmount ? parseFloat(formData.pendingAmount) : undefined,
+                isRecurring: formData.isRecurring || undefined,
+                recurringIntervalMonths: formData.isRecurring ? parseInt(formData.recurringIntervalMonths) : undefined,
+                recurringDay: formData.isRecurring ? parseInt(formData.recurringDay) : undefined,
             };
 
             if (isEditing && editingId) {
@@ -96,19 +125,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
             setShowModal(false);
             setIsEditing(false);
             setEditingId(null);
-            setFormData({
-                description: '',
-                amount: '',
-                type: TransactionType.EXPENSE,
-                category: TransactionCategory.OPERATIONS,
-                date: format(new Date(), 'yyyy-MM-dd'),
-                status: TransactionStatus.COMPLETED,
-                employeeName: '',
-                commissionRate: '',
-                commissionAmount: '',
-                commissionPaymentDate: '',
-                pendingAmount: ''
-            });
+            resetForm();
         } catch (error: any) {
             console.error('Erro ao salvar transação:', error);
             alert(`Erro ao salvar: ${error.message || 'Erro desconhecido'}`);
@@ -117,10 +134,25 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         }
     };
 
+    // ===== MARCAR COMO PAGO =====
+    const handleMarkAsPaid = async (t: Transaction) => {
+        setMarkingPaidId(t.id);
+        try {
+            const updates: Partial<Transaction> = {
+                status: TransactionStatus.COMPLETED,
+                pendingAmount: undefined,
+            };
+            await onUpdateTransaction(t.id, updates);
+        } catch (error: any) {
+            alert(`Erro ao marcar como pago: ${error.message}`);
+        } finally {
+            setMarkingPaidId(null);
+        }
+    };
+
     const handleExportCSV = () => {
-        // sep=; força o Excel a usar ponto e vírgula como separador independente da região
         const excelSeparator = 'sep=;';
-        const headers = ['ID;Data;Descrição;Categoria;Tipo;Valor;Status;Funcionário;Comissão;Data Pagto Comissão;Valor Pendente'];
+        const headers = ['ID;Data;Descrição;Categoria;Tipo;Valor;Status;Funcionário;Comissão;Data Pagto Comissão;Valor Pendente;Recorrente'];
 
         const rows = filtered.map(t => {
             const [year, month, day] = t.date.split('-');
@@ -132,7 +164,6 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                 formattedCommDate = `${cDay}/${cMonth}/${cYear}`;
             }
 
-            // Formata o valor para o padrão brasileiro (vírgula como decimal)
             const formattedAmount = t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             const formattedCommission = t.commissionAmount
                 ? t.commissionAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -140,11 +171,11 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
             const formattedPending = t.pendingAmount
                 ? t.pendingAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                 : '0,00';
+            const recurring = t.isRecurring ? `Sim (${t.recurringIntervalMonths}m dia ${t.recurringDay})` : 'Não';
 
-            return `${t.id.substring(0, 8)};${formattedDate};"${t.description.replace(/"/g, '""')}";${t.category};${t.type};${formattedAmount};${t.status};"${t.employeeName || ''}";${formattedCommission};${formattedCommDate};${formattedPending}`;
+            return `${t.id.substring(0, 8)};${formattedDate};"${t.description.replace(/"/g, '""')}";${t.category};${t.type};${formattedAmount};${t.status};"${t.employeeName || ''}";${formattedCommission};${formattedCommDate};${formattedPending};${recurring}`;
         });
 
-        // Adiciona BOM (Byte Order Mark) e a instrução de separador para o Excel
         const csvContent = "\uFEFF" + excelSeparator + "\n" + [headers, ...rows].join("\n");
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
@@ -159,6 +190,11 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
     };
 
     const formatBRL = (val: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+
+    // Check if a transaction can be marked as paid
+    const canMarkAsPaid = (t: Transaction) => {
+        return t.type === TransactionType.EXPENSE && t.status !== TransactionStatus.COMPLETED;
+    };
 
     return (<div className="space-y-6 animate-fade-in w-full pb-8">
         {/* Header */}
@@ -229,17 +265,26 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[150px]">Categoria</th>
                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[150px]">Valor</th>
                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[140px]">Status</th>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[100px]">Ações</th>
+                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[140px]">Ações</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {paginatedTransactions.map((t) => {
                             const [year, month, day] = t.date.split('-');
+                            const isPending = canMarkAsPaid(t);
                             return (
                                 <tr key={t.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group table-row-hover">
                                     <td className="px-6 py-4 text-slate-500 font-medium tabular-nums text-sm">{day}/{month}/{year}</td>
                                     <td className="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200 text-sm">
-                                        {t.description}
+                                        <div className="flex items-center gap-2">
+                                            {t.description}
+                                            {t.isRecurring && (
+                                                <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-md border border-purple-200 dark:border-purple-800/50">
+                                                    <RefreshCw className="h-2.5 w-2.5" />
+                                                    {t.recurringIntervalMonths === 1 ? 'Mensal' : `${t.recurringIntervalMonths}m`}
+                                                </span>
+                                            )}
+                                        </div>
                                         {t.employeeName && (
                                             <div className="text-[10px] text-indigo-500 font-bold uppercase mt-1 flex flex-col">
                                                 <span>Técnico: {t.employeeName}</span>
@@ -285,6 +330,21 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                     </td>
                                     <td className="px-6 py-4 text-center">
                                         <div className="flex items-center justify-center gap-1">
+                                            {/* Botão Marcar como Pago */}
+                                            {isPending && (
+                                                <button
+                                                    onClick={() => handleMarkAsPaid(t)}
+                                                    disabled={markingPaidId === t.id}
+                                                    className="p-2 text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-all disabled:opacity-50"
+                                                    title="Marcar como Pago"
+                                                >
+                                                    {markingPaidId === t.id ? (
+                                                        <div className="w-4 h-4 border-2 border-emerald-300 border-t-emerald-600 rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <Check className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => handleEdit(t)}
                                                 className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-all lg:opacity-0 group-hover:opacity-100"
@@ -342,11 +402,11 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
             )}
         </div>
 
-        {/* Add Modal */}
+        {/* Add/Edit Modal */}
         {showModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4 animate-fade-in">
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up ring-1 ring-slate-900/5">
-                    <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up ring-1 ring-slate-900/5 max-h-[90vh] overflow-y-auto">
+                    <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 sticky top-0 z-10">
                         <div>
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                                 {isEditing ? 'Editar Lançamento' : 'Novo Lançamento'}
@@ -355,7 +415,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                 {isEditing ? 'Atualize os detalhes da transação.' : 'Preencha os detalhes da transação.'}
                             </p>
                         </div>
-                        <button onClick={() => setShowModal(false)} className="p-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition-colors shadow-sm">
+                        <button onClick={() => { setShowModal(false); setIsEditing(false); setEditingId(null); resetForm(); }} className="p-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition-colors shadow-sm">
                             <X className="h-4 w-4" />
                         </button>
                     </div>
@@ -483,6 +543,66 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                     </div>
                                 </div>
                             </div>
+
+                            {/* ===== SEÇÃO: DESPESA RECORRENTE ===== */}
+                            {formData.type === TransactionType.EXPENSE && (
+                                <div className="p-4 bg-purple-50/50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-800/50 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest flex items-center gap-1.5">
+                                            <RefreshCw className="h-3 w-3" />
+                                            Despesa Recorrente
+                                        </h4>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, isRecurring: !formData.isRecurring })}
+                                            className={`relative w-11 h-6 rounded-full transition-all duration-200 ${formData.isRecurring
+                                                ? 'bg-purple-600'
+                                                : 'bg-slate-200 dark:bg-slate-700'
+                                                }`}
+                                        >
+                                            <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ${formData.isRecurring ? 'translate-x-5' : ''
+                                                }`}></div>
+                                        </button>
+                                    </div>
+
+                                    {formData.isRecurring && (
+                                        <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Repetir a cada</label>
+                                                <div className="relative">
+                                                    <select
+                                                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 appearance-none"
+                                                        value={formData.recurringIntervalMonths}
+                                                        onChange={e => setFormData({ ...formData, recurringIntervalMonths: e.target.value })}
+                                                    >
+                                                        <option value="1">1 mês</option>
+                                                        <option value="2">2 meses</option>
+                                                        <option value="3">3 meses</option>
+                                                        <option value="6">6 meses</option>
+                                                        <option value="12">12 meses (anual)</option>
+                                                    </select>
+                                                    <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Dia do Vencimento</label>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max="28"
+                                                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono font-bold text-slate-800 dark:text-slate-200"
+                                                    value={formData.recurringDay}
+                                                    onChange={e => setFormData({ ...formData, recurringDay: e.target.value })}
+                                                    placeholder="10"
+                                                />
+                                            </div>
+                                            <p className="col-span-2 text-[10px] text-purple-500 dark:text-purple-400 italic ml-1">
+                                                * A despesa será lançada automaticamente todo dia {formData.recurringDay || '?'} a cada {formData.recurringIntervalMonths === '1' ? 'mês' : `${formData.recurringIntervalMonths} meses`} como PENDENTE.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {/* Campos de Funcionário, Comissão e Pendência */}
                             <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 space-y-4">

@@ -115,7 +115,7 @@ function App() {
     setIsAuthenticated(false);
   }
 
-  // Carregar dados do Banco de Dados
+  // Carregar dados do Banco de Dados + Gerar Recorrências
   const loadData = async () => {
     setIsLoading(true);
     try {
@@ -123,9 +123,64 @@ function App() {
         getAllTransactionsFromDb(),
         getTaxSettingsFromDb()
       ]);
-      setTransactions(data);
+
+      // ===== AUTO-GERAR DESPESAS RECORRENTES =====
+      const today = new Date();
+      const recurringTemplates = data.filter(t => t.isRecurring && t.type === 'DESPESA');
+
+      for (const template of recurringTemplates) {
+        const interval = template.recurringIntervalMonths || 1;
+        const day = template.recurringDay || 1;
+
+        // Find all existing instances of this recurring expense (same description, category, amount, recurring)
+        const existingDates = data
+          .filter(t => t.description === template.description && t.category === template.category && t.amount === template.amount)
+          .map(t => t.date);
+
+        // Generate dates from template date forward
+        const templateDate = new Date(template.date + 'T12:00:00');
+        let checkDate = new Date(templateDate);
+
+        // Move to the next occurrence after the template
+        checkDate.setMonth(checkDate.getMonth() + interval);
+
+        // Generate up to 12 months ahead max, only if the date has passed or is today
+        let safetyCounter = 0;
+        while (checkDate <= today && safetyCounter < 24) {
+          safetyCounter++;
+          const dateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+          // Only create if it doesn't already exist
+          if (!existingDates.includes(dateStr)) {
+            try {
+              await addTransactionToDb({
+                description: template.description,
+                amount: template.amount,
+                type: template.type,
+                category: template.category,
+                status: 'PENDENTE' as any,
+                date: dateStr,
+                notes: `Gerado automaticamente (recorrente a cada ${interval} ${interval === 1 ? 'mês' : 'meses'})`,
+                isRecurring: true,
+                recurringIntervalMonths: interval,
+                recurringDay: day,
+              });
+              console.log(`📅 Despesa recorrente gerada: ${template.description} em ${dateStr}`);
+            } catch (err) {
+              console.warn('Erro ao gerar recorrência:', err);
+            }
+          }
+
+          checkDate.setMonth(checkDate.getMonth() + interval);
+        }
+      }
+
+      // Reload data if we generated anything
+      const finalData = recurringTemplates.length > 0 ? await getAllTransactionsFromDb() : data;
+
+      setTransactions(finalData);
       setTaxSettings(taxes);
-      setSummary(calculateSummary(data, taxes));
+      setSummary(calculateSummary(finalData, taxes));
     } catch (error: any) {
       console.error("Erro ao carregar banco de dados:", error);
       if (!isSupabaseConfigured) {

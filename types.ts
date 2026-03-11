@@ -47,6 +47,9 @@ export interface Transaction {
   commissionAmount?: number;
   commissionPaymentDate?: string;
   pendingAmount?: number;
+  isRecurring?: boolean;
+  recurringIntervalMonths?: number;
+  recurringDay?: number;
 }
 
 export interface FinancialSummary {

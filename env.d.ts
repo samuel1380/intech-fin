@@ -5,6 +5,7 @@ declare namespace NodeJS {
         readonly AI_PROVIDER: string;
         readonly OPENAI_API_KEY: string;
         readonly GROQ_API_KEY: string;
+        readonly MISTRAL_API_KEY: string;
         readonly VITE_SUPABASE_URL: string;
         readonly VITE_SUPABASE_ANON_KEY: string;
     }
