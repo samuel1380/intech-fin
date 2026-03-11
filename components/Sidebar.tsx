@@ -19,7 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 bg-slate-900 dark:bg-slate-950 text-white transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-full border-r border-slate-800 dark:border-white/5 overflow-x-hidden
+      className={`fixed inset-y-0 left-0 z-40 bg-slate-900 dark:bg-[#0a1120] text-white transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-full border-r border-slate-800 dark:border-slate-700/30 overflow-x-hidden
             ${isOpen ? 'w-64 translate-x-0' : 'w-20 -translate-x-full lg:translate-x-0'}
             `}
     >
@@ -65,7 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
       </nav>
 
       {/* Bottom Section - Logout */}
-      <div className="p-4 border-t border-slate-800 dark:border-white/5 safe-padding-bottom shrink-0 bg-slate-900 dark:bg-slate-950">
+      <div className="p-4 border-t border-slate-800 dark:border-slate-700/30 safe-padding-bottom shrink-0 bg-slate-900 dark:bg-[#0a1120]">
         <button
           onClick={onLogout}
           className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all group"

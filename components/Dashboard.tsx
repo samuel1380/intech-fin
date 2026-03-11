@@ -102,11 +102,11 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 }
                 return acc + curr.amount;
             }, 0);
-            
+
         const expense = txs
             .filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED)
             .reduce((acc, curr) => acc + curr.amount, 0);
-            
+
         const commissions = txs
             .filter(t => t.commissionAmount && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
             .reduce((acc, curr) => {
@@ -142,14 +142,14 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 return acc + ((curr.commissionAmount || 0) * proportion);
             }, 0);
 
-        return { 
-            income, 
-            expense: expense + commissions, 
+        return {
+            income,
+            expense: expense + commissions,
             commissions,
             pendingCommissions,
             totalPendingFromClients,
             futureCommissionsFromPending,
-            profit: income - expense - commissions 
+            profit: income - expense - commissions
         };
     };
 
@@ -243,7 +243,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
     return (
         <div className="space-y-8 animate-fade-in w-full pb-8">
             {/* Header & Filter */}
-            <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 border-b border-slate-200 pb-6">
+            <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 border-b border-slate-200 dark:border-slate-700/40 pb-6">
                 <div>
                     <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard</h2>
                     <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">
@@ -350,7 +350,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             {/* Commissions & Pending Payments Lists */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Próximas Comissões */}
-                <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5">
+                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
                             <div className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
@@ -365,14 +365,14 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                         {transactions
                             .filter(t => t.commissionAmount && t.commissionPaymentDate)
                             .sort((a, b) => new Date(a.commissionPaymentDate!).getTime() - new Date(b.commissionPaymentDate!).getTime())
-                            .filter(t => new Date(t.commissionPaymentDate!) >= new Date(new Date().setHours(0,0,0,0)))
+                            .filter(t => new Date(t.commissionPaymentDate!) >= new Date(new Date().setHours(0, 0, 0, 0)))
                             .slice(0, 15)
                             .map(t => {
                                 const isPartial = t.status === TransactionStatus.PARTIAL;
                                 const totalCommission = t.commissionAmount || 0;
                                 let dueAmount = totalCommission;
                                 let remainingAmount = 0;
-                                
+
                                 if (isPartial && t.pendingAmount && t.amount > t.pendingAmount) {
                                     const receivedAmount = t.amount - t.pendingAmount;
                                     const proportion = receivedAmount / t.amount;
@@ -413,7 +413,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                     </div>
                                 );
                             })}
-                        {transactions.filter(t => t.commissionAmount && t.commissionPaymentDate && new Date(t.commissionPaymentDate) >= new Date(new Date().setHours(0,0,0,0))).length === 0 && (
+                        {transactions.filter(t => t.commissionAmount && t.commissionPaymentDate && new Date(t.commissionPaymentDate) >= new Date(new Date().setHours(0, 0, 0, 0))).length === 0 && (
                             <div className="text-center py-8">
                                 <p className="text-slate-400 text-sm italic">Nenhuma comissão agendada.</p>
                             </div>
@@ -422,7 +422,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 </div>
 
                 {/* Pendências de Clientes */}
-                <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5">
+                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
                             <div className="p-2 bg-rose-50 dark:bg-rose-900/30 rounded-lg">
@@ -469,7 +469,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             {/* Charts Section */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 {/* Main Flow Chart */}
-                <div className="xl:col-span-2 bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col min-h-[350px]">
+                <div className="xl:col-span-2 bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 flex flex-col min-h-[350px]">
                     <div className="flex justify-between items-start mb-8">
                         <div>
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -539,7 +539,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 </div>
 
                 {/* Breakdown Bar Chart */}
-                <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col min-h-[350px]">
+                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 flex flex-col min-h-[350px]">
                     <div>
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">Entradas vs Saídas</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Comparativo de volume {viewMode === 'month' ? 'diário' : 'no mês'}.</p>
@@ -563,8 +563,8 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             </div>
 
             {/* Recent Transactions Preview */}
-            <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden w-full">
-                <div className="px-8 py-6 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-white dark:bg-transparent">
+            <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-700/40 overflow-hidden w-full">
+                <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-700/40 flex justify-between items-center bg-white dark:bg-transparent">
                     <div>
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                             {viewMode === 'month' ? 'Transações Recentes' : `Transações de ${format(selectedDate, 'dd/MM')}`}
@@ -584,7 +584,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 <div className="overflow-x-auto">
                     {hasFilteredData ? (
                         <table className="w-full text-sm text-left min-w-[600px]">
-                            <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase bg-slate-50/50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-700">
+                            <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase bg-slate-50/50 dark:bg-[#0d1526]/60 border-b border-slate-100 dark:border-slate-700/40">
                                 <tr>
                                     <th className="px-8 py-4 font-semibold tracking-wider">Descrição</th>
                                     <th className="px-8 py-4 font-semibold tracking-wider">Data</th>
@@ -622,7 +622,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                         </table>
                     ) : (
                         <div className="p-16 text-center text-slate-400 flex flex-col items-center">
-                            <div className="p-4 bg-slate-50 rounded-full mb-3">
+                            <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-full mb-3">
                                 <Clock className="h-6 w-6 text-slate-300" />
                             </div>
                             <p>Nenhuma transação encontrada para este período.</p>
@@ -672,7 +672,7 @@ const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, in
     const valueStr = cleanFormatted.replace("R$", "").trim();
 
     return (
-        <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-white/5 flex flex-col justify-between h-full group relative overflow-hidden">
+        <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none hover:shadow-lg dark:hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-700/40 flex flex-col justify-between h-full group relative overflow-hidden">
             {/* Background blob removed as per request */}
 
             <div className="flex justify-between items-start mb-2 relative z-10">
@@ -707,10 +707,10 @@ const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, in
 
 const EmptyState = ({ message }: { message: string }) => (
     <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-        <div className="p-4 bg-slate-50 rounded-full mb-3 shadow-sm">
-            <TrendingUp className="h-6 w-6 text-slate-300" />
+        <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-full mb-3 shadow-sm">
+            <TrendingUp className="h-6 w-6 text-slate-300 dark:text-slate-600" />
         </div>
-        <p className="text-slate-500 text-sm font-medium">{message}</p>
+        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{message}</p>
     </div>
 );
 

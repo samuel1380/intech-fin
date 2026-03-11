@@ -72,7 +72,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         const totalTaxRate = taxSettings.length > 0
             ? taxSettings.reduce((acc, curr) => acc + (curr.percentage / 100), 0)
             : 0.15;
-            
+
         const totalCommissions = transactions
             .filter(t => t.commissionAmount && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
             .reduce((acc, curr) => {
@@ -170,7 +170,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         const tableColumn = ["Data", "Descrição", "Categoria", "Valor", "Pendente", "Status", "Funcionário", "Comissão", "Pgto Comis."];
         const tableRows = transactions.map(t => {
             const [year, month, day] = t.date.split('-');
-            
+
             let formattedCommDate = '-';
             if (t.commissionPaymentDate) {
                 const [cYear, cMonth, cDay] = t.commissionPaymentDate.split('-');
@@ -180,7 +180,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             const isPartial = t.status === TransactionStatus.PARTIAL;
             const totalComm = t.commissionAmount || 0;
             let displayComm = totalComm;
-            
+
             if (isPartial && t.pendingAmount && t.amount > t.pendingAmount) {
                 const received = t.amount - t.pendingAmount;
                 displayComm = totalComm * (received / t.amount);
@@ -235,11 +235,11 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             }
             return s + t.amount;
         }, 0);
-        
+
     const totalExpense = transactions
         .filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED)
         .reduce((s, t) => s + t.amount, 0);
-        
+
     const totalCommissions = transactions
         .filter(t => t.commissionAmount && (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL'))
         .reduce((acc, curr) => {
@@ -288,7 +288,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Gráfico de Pizza */}
-                <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col min-h-[400px]">
+                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 flex flex-col min-h-[400px]">
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Distribuição de Despesas</h3>
                     <div className="flex-1 w-full relative">
                         {hasData && pieData.length > 0 ? (
@@ -317,10 +317,10 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                             </ResponsiveContainer>
                         ) : (
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                                <div className="p-4 bg-slate-50 rounded-full mb-3">
-                                    <PieIcon className="h-6 w-6 text-slate-300" />
+                                <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-full mb-3">
+                                    <PieIcon className="h-6 w-6 text-slate-300 dark:text-slate-600" />
                                 </div>
-                                <p className="text-slate-500 text-sm">Adicione despesas para gerar a análise gráfica.</p>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm">Adicione despesas para gerar a análise gráfica.</p>
                             </div>
                         )}
                     </div>
@@ -349,7 +349,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                         <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-600 rounded-full blur-2xl opacity-20 -ml-10 -mb-10"></div>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900/40 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex-1">
+                    <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 flex-1">
                         <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Balanço Geral</h3>
                         <div className="h-[200px]">
                             <ResponsiveContainer width="100%" height="100%">

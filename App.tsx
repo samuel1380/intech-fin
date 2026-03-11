@@ -232,7 +232,7 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen supports-[height:100dvh]:h-[100dvh] bg-slate-50 overflow-hidden font-sans">
+    <div className="flex h-screen supports-[height:100dvh]:h-[100dvh] bg-slate-50 dark:bg-[#0c1222] overflow-hidden font-sans transition-colors duration-300">
       {/* Overlay para fechar sidebar no mobile */}
       {sidebarOpen && (
         <div
@@ -250,7 +250,7 @@ function App() {
 
       <div className={`flex-1 flex flex-col h-full transition-[margin] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} w-full`}>
 
-        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5 px-4 md:px-8 py-4 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-all">
+        <header className="bg-white/80 dark:bg-[#111a2e]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/50 px-4 md:px-8 py-4 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-colors duration-300">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -258,7 +258,7 @@ function App() {
             >
               <Menu className="h-6 w-6" />
             </button>
-            <h1 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight truncate">
+            <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight truncate">
               {getHeaderTitle(activeTab)}
             </h1>
           </div>
@@ -274,7 +274,7 @@ function App() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 pb-20 scroll-smooth bg-slate-50/50 dark:bg-slate-950/50">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 pb-20 scroll-smooth bg-slate-50/50 dark:bg-[#0c1222] transition-colors duration-300">
           <div className="max-w-[1600px] mx-auto min-w-0">
             {isLoading ? (
               <div className="flex flex-col justify-center items-center h-[60vh] text-slate-500 gap-4">
@@ -308,7 +308,7 @@ function App() {
 
                 {activeTab === 'settings' && (
                   <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 p-8 rounded-2xl shadow-xl">
+                    <div className="bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 p-8 rounded-2xl shadow-xl dark:shadow-none">
                       <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
                         <Database className="h-6 w-6 text-indigo-600" />
                         Gerenciamento de Dados
@@ -358,7 +358,7 @@ function App() {
                       </div>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 p-8 rounded-2xl shadow-xl">
+                    <div className="bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 p-8 rounded-2xl shadow-xl dark:shadow-none">
                       <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
                         <Percent className="h-6 w-6 text-indigo-600" />
                         Configuração de Impostos

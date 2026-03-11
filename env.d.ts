@@ -2,7 +2,9 @@ declare namespace NodeJS {
     interface ProcessEnv {
         readonly AI_BASE_URL: string;
         readonly AI_MODEL: string;
+        readonly AI_PROVIDER: string;
         readonly OPENAI_API_KEY: string;
+        readonly GROQ_API_KEY: string;
         readonly VITE_SUPABASE_URL: string;
         readonly VITE_SUPABASE_ANON_KEY: string;
     }
