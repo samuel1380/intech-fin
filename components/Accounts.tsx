@@ -31,8 +31,9 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction }) => {
         return `${d}/${m}/${y}`;
     };
 
-    const getDaysUntil = (dateStr: string) => {
-        const date = parseDateLocal(dateStr);
+    const getDaysUntil = (t: Transaction) => {
+        const targetDate = t.dueDate || t.date;
+        const date = parseDateLocal(targetDate);
         const diffTime = date.getTime() - today.getTime();
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     };
@@ -42,7 +43,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction }) => {
         return transactions
             .filter(t => t.type === TransactionType.INCOME && 
                 (t.status === TransactionStatus.PENDING || t.status === TransactionStatus.PARTIAL))
-            .sort((a, b) => a.date.localeCompare(b.date));
+            .sort((a, b) => (a.dueDate || a.date).localeCompare(b.dueDate || b.date));
     }, [transactions]);
 
     // Contas a PAGAR (DESPESA pendente ou parcial)
@@ -50,18 +51,18 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction }) => {
         return transactions
             .filter(t => t.type === TransactionType.EXPENSE && 
                 (t.status === TransactionStatus.PENDING || t.status === TransactionStatus.PARTIAL))
-            .sort((a, b) => a.date.localeCompare(b.date));
+            .sort((a, b) => (a.dueDate || a.date).localeCompare(b.dueDate || b.date));
     }, [transactions]);
 
     // Alertas: tudo que vence HOJE ou nos próximos 7 dias, ou que JÁ VENCEU
     const alerts = useMemo(() => {
         const all = [...receivables, ...payables];
         return all.filter(t => {
-            const days = getDaysUntil(t.date);
+            const days = getDaysUntil(t);
             return days <= 7; // vence em até 7 dias OU já venceu (negativo)
         }).sort((a, b) => {
-            const dA = getDaysUntil(a.date);
-            const dB = getDaysUntil(b.date);
+            const dA = getDaysUntil(a);
+            const dB = getDaysUntil(b);
             return dA - dB; // já vencidas primeiro, depois as mais próximas
         });
     }, [receivables, payables]);
@@ -69,8 +70,8 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction }) => {
     // Totais
     const totalReceivable = receivables.reduce((s, t) => s + (t.pendingAmount || t.amount), 0);
     const totalPayable = payables.reduce((s, t) => s + (t.pendingAmount || t.amount), 0);
-    const overdueCount = alerts.filter(t => getDaysUntil(t.date) < 0).length;
-    const todayCount = alerts.filter(t => getDaysUntil(t.date) === 0).length;
+    const overdueCount = alerts.filter(t => getDaysUntil(t) < 0).length;
+    const todayCount = alerts.filter(t => getDaysUntil(t) === 0).length;
 
     // Marcar como pago/recebido
     const handleMarkCompleted = async (t: Transaction) => {
@@ -98,8 +99,8 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction }) => {
         );
     };
 
-    const getUrgencyBadge = (dateStr: string) => {
-        const days = getDaysUntil(dateStr);
+    const getUrgencyBadge = (t: Transaction) => {
+        const days = getDaysUntil(t);
         if (days < 0) {
             return (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/50 animate-pulse">
@@ -148,9 +149,14 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction }) => {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
                     <h4 className="font-semibold text-slate-800 dark:text-slate-200 text-sm truncate">{t.description}</h4>
-                    {getUrgencyBadge(t.date)}
+                    {getUrgencyBadge(t)}
+                    {t.installment && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600">
+                            {t.installment}
+                        </span>
+                    )}
                     {t.isRecurring && (
                         <span className="text-[9px] font-bold px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-md border border-purple-200 dark:border-purple-800/50">
                             RECORRENTE
@@ -158,15 +164,22 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction }) => {
                     )}
                 </div>
                 <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
-                    <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {formatDate(t.date)}
-                    </span>
-                    <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700/50 rounded text-[10px] font-medium">
+                    <div className="flex flex-col gap-0.5">
+                        {t.dueDate && t.dueDate !== t.date && (
+                             <span className="flex items-center gap-1 text-[11px] font-medium text-slate-400">
+                                 Srv: {formatDate(t.date)}
+                             </span>
+                        )}
+                        <span className={`flex items-center gap-1 font-bold ${getDaysUntil(t) < 0 ? 'text-red-500' : getDaysUntil(t) <= 3 ? 'text-amber-500' : 'text-slate-600 dark:text-slate-300'}`}>
+                            <Calendar className="h-3 w-3" />
+                            Venc: {formatDate(t.dueDate || t.date)}
+                        </span>
+                    </div>
+                    <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700/50 rounded text-[10px] font-medium h-fit">
                         {t.category}
                     </span>
                     {t.employeeName && (
-                        <span className="text-indigo-500 font-semibold">{t.employeeName}</span>
+                        <span className="text-indigo-500 font-semibold h-fit">{t.employeeName}</span>
                     )}
                 </div>
             </div>

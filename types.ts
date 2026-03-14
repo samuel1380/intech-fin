@@ -51,6 +51,8 @@ export interface Transaction {
   isRecurring?: boolean;
   recurringIntervalMonths?: number;
   recurringDay?: number;
+  dueDate?: string;
+  installment?: string;
 }
 
 export interface FinancialSummary {

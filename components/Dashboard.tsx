@@ -305,16 +305,19 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     (t.status === TransactionStatus.PENDING || t.status === TransactionStatus.PARTIAL)
                 );
                 const overdue = pendingAccounts.filter(t => {
-                    const [y, m, d] = t.date.split('-').map(Number);
+                    const targetDate = t.dueDate || t.date;
+                    const [y, m, d] = targetDate.split('-').map(Number);
                     return new Date(y, m - 1, d) < now;
                 });
                 const dueToday = pendingAccounts.filter(t => {
-                    const [y, m, d] = t.date.split('-').map(Number);
+                    const targetDate = t.dueDate || t.date;
+                    const [y, m, d] = targetDate.split('-').map(Number);
                     const td = new Date(y, m - 1, d);
                     return td.getTime() === now.getTime();
                 });
                 const dueSoon = pendingAccounts.filter(t => {
-                    const [y, m, d] = t.date.split('-').map(Number);
+                    const targetDate = t.dueDate || t.date;
+                    const [y, m, d] = targetDate.split('-').map(Number);
                     const td = new Date(y, m - 1, d);
                     const diff = (td.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
                     return diff >= 1 && diff <= 3;
