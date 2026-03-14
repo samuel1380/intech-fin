@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Transaction, TransactionType, TransactionCategory, TransactionStatus } from '../types';
-import { Plus, Search, Trash2, Download, ChevronLeft, ChevronRight, CheckCircle, Clock, Filter, X, ArrowUpDown, Edit2, AlertCircle, RefreshCw, Check, Users, UserPlus, ChevronDown } from 'lucide-react';
-import { format } from 'date-fns';
+import { Plus, Search, Trash2, Download, ChevronLeft, ChevronRight, CheckCircle, Clock, Filter, X, ArrowUpDown, Edit2, AlertCircle, RefreshCw, Check, Users, UserPlus, ChevronDown, Layers } from 'lucide-react';
+import { format, addDays } from 'date-fns';
 
 interface Props {
     transactions: Transaction[];
@@ -67,9 +67,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         pendingAmount: '',
         isRecurring: false,
         recurringIntervalMonths: '1',
-        recurringDay: new Date().getDate().toString(),
-        dueDate: format(new Date(), 'yyyy-MM-dd'),
-        installmentsCount: '1'
+        recurringDay: new Date().getDate().toString()
     });
 
     const filtered = transactions.filter(t => {
@@ -102,9 +100,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
             pendingAmount: t.pendingAmount?.toString() || '',
             isRecurring: t.isRecurring || false,
             recurringIntervalMonths: t.recurringIntervalMonths?.toString() || '1',
-            recurringDay: t.recurringDay?.toString() || new Date().getDate().toString(),
-            dueDate: t.dueDate || t.date,
-            installmentsCount: '1' // Sempre no edit mexe numa parcela por vez
+            recurringDay: t.recurringDay?.toString() || new Date().getDate().toString()
         });
         setShowModal(true);
     };
@@ -115,7 +111,8 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
             amount: '',
             type: TransactionType.EXPENSE,
             category: TransactionCategory.OPERATIONS,
-            date: format(new Date(), 'yyyy-MM-dd'),
+            date: format(new Date(), 'yyyy-MM-dd'), // Data de Vencimento
+            serviceDate: format(new Date(), 'yyyy-MM-dd'), // Data do Serviço
             status: TransactionStatus.COMPLETED,
             employeeName: '',
             commissionRate: '',
@@ -125,8 +122,9 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
             isRecurring: false,
             recurringIntervalMonths: '1',
             recurringDay: new Date().getDate().toString(),
-            dueDate: format(new Date(), 'yyyy-MM-dd'),
-            installmentsCount: '1'
+            isInstallment: false,
+            installCount: '2',
+            installInterval: '30'
         });
     };
 
@@ -135,51 +133,68 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         setIsSubmitting(true);
 
         try {
-            const data: any = {
+            const baseData: any = {
                 description: formData.description,
                 amount: parseFloat(formData.amount),
                 type: formData.type,
                 category: formData.category as TransactionCategory,
                 date: formData.date,
+                serviceDate: formData.serviceDate,
                 status: formData.status as TransactionStatus,
                 employeeName: formData.employeeName || undefined,
                 commissionRate: formData.commissionRate ? parseFloat(formData.commissionRate) : undefined,
                 commissionAmount: formData.commissionAmount ? parseFloat(formData.commissionAmount) : undefined,
                 commissionPaymentDate: formData.commissionPaymentDate || undefined,
-                pendingAmount: formData.pendingAmount ? parseFloat(formData.pendingAmount) : undefined,
+                pendingAmount: formData.pendingAmount && parseFloat(formData.pendingAmount) > 0 ? parseFloat(formData.pendingAmount) : undefined,
                 isRecurring: formData.isRecurring || undefined,
                 recurringIntervalMonths: formData.isRecurring ? parseInt(formData.recurringIntervalMonths) : undefined,
                 recurringDay: formData.isRecurring ? parseInt(formData.recurringDay) : undefined,
-                dueDate: formData.dueDate || formData.date,
             };
 
             if (isEditing && editingId) {
-                // Ao editar, só passamos os dados de 1 transação e não fatiamos em parcelas
-                await onUpdateTransaction(editingId, data);
+                await onUpdateTransaction(editingId, baseData);
             } else {
-                const parcels = parseInt(formData.installmentsCount) || 1;
-                
-                if (parcels > 1) {
-                    // Parcelamento
-                    const parcelAmount = data.amount / parcels;
-                    let baseDueDate = new Date(`${data.dueDate}T12:00:00`);
+                if (formData.isInstallment && !formData.isRecurring) {
+                    const count = parseInt(formData.installCount) || 1;
+                    const interval = parseInt(formData.installInterval) || 30;
+                    const totalAmount = baseData.amount;
+                    const totalCommission = baseData.commissionAmount || 0;
+                    const totalPending = baseData.pendingAmount !== undefined ? baseData.pendingAmount : (baseData.status === TransactionStatus.PENDING ? totalAmount : 0);
+                    
+                    const amountPerInstallment = parseFloat((totalAmount / count).toFixed(2));
+                    const commissionPerInstallment = parseFloat((totalCommission / count).toFixed(2));
+                    const pendingPerInstallment = parseFloat((totalPending / count).toFixed(2));
+                    
+                    let createdAmount = 0;
+                    let createdCommission = 0;
+                    let createdPending = 0;
 
-                    for (let i = 1; i <= parcels; i++) {
-                        // Calcula a data de vencimento (uma ao mês)
-                        const parcelDueDate = new Date(baseDueDate);
-                        parcelDueDate.setMonth(baseDueDate.getMonth() + (i - 1));
+                    let [y, m, d] = formData.date.split('-').map(Number);
+                    let firstDueDate = new Date(y, m - 1, d);
 
-                        const parcelData = {
-                            ...data,
-                            amount: parcelAmount,
-                            dueDate: format(parcelDueDate, 'yyyy-MM-dd'),
-                            installment: `${i}/${parcels}`
-                        };
-                        await onAddTransaction(parcelData);
+                    for (let i = 1; i <= count; i++) {
+                        const isLast = i === count;
+                        const instAmount = isLast ? parseFloat((totalAmount - createdAmount).toFixed(2)) : amountPerInstallment;
+                        const instCommission = isLast && totalCommission > 0 ? parseFloat((totalCommission - createdCommission).toFixed(2)) : commissionPerInstallment;
+                        const instPending = isLast && totalPending > 0 ? parseFloat((totalPending - createdPending).toFixed(2)) : pendingPerInstallment;
+                        
+                        createdAmount += instAmount;
+                        createdCommission += instCommission;
+                        createdPending += instPending;
+
+                        const dueDate = addDays(firstDueDate, (i - 1) * interval);
+
+                        await onAddTransaction({
+                            ...baseData,
+                            description: `${baseData.description} (Parcela ${i}/${count})`,
+                            amount: instAmount,
+                            commissionAmount: totalCommission > 0 ? instCommission : undefined,
+                            pendingAmount: totalPending > 0 ? instPending : undefined,
+                            date: format(dueDate, 'yyyy-MM-dd')
+                        });
                     }
                 } else {
-                    // À vista, normal
-                    await onAddTransaction(data);
+                    await onAddTransaction(baseData);
                 }
             }
 
@@ -542,39 +557,93 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                         />
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Data Serviço</label>
-                                        <input
-                                            required
-                                            type="date"
-                                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-medium text-slate-700 dark:text-slate-200"
-                                            value={formData.date}
-                                            onChange={e => {
-                                                const newDate = e.target.value;
-                                                // Auto update dueDate if they were the same before
-                                                setFormData(prev => ({ 
-                                                    ...prev, 
-                                                    date: newDate,
-                                                    dueDate: (prev.date === prev.dueDate) ? newDate : prev.dueDate
-                                                }));
-                                            }}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">{formData.type === TransactionType.EXPENSE ? 'Vencimento' : 'Data de Recebimento'}</label>
-                                        <input
-                                            required
-                                            type="date"
-                                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-medium text-slate-700 dark:text-slate-200"
-                                            value={formData.dueDate}
-                                            onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
                             </div>
 
-                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Data do Serviço / Lançamento</label>
+                                    <input
+                                        required
+                                        type="date"
+                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-medium text-slate-700 dark:text-slate-200"
+                                        value={formData.serviceDate}
+                                        onChange={e => setFormData({ ...formData, serviceDate: e.target.value })}
+                                        title="Quando o serviço foi executado ou a despesa contraída"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Data do Vencimento / Pagamento</label>
+                                    <input
+                                        required
+                                        type="date"
+                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-medium text-slate-700 dark:text-slate-200"
+                                        value={formData.date}
+                                        onChange={e => setFormData({ ...formData, date: e.target.value })}
+                                        title="Quando essa conta vence ou foi paga"
+                                    />
+                                </div>
+                            </div>
+                            
+                            {/* ===== SEÇÃO: PARCELAMENTO ===== */}
+                            {!isEditing && !formData.isRecurring && (
+                                <div className="p-4 bg-sky-50/50 dark:bg-sky-900/10 rounded-2xl border border-sky-100 dark:border-sky-800/50 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-widest flex items-center gap-1.5">
+                                            <Layers className="h-3 w-3" />
+                                            Pagamento Parcelado / Múltiplos Boletos?
+                                        </h4>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, isInstallment: !formData.isInstallment })}
+                                            className={`relative w-11 h-6 rounded-full transition-all duration-200 ${formData.isInstallment
+                                                ? 'bg-sky-600'
+                                                : 'bg-slate-200 dark:bg-slate-700'
+                                                }`}
+                                        >
+                                            <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ${formData.isInstallment ? 'translate-x-5' : ''}`}></div>
+                                        </button>
+                                    </div>
+
+                                    {formData.isInstallment && (
+                                        <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Qtd. de Parcelas</label>
+                                                <input
+                                                    type="number"
+                                                    min="2"
+                                                    max="72"
+                                                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none transition-all font-medium text-slate-800 dark:text-slate-200"
+                                                    value={formData.installCount}
+                                                    onChange={e => setFormData({ ...formData, installCount: e.target.value })}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Intervalo (Dias)</label>
+                                                <div className="relative">
+                                                    <select
+                                                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 appearance-none"
+                                                        value={formData.installInterval}
+                                                        onChange={e => setFormData({ ...formData, installInterval: e.target.value })}
+                                                    >
+                                                        <option value="7">Semanal (7 dias)</option>
+                                                        <option value="15">Quinzenal (15 dias)</option>
+                                                        <option value="30">Mensal (30 dias)</option>
+                                                        <option value="45">45 dias</option>
+                                                        <option value="60">Bimestral (60 dias)</option>
+                                                    </select>
+                                                    <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                                </div>
+                                            </div>
+                                            <p className="col-span-2 text-[10px] text-sky-500 dark:text-sky-400 italic ml-1 leading-relaxed">
+                                                * O valor total de {formatBRL(parseFloat(formData.amount || '0'))} será dividido em {formData.installCount} boletos/parcelas.<br />
+                                                * O primeiro vencimento será na "Data do Vencimento" preenchida acima ({formData.date.split('-').reverse().join('/')}).
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Categoria</label>
                                     <div className="relative">
@@ -621,25 +690,9 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             <option value={TransactionStatus.PENDING}>Pendente</option>
                                             <option value={TransactionStatus.PARTIAL}>Pagto Parcial</option>
                                         </select>
-                                        </select>
                                         <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                                     </div>
                                 </div>
-                                {!isEditing && (
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Parcelas</label>
-                                        <div className="relative">
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm font-bold font-mono text-slate-700 dark:text-slate-200"
-                                                value={formData.installmentsCount}
-                                                onChange={e => setFormData({ ...formData, installmentsCount: e.target.value })}
-                                                placeholder="1"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
                             </div>
 
                             {/* ===== SEÇÃO: DESPESA RECORRENTE ===== */}

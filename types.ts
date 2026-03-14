@@ -36,7 +36,8 @@ export enum TransactionCategory {
 
 export interface Transaction {
   id: string;
-  date: string;
+  date: string; // Used as DUE DATE now
+  serviceDate?: string; // Original historic date of the service
   description: string;
   amount: number;
   type: TransactionType;
@@ -51,8 +52,6 @@ export interface Transaction {
   isRecurring?: boolean;
   recurringIntervalMonths?: number;
   recurringDay?: number;
-  dueDate?: string;
-  installment?: string;
 }
 
 export interface FinancialSummary {
