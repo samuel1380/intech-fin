@@ -15,7 +15,7 @@ interface EmployeeReport {
     name: string;
     totalRevenue: number;
     totalCommission: number;
-    pendingCommission: number;
+    totalVales: number;
     jobCount: number;
     avgPerJob: number;
     commissionRate: number;
@@ -59,7 +59,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
     const totalTaxRate = taxSettings.length > 0
         ? taxSettings.reduce((acc, curr) => acc + (curr.percentage / 100), 0)
         : 0.15;
-    const estimatedTax = grossProfit > 0 ? grossProfit * totalTaxRate : 0;
+    const estimatedTax = totalIncome > 0 ? totalIncome * totalTaxRate : 0;
     const netAfterTax = grossProfit - estimatedTax;
     const profitMargin = totalIncome > 0 ? (netAfterTax / totalIncome) * 100 : 0;
 
@@ -78,7 +78,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                 name,
                 totalRevenue: 0,
                 totalCommission: 0,
-                pendingCommission: 0,
+                totalVales: 0,
                 jobCount: 0,
                 avgPerJob: 0,
                 commissionRate: 0,
@@ -87,20 +87,18 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         }
         const emp = employeeMap[name];
         emp.transactions.push(t);
-        emp.jobCount++;
 
         if (t.type === TransactionType.INCOME) {
+            emp.jobCount++;
             emp.totalRevenue += t.amount;
-        }
-
-        if (t.commissionAmount) {
-            emp.totalCommission += t.commissionAmount;
-            if (t.commissionRate) {
-                emp.commissionRate = t.commissionRate;
+            if (t.commissionAmount) {
+                emp.totalCommission += t.commissionAmount;
+                if (t.commissionRate) {
+                    emp.commissionRate = t.commissionRate;
+                }
             }
-            if (t.commissionPaymentDate && t.commissionPaymentDate >= today) {
-                emp.pendingCommission += t.commissionAmount;
-            }
+        } else if (t.type === TransactionType.EXPENSE) {
+            emp.totalVales += t.amount;
         }
     });
 
@@ -438,7 +436,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Impostos</span>
                     </div>
                     <p className="text-lg font-extrabold text-yellow-600 dark:text-yellow-400">{formatCompact(estimatedTax)}</p>
-                    <p className="text-[10px] text-slate-400 font-medium">{(totalTaxRate * 100).toFixed(1)}% sobre lucro</p>
+                    <p className="text-[10px] text-slate-400 font-medium">{(totalTaxRate * 100).toFixed(1)}% sobre receita</p>
                 </div>
 
                 <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
@@ -587,18 +585,18 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                                     <p className="text-xl font-extrabold text-indigo-700 dark:text-indigo-300">{selectedEmp.jobCount}</p>
                                     <p className="text-[10px] text-indigo-400 font-medium mt-0.5">Média: {formatBRL(selectedEmp.avgPerJob)}</p>
                                 </div>
-                                <div className={`p-4 rounded-xl border ${selectedEmp.pendingCommission > 0
+                                <div className={`p-4 rounded-xl border ${selectedEmp.totalVales > 0
                                         ? 'bg-rose-50 dark:bg-rose-900/20 border-rose-100 dark:border-rose-800/30'
                                         : 'bg-slate-50 dark:bg-slate-800/30 border-slate-100 dark:border-slate-700/30'
                                     }`}>
                                     <div className="flex items-center gap-2 mb-1">
-                                        <Calendar className="h-4 w-4 text-rose-600 dark:text-rose-400" />
-                                        <span className={`text-[10px] font-bold uppercase ${selectedEmp.pendingCommission > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400'}`}>
-                                            Pendente
+                                        <TrendingDown className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                                        <span className={`text-[10px] font-bold uppercase ${selectedEmp.totalVales > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400'}`}>
+                                            Vales / Despesas
                                         </span>
                                     </div>
-                                    <p className={`text-xl font-extrabold ${selectedEmp.pendingCommission > 0 ? 'text-rose-700 dark:text-rose-300' : 'text-slate-300 dark:text-slate-600'}`}>
-                                        {formatBRL(selectedEmp.pendingCommission)}
+                                    <p className={`text-xl font-extrabold ${selectedEmp.totalVales > 0 ? 'text-rose-700 dark:text-rose-300' : 'text-slate-300 dark:text-slate-600'}`}>
+                                        {formatBRL(selectedEmp.totalVales)}
                                     </p>
                                 </div>
                             </div>
