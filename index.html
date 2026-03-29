@@ -124,8 +124,8 @@
     .table-row-hover:hover td { transition: background-color 0.2s; }
 
     /* iOS Safe Areas */
-    .safe-padding-bottom { padding-bottom: env(safe-area-inset-bottom, 1rem); }
-    .safe-padding-top { padding-top: env(safe-area-inset-top, 0px); }
+    .safe-padding-bottom { padding-bottom: max(env(safe-area-inset-bottom), 1.5rem); }
+    .safe-padding-top { padding-top: max(env(safe-area-inset-top), 1.5rem); }
 
     /* Theme transition */
     html { transition: background-color 0.3s ease; }

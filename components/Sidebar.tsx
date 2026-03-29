@@ -26,7 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
             `}
     >
       {/* Header / Brand */}
-      <div className="h-20 flex items-center px-6 border-b border-slate-800/50 shrink-0">
+      <div className="h-20 flex items-center px-6 border-b border-slate-800/50 shrink-0 safe-padding-top">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-black/20 shrink-0 bg-white">
             <img src="/logo.png" alt="FinNexus Logo" className="w-full h-full object-cover" />
