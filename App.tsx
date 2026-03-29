@@ -6,13 +6,13 @@ import Reports from './components/Reports';
 import AIAssistant from './components/AIAssistant';
 import Accounts from './components/Accounts';
 import ThemeToggle from './components/ThemeToggle';
-import NotificationSettings from './components/NotificationSettings';
-import { useNotifications } from './hooks/useNotifications';
+import Settings from './components/Settings';
 import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteTransactionFromDb, clearDatabase, updateTransactionStatus, updateTransactionInDb } from './services/transactionService';
 import { getTaxSettingsFromDb, addTaxSettingToDb, deleteTaxSettingFromDb } from './services/taxService';
 import { isSupabaseConfigured } from './services/supabase';
+import { loadNotificationPrefs, checkAndTriggerLocalNotifications } from './services/notificationService';
 import { Transaction, FinancialSummary, TaxSetting } from './types';
-import { Menu, Database, Trash2, CheckCircle2, Lock, User, Cloud, AlertTriangle, Percent, Plus } from 'lucide-react';
+import { Menu, Lock, User } from 'lucide-react';
 
 const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => void }) => {
   const [email, setEmail] = useState('');
@@ -91,15 +91,6 @@ function App() {
   const [taxSettings, setTaxSettings] = useState<TaxSetting[]>([]);
   const [newTaxName, setNewTaxName] = useState('');
   const [newTaxPercent, setNewTaxPercent] = useState('');
-
-  const {
-    permission,
-    preferences,
-    isSupported,
-    toggleEnabled,
-    savePreferences,
-    runNotificationCheck,
-  } = useNotifications();
 
   // Check login persistence
   useEffect(() => {
@@ -193,6 +184,14 @@ function App() {
       setTransactions(finalData);
       setTaxSettings(taxes);
       setSummary(calculateSummary(finalData, taxes));
+
+      // Check and trigger local notifications based on user preferences
+      try {
+        const notifPrefs = await loadNotificationPrefs();
+        await checkAndTriggerLocalNotifications(finalData, notifPrefs);
+      } catch (notifError) {
+        console.warn('Notification check failed:', notifError);
+      }
     } catch (error: any) {
       console.error("Erro ao carregar banco de dados:", error);
       if (!isSupabaseConfigured) {
@@ -218,22 +217,6 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [isAuthenticated]);
-
-  useEffect(() => {
-    if (transactions.length > 0) {
-      runNotificationCheck(transactions);
-    }
-  }, [transactions, runNotificationCheck]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (transactions.length > 0) {
-        runNotificationCheck(transactions);
-      }
-    }, preferences.checkInterval || 60000);
-
-    return () => clearInterval(interval);
-  }, [transactions, runNotificationCheck, preferences.checkInterval]);
 
   const handleAddTransaction = async (newTx: Omit<Transaction, 'id'>) => {
     await addTransactionToDb(newTx);
@@ -397,136 +380,17 @@ function App() {
                 {activeTab === 'ai-advisor' && <AIAssistant summary={summary} transactions={transactions} />}
 
                 {activeTab === 'settings' && (
-                  <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-                    <NotificationSettings
-                      preferences={preferences}
-                      permission={permission}
-                      isSupported={isSupported}
-                      onToggleMain={toggleEnabled}
-                      onPreferenceChange={(key, value) => {
-                        if (key === 'enabled') return;
-                        savePreferences({ ...preferences, [key]: value });
-                      }}
-                    />
-
-                    <div className="bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 p-8 rounded-2xl shadow-xl dark:shadow-none">
-                      <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                        <Database className="h-6 w-6 text-indigo-600" />
-                        Gerenciamento de Dados
-                      </h2>
-                      <p className="text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-                        Os dados são armazenados de forma {typeof isSupabaseConfigured !== 'undefined' && isSupabaseConfigured ? 'segura na nuvem (Supabase)' : 'local no seu navegador (IndexedDB)'}.
-                        Isso garante total privacidade e controle sobre suas informações financeiras.
-                      </p>
-
-                      <div className="space-y-4">
-                        {isSupabaseConfigured ? (
-                          <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30 rounded-xl flex items-center gap-4">
-                            <div className="p-3 bg-white dark:bg-slate-800 rounded-full text-emerald-600 dark:text-emerald-400 shadow-sm ring-1 ring-emerald-100 dark:ring-emerald-800/50">
-                              <Cloud className="h-6 w-6" />
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-emerald-800 dark:text-emerald-400">Banco de Dados em Nuvem Ativo</h4>
-                              <p className="text-sm text-emerald-700 dark:text-emerald-500">Sincronização em tempo real ativada via Supabase.</p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="p-6 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/30 rounded-xl flex items-center gap-4 text-center sm:text-left">
-                            <div className="p-3 bg-white dark:bg-slate-800 rounded-full text-rose-600 dark:text-rose-400 shadow-sm ring-1 ring-rose-100 dark:ring-rose-800/50">
-                              <AlertTriangle className="h-6 w-6" />
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-rose-800 dark:text-rose-400">Sistema Desconectado</h4>
-                              <p className="text-sm text-rose-700 dark:text-rose-500 font-medium">O banco de dados não está configurado. Por segurança, o salvamento local foi desativado.</p>
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="p-6 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/30 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                          <div>
-                            <h4 className="font-bold text-rose-800 dark:text-rose-400 flex items-center gap-2">
-                              <Trash2 className="h-4 w-4" /> Zona de Perigo
-                            </h4>
-                            <p className="text-sm text-rose-700 dark:text-rose-500 mt-1">A exclusão do banco de dados remove todo o histórico na nuvem.</p>
-                          </div>
-                          <button
-                            onClick={handleResetDatabase}
-                            className="px-6 py-3 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 text-rose-600 dark:text-rose-400 font-semibold rounded-lg hover:bg-rose-600 hover:text-white transition-all shadow-sm w-full sm:w-auto"
-                          >
-                            Resetar Banco de Dados
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 p-8 rounded-2xl shadow-xl dark:shadow-none">
-                      <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                        <Percent className="h-6 w-6 text-indigo-600" />
-                        Configuração de Impostos
-                      </h2>
-                      <p className="text-slate-600 dark:text-slate-300 mb-6">
-                        Configure os impostos incidentes sobre o faturamento. O sistema somará as porcentagens para calcular a provisão fiscal.
-                      </p>
-
-                      <div className="space-y-3 mb-8">
-                        {taxSettings.map(tax => (
-                          <div key={tax.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800 transition-all hover:border-indigo-200">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs ring-1 ring-indigo-100 dark:ring-indigo-800/50">
-                                %
-                              </div>
-                              <div>
-                                <h5 className="font-bold text-slate-800 dark:text-slate-200">{tax.name}</h5>
-                                <p className="text-xs text-slate-500 font-medium">{tax.percentage}% do lucro </p>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => handleDeleteTax(tax.id)}
-                              className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ))}
-                        {taxSettings.length === 0 && (
-                          <div className="text-center py-6 bg-slate-50 dark:bg-slate-800/20 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
-                            <p className="text-sm text-slate-500">Nenhum imposto configurado. Usando padrão de 15%.</p>
-                          </div>
-                        )}
-                      </div>
-
-                      <form onSubmit={handleAddTax} className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                        <div className="md:col-span-2">
-                          <input
-                            required
-                            placeholder="Nome (Ex: ISS)"
-                            value={newTaxName}
-                            onChange={e => setNewTaxName(e.target.value)}
-                            className="w-full h-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-medium dark:text-white"
-                          />
-                        </div>
-                        <div className="md:col-span-2 relative">
-                          <input
-                            required
-                            type="number"
-                            step="0.01"
-                            placeholder="Porcentagem (%)"
-                            value={newTaxPercent}
-                            onChange={e => setNewTaxPercent(e.target.value)}
-                            className="w-full h-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-medium dark:text-white pr-10"
-                          />
-                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
-                        </div>
-                        <button
-                          type="submit"
-                          className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2"
-                        >
-                          <Plus className="h-4 w-4" />
-                          <span>Adicionar</span>
-                        </button>
-                      </form>
-                    </div>
-                  </div>
+                  <Settings
+                    transactions={transactions}
+                    taxSettings={taxSettings}
+                    onAddTax={handleAddTax}
+                    onDeleteTax={handleDeleteTax}
+                    onResetDatabase={handleResetDatabase}
+                    newTaxName={newTaxName}
+                    setNewTaxName={setNewTaxName}
+                    newTaxPercent={newTaxPercent}
+                    setNewTaxPercent={setNewTaxPercent}
+                  />
                 )}
               </>
             )}
