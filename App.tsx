@@ -7,6 +7,7 @@ import AIAssistant from './components/AIAssistant';
 import Accounts from './components/Accounts';
 import ThemeToggle from './components/ThemeToggle';
 import Settings from './components/Settings';
+import DatabaseManager from './components/DatabaseManager';
 import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteTransactionFromDb, clearDatabase, updateTransactionStatus, updateTransactionInDb } from './services/transactionService';
 import { getTaxSettingsFromDb, addTaxSettingToDb, deleteTaxSettingFromDb } from './services/taxService';
 import { isSupabaseConfigured } from './services/supabase';
@@ -284,7 +285,8 @@ function App() {
       'accounts': 'Contas a Pagar & Receber',
       'reports': 'Relatórios & Auditoria Fiscal',
       'ai-advisor': 'Consultoria Inteligente (IA)',
-      'settings': 'Configurações do Sistema'
+      'settings': 'Configurações do Sistema',
+      'database': 'Gerenciamento de Banco de Dados'
     };
     return titles[tab] || tab;
   };
@@ -383,12 +385,14 @@ function App() {
                     taxSettings={taxSettings}
                     onAddTax={handleAddTax}
                     onDeleteTax={handleDeleteTax}
-                    onResetDatabase={handleResetDatabase}
                     newTaxName={newTaxName}
                     setNewTaxName={setNewTaxName}
                     newTaxPercent={newTaxPercent}
                     setNewTaxPercent={setNewTaxPercent}
                   />
+                )}
+                {activeTab === 'database' && (
+                  <DatabaseManager onResetDatabase={handleResetDatabase} />
                 )}
               </>
             )}

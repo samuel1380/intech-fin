@@ -131,35 +131,6 @@
     html { transition: background-color 0.3s ease; }
     .dark body { background-color: #0c1222; }
     .dark ::selection { background: rgba(99,102,241,0.3); color: #e0e7ff; }
-
-    /* PWA Install Banner */
-    #pwa-install-banner {
-      position: fixed;
-      bottom: env(safe-area-inset-bottom, 0);
-      left: 0; right: 0;
-      z-index: 9999;
-      padding: 16px;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      box-shadow: 0 -4px 20px rgba(79, 70, 229, 0.3);
-      transform: translateY(100%);
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    #pwa-install-banner.show { transform: translateY(0); }
-    #pwa-install-banner .banner-text { font-size: 14px; font-weight: 600; line-height: 1.3; }
-    #pwa-install-banner .banner-text small { display: block; font-size: 11px; opacity: 0.8; font-weight: 400; margin-top: 2px; }
-    #pwa-install-banner button {
-      padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700;
-      cursor: pointer; border: none; white-space: nowrap; transition: all 0.2s;
-    }
-    #btn-install { background: white; color: #4f46e5; }
-    #btn-install:hover { background: #e0e7ff; }
-    #btn-dismiss { background: rgba(255,255,255,0.15); color: white; }
-    #btn-dismiss:hover { background: rgba(255,255,255,0.25); }
   </style>
 
   <!-- Service Worker Registration -->
@@ -175,57 +146,11 @@
           });
       });
     }
-
-    // PWA Install Prompt
-    let deferredPrompt = null;
-    window.addEventListener('beforeinstallprompt', function (e) {
-      e.preventDefault();
-      deferredPrompt = e;
-
-      // Mostrar banner após 3 segundos
-      setTimeout(function () {
-        var banner = document.getElementById('pwa-install-banner');
-        if (banner && !localStorage.getItem('pwa-banner-dismissed')) {
-          banner.classList.add('show');
-        }
-      }, 3000);
-    });
-
-    window.addEventListener('appinstalled', function () {
-      deferredPrompt = null;
-      var banner = document.getElementById('pwa-install-banner');
-      if (banner) banner.classList.remove('show');
-      console.log('[PWA] App instalado!');
-    });
   </script>
 </head>
 
 <body class="text-slate-900 dark:text-slate-100 dark:bg-[#0c1222] antialiased overflow-hidden selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300">
-
   <div id="root"></div>
-
-  <!-- PWA Install Banner -->
-  <div id="pwa-install-banner" role="dialog" aria-label="Instalar FinNexus">
-    <div class="banner-text">
-      📱 Instalar FinNexus
-      <small>Acesse o app direto da tela inicial, sem browser.</small>
-    </div>
-    <div style="display:flex;gap:8px;flex-shrink:0">
-      <button id="btn-dismiss" onclick="
-        document.getElementById('pwa-install-banner').classList.remove('show');
-        localStorage.setItem('pwa-banner-dismissed', '1');
-      ">Não</button>
-      <button id="btn-install" onclick="
-        if(window.deferredPrompt) {
-          window.deferredPrompt.prompt();
-          window.deferredPrompt.userChoice.then(function(r) {
-            document.getElementById('pwa-install-banner').classList.remove('show');
-            window.deferredPrompt = null;
-          });
-        }
-      ">Instalar</button>
-    </div>
-  </div>
 
   <script type="module" src="/index.tsx"></script>
 </body>
