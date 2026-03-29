@@ -123,9 +123,29 @@
     /* Table */
     .table-row-hover:hover td { transition: background-color 0.2s; }
 
-    /* iOS Safe Areas */
-    .safe-padding-bottom { padding-bottom: max(env(safe-area-inset-bottom), 1.5rem); }
-    .safe-padding-top { padding-top: max(env(safe-area-inset-top), 1.5rem); }
+    /* iOS & Android Safe Areas Setup */
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+    }
+
+    .safe-padding-bottom { 
+      padding-bottom: max(var(--sab), 1rem) !important; 
+    }
+    
+    .safe-padding-top { 
+      padding-top: max(var(--sat), 1rem) !important; 
+    }
+
+    /* Fix for Android/iOS PWA where status bar overlaps the viewport-fit=cover but env() evaluates to 0 */
+    @media all and (display-mode: standalone) and (max-width: 768px) {
+      .safe-padding-top {
+        padding-top: max(var(--sat), 45px) !important;
+      }
+      .safe-padding-bottom {
+        padding-bottom: max(var(--sab), 24px) !important;
+      }
+    }
 
     /* Theme transition */
     html { transition: background-color 0.3s ease; }
