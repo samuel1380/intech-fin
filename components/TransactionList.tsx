@@ -333,7 +333,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         {/* Main Table Card */}
         <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-700/40 overflow-hidden w-full flex flex-col h-[600px]">
             <div className="overflow-auto custom-scrollbar flex-1 relative">
-                <table className="w-full text-left border-collapse min-w-[900px]">
+                <table className="hidden md:table w-full text-left border-collapse min-w-[900px]">
                     <thead className="bg-slate-50/90 dark:bg-[#0d1526]/90 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700/40 sticky top-0 z-10">
                         <tr>
                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[120px]">Data</th>
@@ -442,6 +442,96 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                         })}
                     </tbody>
                 </table>
+
+                {/* Mobile Cards View */}
+                <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+                    {paginatedTransactions.map(t => {
+                        const [year, month, day] = t.date.split('-');
+                        const isPending = canMarkAsPaid(t);
+                        return (
+                            <div key={t.id} className="p-4 flex flex-col gap-3 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                                <div className="flex justify-between items-start gap-2">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-xs font-bold text-slate-500">{day}/{month}/{year}</span>
+                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600/50 truncate">{t.category}</span>
+                                        </div>
+                                        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm leading-snug break-words">{t.description}</h4>
+                                        {t.isRecurring && (
+                                            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 mt-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-md border border-purple-200 dark:border-purple-800/50 w-fit">
+                                                <RefreshCw className="h-2.5 w-2.5" />
+                                                {t.recurringIntervalMonths === 1 ? 'Mensal' : `${t.recurringIntervalMonths}m`}
+                                            </span>
+                                        )}
+                                        {t.employeeName && (
+                                            <div className="text-[10px] text-indigo-500 font-bold uppercase mt-1.5 flex flex-col">
+                                                <span>Téc: {t.employeeName}</span>
+                                                {t.commissionPaymentDate && (
+                                                    <span className="text-slate-400 normal-case font-medium">Pagto: {format(new Date(t.commissionPaymentDate + 'T12:00:00'), 'dd/MM/yyyy')}</span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-col items-end shrink-0 gap-1.5">
+                                        <span className={`font-bold font-mono text-base ${t.type === TransactionType.INCOME ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                                            {t.type === TransactionType.INCOME ? '+' : '-'}{formatBRL(t.amount)}
+                                        </span>
+                                        <button
+                                            onClick={() => {
+                                                const nextStatus = t.status === TransactionStatus.COMPLETED ? TransactionStatus.PENDING :
+                                                    t.status === TransactionStatus.PENDING ? TransactionStatus.PARTIAL :
+                                                        TransactionStatus.COMPLETED;
+                                                onUpdateStatus(t.id, nextStatus);
+                                            }}
+                                            className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-all border shadow-sm ${t.status === TransactionStatus.COMPLETED ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50' :
+                                                    t.status === TransactionStatus.PARTIAL ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50' :
+                                                        'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-800/50'
+                                                }`}
+                                        >
+                                            {t.status === TransactionStatus.COMPLETED ? <CheckCircle className="w-3 h-3" /> :
+                                                t.status === TransactionStatus.PARTIAL ? <AlertCircle className="w-3 h-3" /> :
+                                                    <Clock className="w-3 h-3" />}
+                                            {t.status}
+                                        </button>
+                                        {t.pendingAmount && t.pendingAmount > 0 && (
+                                            <span className="text-[10px] text-rose-500 font-bold mt-0.5">Pend: {formatBRL(t.pendingAmount)}</span>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                {/* Ações mobile */}
+                                <div className="flex items-center justify-end gap-2 pt-3 mt-1 border-t border-slate-100 dark:border-slate-800/50">
+                                    {isPending && (
+                                        <button
+                                            onClick={() => handleMarkAsPaid(t)}
+                                            disabled={markingPaidId === t.id}
+                                            className="flex-1 flex justify-center items-center py-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-lg font-bold text-xs gap-1.5 transition-colors"
+                                        >
+                                            {markingPaidId === t.id ? (
+                                                <div className="w-3 h-3 border-2 border-emerald-300 border-t-emerald-600 rounded-full animate-spin"></div>
+                                            ) : (
+                                                <Check className="h-3.5 w-3.5" />
+                                            )}
+                                            Marcar Pago
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => handleEdit(t)}
+                                        className="flex-1 py-2 px-3 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/50 rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs font-bold"
+                                    >
+                                        <Edit2 className="h-3.5 w-3.5" /> Editar
+                                    </button>
+                                    <button
+                                        onClick={() => onDeleteTransaction(t.id)}
+                                        className="flex-[0.5] py-2 px-3 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50 rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs font-bold"
+                                    >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
             </div>
 
             {/* Pagination */}
