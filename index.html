@@ -4,7 +4,17 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FinNexus" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="FinNexus Enterprise" />
+  <meta name="description" content="Sistema completo de gestão financeira empresarial com notificações inteligentes" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
   <title>FinNexus Enterprise - Gestão Financeira</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -28,9 +38,9 @@
               900: '#312e81',
             },
             slate: {
-              850: '#1e293b', // Custom dark
+              850: '#1e293b',
               900: '#0f172a',
-              950: '#020617', // Deeper dark for bg
+              950: '#020617',
             }
           },
           animation: {
@@ -53,7 +63,6 @@
     }
   </script>
   <style>
-    /* Modern Scrollbar - Light */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -72,7 +81,6 @@
       background: #94a3b8;
     }
 
-    /* Scrollbar - Dark */
     .dark ::-webkit-scrollbar-thumb {
       background: #334155;
     }
@@ -81,7 +89,6 @@
       background: #475569;
     }
 
-    /* Glassmorphism Utilities */
     .glass-panel {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(8px);
@@ -101,12 +108,10 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* Clean Table Styles */
     .table-row-hover:hover td {
       transition: background-color 0.2s;
     }
 
-    /* Mobile Safe Area Padding */
     .safe-padding-bottom {
       padding-bottom: env(safe-area-inset-bottom, 1rem);
     }
@@ -115,29 +120,49 @@
       padding-top: env(safe-area-inset-top, 0px);
     }
 
-    /* Smooth theme transition */
     html {
       transition: background-color 0.3s ease;
     }
 
-    /* Dark mode global improvements */
     .dark body {
       background-color: #0c1222;
     }
 
-    /* Dark mode selection */
     .dark ::selection {
       background: rgba(99, 102, 241, 0.3);
       color: #e0e7ff;
     }
-  </style>
 
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body, #root {
+      height: 100%;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+    }
+  </style>
 </head>
 
 <body
   class="text-slate-900 dark:text-slate-100 dark:bg-[#0c1222] antialiased overflow-hidden selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300">
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
+  </script>
 </body>
 
 </html>

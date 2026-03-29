@@ -6,11 +6,13 @@ import Reports from './components/Reports';
 import AIAssistant from './components/AIAssistant';
 import Accounts from './components/Accounts';
 import ThemeToggle from './components/ThemeToggle';
+import NotificationSettings from './components/NotificationSettings';
+import { useNotifications } from './hooks/useNotifications';
 import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteTransactionFromDb, clearDatabase, updateTransactionStatus, updateTransactionInDb } from './services/transactionService';
 import { getTaxSettingsFromDb, addTaxSettingToDb, deleteTaxSettingFromDb } from './services/taxService';
 import { isSupabaseConfigured } from './services/supabase';
 import { Transaction, FinancialSummary, TaxSetting } from './types';
-import { Menu, Database, Trash2, CheckCircle2, Lock, User, Cloud, AlertTriangle, Percent, Plus, Bell } from 'lucide-react';
+import { Menu, Database, Trash2, CheckCircle2, Lock, User, Cloud, AlertTriangle, Percent, Plus } from 'lucide-react';
 
 const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => void }) => {
   const [email, setEmail] = useState('');
@@ -90,12 +92,14 @@ function App() {
   const [newTaxName, setNewTaxName] = useState('');
   const [newTaxPercent, setNewTaxPercent] = useState('');
 
-  // Notification states
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [notifyBillsToPay, setNotifyBillsToPay] = useState(true);
-  const [notifyBillsToExpire, setNotifyBillsToExpire] = useState(true);
-  const [notifyCommissions, setNotifyCommissions] = useState(true);
-  const [notifyDebts, setNotifyDebts] = useState(true);
+  const {
+    permission,
+    preferences,
+    isSupported,
+    toggleEnabled,
+    savePreferences,
+    runNotificationCheck,
+  } = useNotifications();
 
   // Check login persistence
   useEffect(() => {
@@ -103,43 +107,7 @@ function App() {
     if (storedAuth === 'true') {
       setIsAuthenticated(true);
     }
-
-    const savedSettings = localStorage.getItem('finnexus_notifications');
-    if (savedSettings) {
-      const s = JSON.parse(savedSettings);
-      setNotificationsEnabled(s.enabled ?? false);
-      setNotifyBillsToPay(s.billsToPay ?? true);
-      setNotifyBillsToExpire(s.billsToExpire ?? true);
-      setNotifyCommissions(s.commissions ?? true);
-      setNotifyDebts(s.debts ?? true);
-    }
   }, []);
-
-  const saveNotificationSettings = (enabled: boolean, billsToPay: boolean, billsToExpire: boolean, commissions: boolean, debts: boolean) => {
-     localStorage.setItem('finnexus_notifications', JSON.stringify({
-       enabled, billsToPay, billsToExpire, commissions, debts
-     }));
-  };
-
-  const handleNotificationsToggle = async () => {
-    const willEnable = !notificationsEnabled;
-    if (willEnable) {
-      if ('Notification' in window) {
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-           alert('Você precisa permitir as notificações no seu navegador ou nas configurações do seu celular (onde este PWA/app foi instalado).');
-           return;
-        }
-      } else {
-        alert('Este dispositivo não suporta notificações nativas.');
-        return;
-      }
-    }
-    setNotificationsEnabled(willEnable);
-    saveNotificationSettings(willEnable, notifyBillsToPay, notifyBillsToExpire, notifyCommissions, notifyDebts);
-  };
-
-
 
   const handleLogin = (email: string, pass: string) => {
     // Credenciais Definitivas
@@ -250,6 +218,22 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (transactions.length > 0) {
+      runNotificationCheck(transactions);
+    }
+  }, [transactions, runNotificationCheck]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (transactions.length > 0) {
+        runNotificationCheck(transactions);
+      }
+    }, preferences.checkInterval || 60000);
+
+    return () => clearInterval(interval);
+  }, [transactions, runNotificationCheck, preferences.checkInterval]);
 
   const handleAddTransaction = async (newTx: Omit<Transaction, 'id'>) => {
     await addTransactionToDb(newTx);
@@ -414,6 +398,17 @@ function App() {
 
                 {activeTab === 'settings' && (
                   <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
+                    <NotificationSettings
+                      preferences={preferences}
+                      permission={permission}
+                      isSupported={isSupported}
+                      onToggleMain={toggleEnabled}
+                      onPreferenceChange={(key, value) => {
+                        if (key === 'enabled') return;
+                        savePreferences({ ...preferences, [key]: value });
+                      }}
+                    />
+
                     <div className="bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 p-8 rounded-2xl shadow-xl dark:shadow-none">
                       <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
                         <Database className="h-6 w-6 text-indigo-600" />
@@ -531,88 +526,6 @@ function App() {
                         </button>
                       </form>
                     </div>
-
-                    {/* NEW NOTIFICATION SETTINGS */}
-                    <div className="bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 p-8 rounded-2xl shadow-xl dark:shadow-none mt-6">
-                      <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                        <Bell className="h-6 w-6 text-indigo-600" />
-                        Notificações & Alertas (PWA/Celular)
-                      </h2>
-                      <p className="text-slate-600 dark:text-slate-300 mb-6 font-medium">
-                        Ative os alertas no seu celular para receber lembretes de pagamentos, comissões ou faturas quase vencendo.
-                      </p>
-
-                      <div className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 rounded-xl mb-6">
-                        <div>
-                          <h4 className="font-bold text-indigo-900 dark:text-indigo-400">Notificações Gerais</h4>
-                          <p className="text-sm text-indigo-700 dark:text-indigo-300">Habilitar envio de alertas para seu aparelho.</p>
-                        </div>
-                        <button
-                          onClick={handleNotificationsToggle}
-                          className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${notificationsEnabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'}`}
-                        >
-                          <span
-                            className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md shadow-slate-400/30 transition-transform duration-300 ease-in-out ${notificationsEnabled ? 'translate-x-7' : 'translate-x-1'}`}
-                          />
-                        </button>
-                      </div>
-
-                      <div className={`space-y-4 transition-all duration-500 overflow-hidden ${notificationsEnabled ? 'opacity-100 max-h-[500px]' : 'opacity-50 max-h-[500px] pointer-events-none'}`}>
-                        {/* Option 1 */}
-                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                          <div>
-                            <h5 className="font-bold text-slate-800 dark:text-slate-200">Contas prestes a pagar</h5>
-                            <p className="text-xs text-slate-500 font-medium">Aviso de despesas pro dia.</p>
-                          </div>
-                          <button
-                            onClick={() => { setNotifyBillsToPay(!notifyBillsToPay); saveNotificationSettings(notificationsEnabled, !notifyBillsToPay, notifyBillsToExpire, notifyCommissions, notifyDebts); }}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${notifyBillsToPay ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'}`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${notifyBillsToPay ? 'translate-x-6' : 'translate-x-1'}`} />
-                          </button>
-                        </div>
-                        {/* Option 2 */}
-                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                          <div>
-                            <h5 className="font-bold text-slate-800 dark:text-slate-200">Contas prestes a vencer</h5>
-                            <p className="text-xs text-slate-500 font-medium">Alerta na véspera do vencimento de despesas importantes.</p>
-                          </div>
-                          <button
-                            onClick={() => { setNotifyBillsToExpire(!notifyBillsToExpire); saveNotificationSettings(notificationsEnabled, notifyBillsToPay, !notifyBillsToExpire, notifyCommissions, notifyDebts); }}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${notifyBillsToExpire ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'}`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${notifyBillsToExpire ? 'translate-x-6' : 'translate-x-1'}`} />
-                          </button>
-                        </div>
-                        {/* Option 3 */}
-                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                          <div>
-                            <h5 className="font-bold text-slate-800 dark:text-slate-200">Dia do pagamento de comissão</h5>
-                            <p className="text-xs text-slate-500 font-medium">Aviso de que hoje é dia de receber uma comissão.</p>
-                          </div>
-                          <button
-                            onClick={() => { setNotifyCommissions(!notifyCommissions); saveNotificationSettings(notificationsEnabled, notifyBillsToPay, notifyBillsToExpire, !notifyCommissions, notifyDebts); }}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${notifyCommissions ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'}`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${notifyCommissions ? 'translate-x-6' : 'translate-x-1'}`} />
-                          </button>
-                        </div>
-                        {/* Option 4 */}
-                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                          <div>
-                            <h5 className="font-bold text-slate-800 dark:text-slate-200">Aviso de cobrança de dívida</h5>
-                            <p className="text-xs text-slate-500 font-medium">Lembrete de que hoje é o dia de cobrar/receber uma dívida.</p>
-                          </div>
-                          <button
-                            onClick={() => { setNotifyDebts(!notifyDebts); saveNotificationSettings(notificationsEnabled, notifyBillsToPay, notifyBillsToExpire, notifyCommissions, !notifyDebts); }}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${notifyDebts ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'}`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${notifyDebts ? 'translate-x-6' : 'translate-x-1'}`} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
                   </div>
                 )}
               </>

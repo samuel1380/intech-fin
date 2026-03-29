@@ -1,0 +1,40 @@
+{
+  "name": "FinNexus Enterprise - Gestão Financeira",
+  "short_name": "FinNexus",
+  "description": "Sistema completo de gestão financeira empresarial com notificações inteligentes",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["finance", "business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Visualizar dashboard financeiro",
+      "url": "/?tab=dashboard"
+    },
+    {
+      "name": "Transações",
+      "short_name": "Transações",
+      "description": "Ver todas as transações",
+      "url": "/?tab=transactions"
+    }
+  ]
+}
