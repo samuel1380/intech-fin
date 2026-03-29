@@ -27,8 +27,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
       {/* Header / Brand */}
       <div className="h-20 flex items-center px-6 border-b border-slate-800/50 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
-            <Wallet className="h-5 w-5 text-white" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-black/20 shrink-0 bg-white">
+            <img src="/logo.png" alt="FinNexus Logo" className="w-full h-full object-cover" />
           </div>
           <div className={`transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 lg:hidden pointer-events-none'}`}>
             <span className="font-bold text-lg tracking-tight block leading-none">FinNexus</span>

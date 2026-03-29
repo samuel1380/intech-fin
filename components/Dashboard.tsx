@@ -6,7 +6,7 @@ import {
     BarChart, Bar, ReferenceLine
 } from 'recharts';
 import { format, isSameMonth, isSameDay } from 'date-fns';
-import ptBR from 'date-fns/locale/pt-BR';
+import { ptBR } from 'date-fns/locale/pt-BR';
 
 interface DashboardProps {
     transactions: Transaction[];
@@ -241,7 +241,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
     };
 
     return (
-        <div className="space-y-8 animate-fade-in w-full pb-8">
+        <div className="space-y-8 animate-fade-in w-full min-w-0 pb-8">
             {/* Header & Filter */}
             <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 border-b border-slate-200 dark:border-slate-700/40 pb-6">
                 <div>
@@ -508,20 +508,20 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                             .filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount && t.pendingAmount > 0)
                             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                             .map(t => (
-                                <div key={t.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 group hover:border-rose-200 dark:hover:border-rose-800/50 transition-all">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-slate-100 dark:border-slate-600">
-                                            <DollarSign className="h-5 w-5 text-rose-400" />
+                                <div key={t.id} className="flex items-center justify-between p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 group hover:border-rose-200 dark:hover:border-rose-800/50 transition-all gap-2">
+                                    <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-slate-100 dark:border-slate-600">
+                                            <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-rose-400" />
                                         </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[180px]">{t.description}</p>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                                                <Calendar className="h-3 w-3" />
-                                                Serviço em {format(parseDateLocal(t.date), 'dd/MM/yyyy')}
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{t.description}</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 truncate">
+                                                <Calendar className="h-3 w-3 shrink-0" />
+                                                <span className="truncate">Serviço em {format(parseDateLocal(t.date), 'dd/MM')}</span>
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
+                                    <div className="text-right shrink-0">
                                         <p className="text-sm font-bold text-rose-600 dark:text-rose-400">{formatCurrency(t.pendingAmount || 0)}</p>
                                         <p className="text-[10px] text-slate-400 uppercase font-bold">Total: {formatCurrency(t.amount)}</p>
                                     </div>
@@ -651,15 +651,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                         <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto custom-scrollbar w-full">
                     {hasFilteredData ? (
-                        <table className="w-full text-sm text-left min-w-[600px]">
+                        <table className="w-full text-sm text-left min-w-[500px]">
                             <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase bg-slate-50/50 dark:bg-[#0d1526]/60 border-b border-slate-100 dark:border-slate-700/40">
                                 <tr>
-                                    <th className="px-8 py-4 font-semibold tracking-wider">Descrição</th>
-                                    <th className="px-8 py-4 font-semibold tracking-wider">Data</th>
-                                    <th className="px-8 py-4 font-semibold tracking-wider">Categoria</th>
-                                    <th className="px-8 py-4 font-semibold tracking-wider text-right">Valor</th>
+                                    <th className="px-4 py-4 sm:px-8 font-semibold tracking-wider">Descrição</th>
+                                    <th className="px-4 py-4 sm:px-8 font-semibold tracking-wider">Data</th>
+                                    <th className="px-4 py-4 sm:px-8 font-semibold tracking-wider">Categoria</th>
+                                    <th className="px-4 py-4 sm:px-8 font-semibold tracking-wider text-right">Valor</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -667,7 +667,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                     const [year, month, day] = t.date.split('-');
                                     return (
                                         <tr key={t.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors group">
-                                            <td className="px-8 py-5">
+                                            <td className="px-4 py-4 sm:px-8 sm:py-5">
                                                 <div className="flex flex-col">
                                                     <span className="font-semibold text-slate-900 dark:text-slate-200 text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{t.description}</span>
                                                     <div className="flex items-center gap-2 mt-1">
@@ -676,13 +676,13 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5 text-slate-500 dark:text-slate-400 font-medium tabular-nums">{day}/{month}/{year}</td>
-                                            <td className="px-8 py-5">
-                                                <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md text-xs font-bold border border-slate-200 dark:border-slate-600">
+                                            <td className="px-4 py-4 sm:px-8 sm:py-5 text-slate-500 dark:text-slate-400 font-medium tabular-nums">{day}/{month}/{year}</td>
+                                            <td className="px-4 py-4 sm:px-8 sm:py-5">
+                                                <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md text-[10px] sm:text-xs font-bold border border-slate-200 dark:border-slate-600">
                                                     {t.category}
                                                 </span>
                                             </td>
-                                            <td className={`px-8 py-5 text-right font-bold text-base font-mono ${t.type === 'RECEITA' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                            <td className={`px-4 py-4 sm:px-8 sm:py-5 text-right font-bold text-sm sm:text-base font-mono ${t.type === 'RECEITA' ? 'text-emerald-600' : 'text-rose-600'}`}>
                                                 {t.type === 'RECEITA' ? '+' : '-'}{formatCurrency(t.amount)}
                                             </td>
                                         </tr>

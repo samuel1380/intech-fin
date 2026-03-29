@@ -177,6 +177,10 @@ const Settings: React.FC<SettingsProps> = ({
   const [swRegistered, setSwRegistered] = useState(false);
   const [pushSubscription, setPushSubscription] = useState<PushSubscription | null>(null);
 
+  // Estados do Modal de Resetar DB
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetStep, setResetStep] = useState(1);
+
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
   }, []);
@@ -574,7 +578,7 @@ const Settings: React.FC<SettingsProps> = ({
               <p className="text-sm text-rose-700 dark:text-rose-500 mt-1">A exclusão do banco de dados remove todo o histórico na nuvem.</p>
             </div>
             <button
-              onClick={onResetDatabase}
+              onClick={() => { setShowResetModal(true); setResetStep(1); }}
               className="px-6 py-3 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 text-rose-600 dark:text-rose-400 font-semibold rounded-lg hover:bg-rose-600 hover:text-white transition-all shadow-sm w-full sm:w-auto shrink-0"
             >
               Resetar Banco de Dados
@@ -651,6 +655,48 @@ const Settings: React.FC<SettingsProps> = ({
           </button>
         </form>
       </div>
+
+      {/* Modal de Confirmação de Reset Duplo */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowResetModal(false)} />
+          <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-rose-100 dark:border-rose-900/30 animate-fade-in-up">
+            <div className="w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center mb-5 border border-rose-200 dark:border-rose-800/50">
+              <AlertTriangle className="h-6 w-6 text-rose-600 dark:text-rose-400 animate-pulse" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+              {resetStep === 1 ? 'Você tem certeza?' : 'Você tem certeza mesmo?'}
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 font-medium">
+              {resetStep === 1 
+                ? 'Esta ação iniciará a exclusão de TODOS os seus dados financeiros.' 
+                : 'Esta é sua última chance. Todos os dados serão perdidos permanentemente e não poderão ser recuperados.'}
+            </p>
+            <div className="flex gap-3 justify-end mt-2">
+              <button 
+                onClick={() => { setShowResetModal(false); setResetStep(1); }}
+                className="px-4 py-2 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={() => {
+                  if (resetStep === 1) {
+                    setResetStep(2);
+                  } else {
+                    onResetDatabase();
+                    setShowResetModal(false);
+                    setResetStep(1);
+                  }
+                }}
+                className={`px-4 py-2 font-bold rounded-lg shadow-sm transition-all text-white ${resetStep === 1 ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200 dark:shadow-rose-900/20' : 'bg-red-700 hover:bg-red-800 scale-105 shadow-red-500/30'}`}
+              >
+                {resetStep === 1 ? 'Sim, continuar' : 'Sim, Resetar Agora'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -30,13 +30,13 @@ const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => vo
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-violet-600/30 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
 
-      <div className="relative z-10 w-full max-w-md p-8 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl animate-fade-in-up m-4 ring-1 ring-white/10">
-        <div className="text-center mb-10">
-          <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/30 mb-4">
-            <Lock className="w-8 h-8 text-white" />
+      <div className="relative z-10 w-full max-w-sm sm:max-w-md p-6 sm:p-8 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl animate-fade-in-up md:m-4 ring-1 ring-white/10 mx-auto">
+        <div className="text-center mb-6 sm:mb-10">
+          <div className="inline-flex w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-indigo-500/30 mb-4 bg-white border-2 border-white/20">
+            <img src="/logo.png" alt="FinNexus Logo" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-4xl font-bold text-white tracking-tight mb-2">FinNexus</h1>
-          <p className="text-slate-400 font-medium">Acesso Restrito Enterprise</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">FinNexus</h1>
+          <p className="text-slate-400 font-medium text-sm sm:text-base">Acesso Restrito Enterprise</p>
         </div>
         <form onSubmit={(e) => { e.preventDefault(); onLogin(email, password); }} className="space-y-5">
           <div className="space-y-1">
@@ -241,16 +241,14 @@ function App() {
   }
 
   const handleResetDatabase = async () => {
-    if (confirm('PERIGO: Isso apagará TODOS os registros financeiros. Deseja continuar?')) {
-      try {
-        await clearDatabase();
-        await loadData();
-        alert('Sistema resetado para configurações de fábrica.');
-      } catch (error: any) {
-        alert(error.message || 'Ocorreu um erro ao resetar os dados.');
-      }
+    try {
+      await clearDatabase();
+      await loadData();
+      alert('Sistema resetado para configurações de fábrica.');
+    } catch (error: any) {
+      alert(error.message || 'Ocorreu um erro ao resetar os dados.');
     }
-  }
+  };
 
   const handleAddTax = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -317,25 +315,25 @@ function App() {
 
       <div className={`flex-1 flex flex-col h-full transition-[margin] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} w-full`}>
 
-        <header className="bg-white/80 dark:bg-[#111a2e]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/50 px-4 md:px-8 py-4 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-colors duration-300">
-          <div className="flex items-center gap-4">
+        <header className="bg-white/80 dark:bg-[#111a2e]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/50 px-4 md:px-8 py-4 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-colors duration-300 gap-2">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors shrink-0"
             >
-              <Menu className="h-6 w-6" />
+              <Menu className="h-6 w-6 lg:h-5 lg:w-5" />
             </button>
-            <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight truncate">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight truncate leading-tight">
               {getHeaderTitle(activeTab)}
             </h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
             <ThemeToggle />
             <div className="text-right hidden sm:block">
               <p className="text-sm font-bold text-slate-900 dark:text-slate-100">João Silva (CFO)</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">TechCorp Brasil Ltda.</p>
             </div>
-            <div className="h-10 w-10 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-200 shrink-0 cursor-pointer hover:shadow-indigo-300 transition-shadow ring-2 ring-white dark:ring-slate-700">
+            <div className="h-9 w-9 md:h-10 md:w-10 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-200 shrink-0 cursor-pointer hover:shadow-indigo-300 transition-shadow ring-2 ring-white dark:ring-slate-700 text-sm">
               JS
             </div>
           </div>
