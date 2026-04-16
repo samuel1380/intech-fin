@@ -877,69 +877,60 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
 };
 
 const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, invertColor = false }: any) => {
-    const colorConfigs: any = {
-        indigo: { bg: 'bg-indigo-50 dark:bg-indigo-900/20', text: 'text-indigo-600 dark:text-indigo-400', border: 'border-indigo-100 dark:border-indigo-800/30', iconBg: 'bg-indigo-100 dark:bg-indigo-800/50' },
-        rose: { bg: 'bg-rose-50 dark:bg-rose-900/20', text: 'text-rose-600 dark:text-rose-400', border: 'border-rose-100 dark:border-rose-800/30', iconBg: 'bg-rose-100 dark:bg-rose-800/50' },
-        emerald: { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-100 dark:border-emerald-800/30', iconBg: 'bg-emerald-100 dark:bg-emerald-800/50' },
-        amber: { bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-600 dark:text-amber-400', border: 'border-amber-100 dark:border-amber-800/30', iconBg: 'bg-amber-100 dark:bg-amber-800/50' },
-    };
-
-    const gradients: any = {
-        indigo: "from-indigo-600 to-violet-600",
-        rose: "from-rose-600 to-pink-600",
-        emerald: "from-emerald-600 to-teal-600",
-        amber: "from-amber-500 to-orange-500"
-    };
-
-    const theme = colorConfigs[color] || colorConfigs.indigo;
-    const textGradient = gradients[color] || gradients.indigo;
-
-    let trendColor = trendUp ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20';
     let IconTrend = trendUp ? ArrowUpRight : ArrowDownRight;
 
+    // Trend: keep it subtle — green/red only for the tiny indicator
+    let trendTextColor = trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400';
     if (invertColor) {
-        trendColor = trendUp ? 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20';
+        trendTextColor = trendUp ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400';
+    }
+    const isNeutral = trend === '--%' || trend === '0%' || trend === '0.0%' || trend === '+0.0%';
+    if (isNeutral) {
+        trendTextColor = 'text-slate-400 dark:text-slate-500';
     }
 
-    // Fallback for neutral trend
-    if (trend === '--%' || trend === '0.0%') {
-        trendColor = 'text-slate-500 bg-slate-100';
-    }
+    // Subtle accent dot per card type
+    const accentDot: Record<string, string> = {
+        indigo: 'bg-slate-800 dark:bg-white',
+        rose: 'bg-slate-800 dark:bg-white',
+        emerald: 'bg-slate-800 dark:bg-white',
+        amber: 'bg-slate-800 dark:bg-white',
+    };
 
-    // Format currency manually to split symbol from value
+    // Format currency
     const formatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 }).format(value);
-    // Remove default NBSP and split
     const cleanFormatted = formatted.replace(/\s/g, ' ');
     const symbol = "R$";
     const valueStr = cleanFormatted.replace("R$", "").trim();
 
     return (
-        <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none hover:shadow-lg dark:hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-700/40 flex flex-col justify-between h-full group relative overflow-hidden">
-            {/* Background blob removed as per request */}
+        <div className="relative overflow-hidden bg-white/70 dark:bg-white/[0.04] backdrop-blur-2xl p-6 rounded-2xl border border-slate-200/60 dark:border-white/[0.06] flex flex-col justify-between h-full group hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/[0.03] dark:hover:shadow-black/20 transition-all duration-300">
+            {/* Frosted glass highlight line at top */}
+            <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/10 to-transparent" />
 
-            <div className="flex justify-between items-start mb-2 relative z-10">
-                <div className={`p-3 rounded-xl ${theme.bg} ${theme.text} transition-colors ring-1 ring-inset ring-black/5 dark:ring-white/10`}>
-                    <Icon className="h-6 w-6" />
+            <div className="flex justify-between items-start mb-5">
+                <div className="p-2.5 rounded-xl bg-slate-100/80 dark:bg-white/[0.06] transition-colors">
+                    <Icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                 </div>
-                <div className={`flex items-center px-2 py-1 rounded-lg text-xs font-bold ${trendColor}`}>
-                    {trend !== '--%' && <IconTrend className="h-3 w-3 mr-1" />}
-                    {trend}
+                <div className={`flex items-center gap-1 text-xs font-semibold ${trendTextColor}`}>
+                    {!isNeutral && <IconTrend className="h-3.5 w-3.5" />}
+                    <span>{trend}</span>
                 </div>
             </div>
 
-            <div className="relative z-10">
-                <div className="flex items-baseline gap-1 mt-2">
-                    <span className="text-sm font-bold text-slate-400 self-start mt-2">{symbol}</span>
-                    <h4 className={`text-3xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r ${textGradient} bg-clip-text text-transparent`}>
+            <div>
+                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">{title}</p>
+                <div className="flex items-baseline gap-1.5">
+                    <span className="text-sm font-semibold text-slate-400 dark:text-slate-500 self-start mt-1.5">{symbol}</span>
+                    <h4 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                         {valueStr}
                     </h4>
                 </div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">{title}</p>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-700/50 relative z-10">
-                <p className="text-xs text-slate-400 font-medium flex items-center gap-1">
-                    <div className={`w-1.5 h-1.5 rounded-full ${trendUp && !invertColor ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`}></div>
+            <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/[0.04]">
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${accentDot[color] || 'bg-slate-800 dark:bg-white'} opacity-30`} />
                     {subtitle}
                 </p>
             </div>
