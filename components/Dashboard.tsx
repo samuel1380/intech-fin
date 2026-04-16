@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Transaction, FinancialSummary, TransactionType, TransactionStatus, TaxSetting } from '../types';
-import { ArrowUpRight, ArrowDownRight, Activity, AlertCircle, TrendingUp, Calendar, ArrowRight, Wallet, CreditCard, ChevronDown, Clock, User, DollarSign, Bell } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Activity, AlertCircle, TrendingUp, Calendar, ArrowRight, Wallet, CreditCard, ChevronDown, Clock, User, DollarSign, Bell, CalendarRange } from 'lucide-react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar, ReferenceLine
@@ -32,6 +32,8 @@ const subDays = (date: Date, amount: number) => {
 
 const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransactions, taxSettings = [] }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
     const [viewMode, setViewMode] = useState<ViewMode>('month');
 
     // Helper to parse "YYYY-MM-DD" to local Date object
@@ -40,55 +42,110 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
         return new Date(y, m - 1, d);
     };
 
+    // Helpers for month range
+    const handleStartMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (!value) return;
+        const [year, month] = value.split('-').map(Number);
+        const newStart = new Date(year, month - 1, 1);
+        setStartDate(newStart);
+        // Se o início ficar depois do fim, iguala
+        if (newStart > endDate) setEndDate(newStart);
+    };
+
+    const handleEndMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (!value) return;
+        const [year, month] = value.split('-').map(Number);
+        const newEnd = new Date(year, month - 1, 1);
+        setEndDate(newEnd);
+        // Se o fim ficar antes do início, iguala
+        if (newEnd < startDate) setStartDate(newEnd);
+    };
+
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (!value) return;
-
-        if (viewMode === 'month') {
-            const [year, month] = value.split('-').map(Number);
-            setSelectedDate(new Date(year, month - 1, 1));
-        } else {
-            // Input type="date" returns YYYY-MM-DD
-            const [year, month, day] = value.split('-').map(Number);
-            setSelectedDate(new Date(year, month - 1, day));
-        }
+        // Input type="date" returns YYYY-MM-DD
+        const [year, month, day] = value.split('-').map(Number);
+        setSelectedDate(new Date(year, month - 1, day));
     };
+
+    // Helper: check if a date is within the selected month range (inclusive)
+    const isInMonthRange = (txDate: Date) => {
+        const txYear = txDate.getFullYear();
+        const txMonth = txDate.getMonth();
+        const startYear = startDate.getFullYear();
+        const startMonth = startDate.getMonth();
+        const endYear = endDate.getFullYear();
+        const endMonth = endDate.getMonth();
+        const txVal = txYear * 12 + txMonth;
+        const startVal = startYear * 12 + startMonth;
+        const endVal = endYear * 12 + endMonth;
+        return txVal >= startVal && txVal <= endVal;
+    };
+
+    // Check if single month or range
+    const isSingleMonth = startDate.getFullYear() === endDate.getFullYear() && startDate.getMonth() === endDate.getMonth();
+
+    // Calculate months in selection for labels
+    const monthsInRange = useMemo(() => {
+        const months: Date[] = [];
+        let current = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+        const end = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+        while (current <= end) {
+            months.push(new Date(current));
+            current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+        }
+        return months;
+    }, [startDate, endDate]);
 
     // --- FILTER LOGIC ---
 
-    // 1. Transactions for the selected period (Specific Day OR Whole Month)
+    // 1. Transactions for the selected period (Month Range OR Specific Day)
     const filteredTransactions = useMemo(() => {
         return transactions.filter(t => {
             const txDate = parseDateLocal(t.date);
             if (viewMode === 'month') {
-                return isSameMonth(txDate, selectedDate);
+                return isInMonthRange(txDate);
             } else {
                 return isSameDay(txDate, selectedDate);
             }
         });
-    }, [transactions, selectedDate, viewMode]);
+    }, [transactions, selectedDate, startDate, endDate, viewMode]);
 
-    // 2. Transactions for the previous period (Last Month OR Yesterday) - For Trends
+    // 2. Transactions for the previous period - For Trends
+    // Se range = 1 mês, compara com mês anterior. Se range > 1, compara com range anterior equivalente.
     const previousTransactions = useMemo(() => {
         return transactions.filter(t => {
             const txDate = parseDateLocal(t.date);
             if (viewMode === 'month') {
-                const prevMonthDate = subMonths(selectedDate, 1);
-                return isSameMonth(txDate, prevMonthDate);
+                const rangeMonths = monthsInRange.length;
+                const prevEnd = subMonths(startDate, 1);
+                const prevStart = subMonths(startDate, rangeMonths);
+                const txYear = txDate.getFullYear();
+                const txMonth = txDate.getMonth();
+                const txVal = txYear * 12 + txMonth;
+                const startVal = prevStart.getFullYear() * 12 + prevStart.getMonth();
+                const endVal = prevEnd.getFullYear() * 12 + prevEnd.getMonth();
+                return txVal >= startVal && txVal <= endVal;
             } else {
                 const prevDayDate = subDays(selectedDate, 1);
                 return isSameDay(txDate, prevDayDate);
             }
         });
-    }, [transactions, selectedDate, viewMode]);
+    }, [transactions, selectedDate, startDate, endDate, viewMode, monthsInRange]);
 
-    // 3. Transactions for the CHART context (Always shows the Month of the selected date)
+    // 3. Transactions for the CHART context (month range or single month)
     const chartContextTransactions = useMemo(() => {
         return transactions.filter(t => {
             const txDate = parseDateLocal(t.date);
+            if (viewMode === 'month') {
+                return isInMonthRange(txDate);
+            }
             return isSameMonth(txDate, selectedDate);
         });
-    }, [transactions, selectedDate]);
+    }, [transactions, selectedDate, startDate, endDate, viewMode]);
 
 
     // --- SUMMARY CALCULATIONS ---
@@ -173,16 +230,43 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
         profitIsUp: currentSummary.profit >= previousSummary.profit
     };
 
-    // --- CHART DATA PREPARATION (Always Month Context) ---
+    // --- CHART DATA PREPARATION ---
 
     const chartData = useMemo(() => {
-        const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
+        if (viewMode === 'month' && !isSingleMonth) {
+            // Range mode: aggregate per month
+            return monthsInRange.map(monthDate => {
+                const monthTx = chartContextTransactions.filter(t => {
+                    const txDate = parseDateLocal(t.date);
+                    return txDate.getFullYear() === monthDate.getFullYear() && txDate.getMonth() === monthDate.getMonth();
+                });
+
+                const monthIncome = monthTx.filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
+                    .reduce((acc, t) => {
+                        if (t.status === TransactionStatus.PARTIAL && t.pendingAmount) return acc + (t.amount - t.pendingAmount);
+                        return acc + t.amount;
+                    }, 0);
+                const monthExpense = monthTx.filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED).reduce((acc, t) => acc + t.amount, 0);
+
+                return {
+                    date: format(monthDate, 'MMM', { locale: ptBR }),
+                    fullDate: format(monthDate, 'yyyy-MM'),
+                    receita: monthIncome,
+                    despesa: monthExpense,
+                    saldo: monthIncome - monthExpense,
+                    isCurrentDay: false
+                };
+            });
+        }
+
+        // Single month or day mode: daily breakdown
+        const refDate = viewMode === 'day' ? selectedDate : startDate;
+        const daysInMonth = new Date(refDate.getFullYear(), refDate.getMonth() + 1, 0).getDate();
         const data = [];
 
         for (let i = 1; i <= daysInMonth; i++) {
-            const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+            const dateStr = `${refDate.getFullYear()}-${String(refDate.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
 
-            // Filter specifically for the chart data (monthly context)
             const dailyTx = chartContextTransactions.filter(t => t.date === dateStr);
 
             const dailyIncome = dailyTx.filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
@@ -204,7 +288,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             });
         }
         return data;
-    }, [chartContextTransactions, selectedDate, viewMode]);
+    }, [chartContextTransactions, selectedDate, startDate, endDate, viewMode, isSingleMonth, monthsInRange]);
 
     // Calcula taxa total para exibição
     const totalTaxRate = taxSettings.length > 0
@@ -248,12 +332,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard</h2>
                     <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">
                         {viewMode === 'month'
-                            ? 'Visão consolidada mensal.'
+                            ? (isSingleMonth
+                                ? `Visão consolidada de ${format(startDate, 'MMMM yyyy', { locale: ptBR })}.`
+                                : `Consolidado de ${format(startDate, 'MMM/yy', { locale: ptBR })} até ${format(endDate, 'MMM/yy', { locale: ptBR })} (${monthsInRange.length} meses).`
+                              )
                             : `Detalhamento do dia ${format(selectedDate, 'dd/MM/yyyy')}.`}
                     </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 items-center">
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                     {/* View Toggle */}
                     <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex border border-slate-200 dark:border-slate-700">
                         <button
@@ -270,30 +357,71 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                         </button>
                     </div>
 
-                    {/* Date Picker Customizado */}
-                    <div className="relative min-w-[200px] group">
-                        {/* Camada Visual Personalizada */}
-                        <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-2">
-                                <Calendar className="h-5 w-5 text-indigo-500 shrink-0 group-hover:scale-110 transition-transform" />
-                                <span className="text-slate-700 dark:text-slate-200 font-bold text-sm capitalize">
-                                    {viewMode === 'month'
-                                        ? format(selectedDate, 'MMMM yyyy', { locale: ptBR })
-                                        : format(selectedDate, 'dd/MM/yyyy')}
-                                </span>
+                    {/* Date Picker: Month Range or Single Day */}
+                    {viewMode === 'month' ? (
+                        <div className="flex items-center gap-2">
+                            {/* Mês Início */}
+                            <div className="relative group min-w-[140px]">
+                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                    <div className="flex items-center gap-1.5">
+                                        <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
+                                        <span className="text-slate-700 dark:text-slate-200 font-bold text-sm capitalize">
+                                            {format(startDate, 'MMM yyyy', { locale: ptBR })}
+                                        </span>
+                                    </div>
+                                    <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                </div>
+                                <input
+                                    type="month"
+                                    value={format(startDate, 'yyyy-MM')}
+                                    onChange={handleStartMonthChange}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 appearance-none [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0"
+                                    style={{ colorScheme: 'light' }}
+                                />
                             </div>
-                            <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
-                        </div>
 
-                        {/* Input Nativo Invisível (Trigger do Calendário) */}
-                        <input
-                            type={viewMode === 'month' ? "month" : "date"}
-                            value={viewMode === 'month' ? format(selectedDate, 'yyyy-MM') : format(selectedDate, 'yyyy-MM-dd')}
-                            onChange={handleDateChange}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 appearance-none [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0"
-                            style={{ colorScheme: 'light' }}
-                        />
-                    </div>
+                            <span className="text-slate-400 dark:text-slate-500 font-bold text-sm">até</span>
+
+                            {/* Mês Fim */}
+                            <div className="relative group min-w-[140px]">
+                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                    <div className="flex items-center gap-1.5">
+                                        <CalendarRange className="h-4 w-4 text-violet-500 shrink-0" />
+                                        <span className="text-slate-700 dark:text-slate-200 font-bold text-sm capitalize">
+                                            {format(endDate, 'MMM yyyy', { locale: ptBR })}
+                                        </span>
+                                    </div>
+                                    <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                </div>
+                                <input
+                                    type="month"
+                                    value={format(endDate, 'yyyy-MM')}
+                                    onChange={handleEndMonthChange}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 appearance-none [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0"
+                                    style={{ colorScheme: 'light' }}
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="relative min-w-[200px] group">
+                            <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-5 w-5 text-indigo-500 shrink-0 group-hover:scale-110 transition-transform" />
+                                    <span className="text-slate-700 dark:text-slate-200 font-bold text-sm">
+                                        {format(selectedDate, 'dd/MM/yyyy')}
+                                    </span>
+                                </div>
+                                <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
+                            </div>
+                            <input
+                                type="date"
+                                value={format(selectedDate, 'yyyy-MM-dd')}
+                                onChange={handleDateChange}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 appearance-none [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0"
+                                style={{ colorScheme: 'light' }}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -328,38 +456,70 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 if (overdue.length === 0 && dueToday.length === 0 && dueSoon.length === 0) return null;
 
                 return (
-                    <div className="space-y-2">
+                    <div className="space-y-3 mb-2">
                         {overdue.length > 0 && (
-                            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl flex items-center gap-3 animate-fade-in">
-                                <div className="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg shrink-0">
-                                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 animate-pulse" />
+                            <div 
+                                onClick={onNavigateToTransactions}
+                                className="relative overflow-hidden p-4 sm:p-5 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/10 border border-red-200/60 dark:border-red-800/40 rounded-2xl flex items-center gap-4 cursor-pointer hover:shadow-lg hover:shadow-red-500/10 hover:-translate-y-0.5 transition-all group animate-fade-in"
+                            >
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-10 transition-opacity">
+                                    <AlertCircle className="h-32 w-32 text-red-500 -mt-12 -mr-8" />
                                 </div>
-                                <div className="flex-1">
-                                    <h4 className="font-bold text-red-800 dark:text-red-300 text-sm">⚠️ {overdue.length} conta{overdue.length > 1 ? 's' : ''} vencida{overdue.length > 1 ? 's' : ''}!</h4>
-                                    <p className="text-xs text-red-600 dark:text-red-400">Total: {formatBRL(overdueTotal)}</p>
+                                <div className="p-3 bg-red-100 dark:bg-red-900/50 rounded-xl shrink-0 shadow-inner">
+                                    <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 animate-pulse" />
                                 </div>
-                                <span className="text-xs font-bold text-red-500 dark:text-red-400 shrink-0">Ver em Contas →</span>
+                                <div className="flex-1 min-w-0 z-10">
+                                    <h4 className="font-extrabold text-red-900 dark:text-red-300 text-base flex items-center gap-2">
+                                        {overdue.length} conta{overdue.length > 1 ? 's' : ''} vencida{overdue.length > 1 ? 's' : ''}
+                                    </h4>
+                                    <p className="text-sm font-medium text-red-700/80 dark:text-red-400/80 mt-0.5">Pendência total de <span className="font-bold text-red-700 dark:text-red-400">{formatBRL(overdueTotal)}</span></p>
+                                </div>
+                                <div className="shrink-0 z-10 bg-white/50 dark:bg-black/20 p-2.5 rounded-full group-hover:bg-red-600 group-hover:text-white transition-colors text-red-600 dark:text-red-400 shadow-sm border border-red-200/50 dark:border-red-800/50">
+                                    <ArrowRight className="h-4 w-4" />
+                                </div>
                             </div>
                         )}
                         {dueToday.length > 0 && (
-                            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl flex items-center gap-3 animate-fade-in">
-                                <div className="p-2 bg-amber-100 dark:bg-amber-900/40 rounded-lg shrink-0">
-                                    <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                            <div 
+                                onClick={onNavigateToTransactions}
+                                className="relative overflow-hidden p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/10 border border-amber-200/60 dark:border-amber-800/40 rounded-2xl flex items-center gap-4 cursor-pointer hover:shadow-lg hover:shadow-amber-500/10 hover:-translate-y-0.5 transition-all group animate-fade-in"
+                            >
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-10 transition-opacity">
+                                    <Bell className="h-32 w-32 text-amber-500 -mt-12 -mr-8" />
                                 </div>
-                                <div className="flex-1">
-                                    <h4 className="font-bold text-amber-800 dark:text-amber-300 text-sm">📅 {dueToday.length} conta{dueToday.length > 1 ? 's' : ''} vence{dueToday.length > 1 ? 'm' : ''} HOJE</h4>
-                                    <p className="text-xs text-amber-600 dark:text-amber-400">Total: {formatBRL(todayTotal)}</p>
+                                <div className="p-3 bg-amber-100 dark:bg-amber-900/50 rounded-xl shrink-0 shadow-inner">
+                                    <Bell className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                                </div>
+                                <div className="flex-1 min-w-0 z-10">
+                                    <h4 className="font-extrabold text-amber-900 dark:text-amber-300 text-base">
+                                        {dueToday.length} conta{dueToday.length > 1 ? 's' : ''} vence{dueToday.length > 1 ? 'm' : ''} hoje
+                                    </h4>
+                                    <p className="text-sm font-medium text-amber-700/80 dark:text-amber-400/80 mt-0.5">Vencimentos no valor de <span className="font-bold text-amber-700 dark:text-amber-400">{formatBRL(todayTotal)}</span></p>
+                                </div>
+                                <div className="shrink-0 z-10 bg-white/50 dark:bg-black/20 p-2.5 rounded-full group-hover:bg-amber-500 group-hover:text-white transition-colors text-amber-600 dark:text-amber-400 shadow-sm border border-amber-200/50 dark:border-amber-800/50">
+                                    <ArrowRight className="h-4 w-4" />
                                 </div>
                             </div>
                         )}
                         {dueSoon.length > 0 && (
-                            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 rounded-xl flex items-center gap-3 animate-fade-in">
-                                <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg shrink-0">
-                                    <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            <div 
+                                onClick={onNavigateToTransactions}
+                                className="relative overflow-hidden p-4 sm:p-5 bg-gradient-to-r from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/10 border border-blue-200/60 dark:border-blue-800/40 rounded-2xl flex items-center gap-4 cursor-pointer hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-0.5 transition-all group animate-fade-in"
+                            >
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-10 transition-opacity">
+                                    <Clock className="h-32 w-32 text-blue-500 -mt-12 -mr-8" />
                                 </div>
-                                <div className="flex-1">
-                                    <h4 className="font-bold text-blue-800 dark:text-blue-300 text-sm">🔔 {dueSoon.length} conta{dueSoon.length > 1 ? 's' : ''} nos próximos 3 dias</h4>
-                                    <p className="text-xs text-blue-600 dark:text-blue-400">Total: {formatBRL(soonTotal)}</p>
+                                <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl shrink-0 shadow-inner">
+                                    <Clock className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div className="flex-1 min-w-0 z-10">
+                                    <h4 className="font-extrabold text-blue-900 dark:text-blue-300 text-base">
+                                        {dueSoon.length} vencimento{dueSoon.length > 1 ? 's' : ''} em breve
+                                    </h4>
+                                    <p className="text-sm font-medium text-blue-700/80 dark:text-blue-400/80 mt-0.5">Vencem nos próximos 3 dias (<span className="font-bold text-blue-700 dark:text-blue-400">{formatBRL(soonTotal)}</span>)</p>
+                                </div>
+                                <div className="shrink-0 z-10 bg-white/50 dark:bg-black/20 p-2.5 rounded-full group-hover:bg-blue-500 group-hover:text-white transition-colors text-blue-600 dark:text-blue-400 shadow-sm border border-blue-200/50 dark:border-blue-800/50">
+                                    <ArrowRight className="h-4 w-4" />
                                 </div>
                             </div>
                         )}
@@ -370,16 +530,16 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
                 <KPICard
-                    title={viewMode === 'month' ? "Receita Total" : "Receita do Dia"}
+                    title={viewMode === 'month' ? (isSingleMonth ? "Receita Total" : "Receita Período") : "Receita do Dia"}
                     value={currentSummary.income}
                     icon={Wallet}
                     trend={trends.income}
                     trendUp={trends.incomeIsUp}
                     color="indigo"
-                    subtitle={viewMode === 'month' ? "Vs. Mês Anterior" : "Vs. Ontem"}
+                    subtitle={viewMode === 'month' ? (isSingleMonth ? "Vs. Mês Anterior" : `Vs. ${monthsInRange.length} meses anteriores`) : "Vs. Ontem"}
                 />
                 <KPICard
-                    title={viewMode === 'month' ? "Despesas + Comis." : "Saídas do Dia"}
+                    title={viewMode === 'month' ? (isSingleMonth ? "Despesas + Comis." : "Desp. Período") : "Saídas do Dia"}
                     value={currentSummary.expense}
                     icon={CreditCard}
                     trend={trends.expense}
@@ -543,17 +703,25 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     <div className="flex justify-between items-start mb-8">
                         <div>
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                                {viewMode === 'month' ? 'Fluxo de Caixa Mensal' : 'Contexto Mensal do Fluxo'}
+                                {viewMode === 'month'
+                                    ? (isSingleMonth ? 'Fluxo de Caixa Mensal' : 'Fluxo de Caixa do Período')
+                                    : 'Contexto Mensal do Fluxo'}
                             </h3>
                             <p className="text-sm text-slate-500 dark:text-slate-400">
                                 {viewMode === 'month'
-                                    ? 'Evolução diária do saldo durante o mês.'
+                                    ? (isSingleMonth
+                                        ? 'Evolução diária do saldo durante o mês.'
+                                        : `Evolução mensal de ${format(startDate, 'MMM/yy', { locale: ptBR })} a ${format(endDate, 'MMM/yy', { locale: ptBR })}.`)
                                     : `Visualizando posição do dia ${selectedDate.getDate()} no contexto do mês.`}
                             </p>
                         </div>
                         <div className="flex gap-2">
                             <span className="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-100 dark:border-indigo-800/50 uppercase tracking-wide">
-                                {format(selectedDate, 'MMMM yyyy', { locale: ptBR })}
+                                {viewMode === 'month'
+                                    ? (isSingleMonth
+                                        ? format(startDate, 'MMMM yyyy', { locale: ptBR })
+                                        : `${format(startDate, 'MMM/yy', { locale: ptBR })} — ${format(endDate, 'MMM/yy', { locale: ptBR })}`)
+                                    : format(selectedDate, 'MMMM yyyy', { locale: ptBR })}
                             </span>
                         </div>
                     </div>
@@ -603,7 +771,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                 </AreaChart>
                             </ResponsiveContainer>
                         ) : (
-                            <EmptyState message={`Sem dados para exibir em ${format(selectedDate, 'MMMM', { locale: ptBR })}.`} />
+                            <EmptyState message={`Sem dados para exibir ${viewMode === 'month' && !isSingleMonth ? 'no período selecionado' : `em ${format(startDate, 'MMMM', { locale: ptBR })}`}.`} />
                         )}
                     </div>
                 </div>
@@ -637,10 +805,14 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-700/40 flex justify-between items-center bg-white dark:bg-transparent">
                     <div>
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                            {viewMode === 'month' ? 'Transações Recentes' : `Transações de ${format(selectedDate, 'dd/MM')}`}
+                            {viewMode === 'month'
+                                ? (isSingleMonth ? 'Transações Recentes' : `Transações do Período (${monthsInRange.length} meses)`)
+                                : `Transações de ${format(selectedDate, 'dd/MM')}`}
                         </h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                            {viewMode === 'month' ? 'Histórico de atividades do mês.' : 'Detalhamento do dia selecionado.'}
+                            {viewMode === 'month'
+                                ? (isSingleMonth ? 'Histórico de atividades do mês.' : `De ${format(startDate, 'MMM/yy', { locale: ptBR })} até ${format(endDate, 'MMM/yy', { locale: ptBR })}.`)
+                                : 'Detalhamento do dia selecionado.'}
                         </p>
                     </div>
                     <button
