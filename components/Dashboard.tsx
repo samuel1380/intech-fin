@@ -879,61 +879,87 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
 const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, invertColor = false }: any) => {
     let IconTrend = trendUp ? ArrowUpRight : ArrowDownRight;
 
-    // Trend: keep it subtle — green/red only for the tiny indicator
-    let trendTextColor = trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400';
-    if (invertColor) {
-        trendTextColor = trendUp ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400';
-    }
     const isNeutral = trend === '--%' || trend === '0%' || trend === '0.0%' || trend === '+0.0%';
+    
+    // Determine trend colors
+    let trendBadge = trendUp 
+        ? 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10' 
+        : 'text-rose-700 bg-rose-100 dark:text-rose-400 dark:bg-rose-500/10';
+    if (invertColor) {
+        trendBadge = trendUp 
+            ? 'text-rose-700 bg-rose-100 dark:text-rose-400 dark:bg-rose-500/10' 
+            : 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10';
+    }
     if (isNeutral) {
-        trendTextColor = 'text-slate-400 dark:text-slate-500';
+        trendBadge = 'text-slate-600 bg-slate-100 dark:text-slate-400 dark:bg-white/5';
     }
 
-    // Subtle accent dot per card type
-    const accentDot: Record<string, string> = {
-        indigo: 'bg-slate-800 dark:bg-white',
-        rose: 'bg-slate-800 dark:bg-white',
-        emerald: 'bg-slate-800 dark:bg-white',
-        amber: 'bg-slate-800 dark:bg-white',
+    const colorStyles: Record<string, any> = {
+        indigo: { 
+            text: 'text-indigo-600 dark:text-indigo-400',
+            bg: 'bg-indigo-100 dark:bg-indigo-500/20',
+            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(99,102,241,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(99,102,241,0.15)] group-hover:border-indigo-200 dark:group-hover:border-indigo-500/30'
+        },
+        rose: { 
+            text: 'text-rose-600 dark:text-rose-400',
+            bg: 'bg-rose-100 dark:bg-rose-500/20',
+            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(244,63,94,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(244,63,94,0.15)] group-hover:border-rose-200 dark:group-hover:border-rose-500/30'
+        },
+        emerald: { 
+            text: 'text-emerald-600 dark:text-emerald-400',
+            bg: 'bg-emerald-100 dark:bg-emerald-500/20',
+            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.15)] group-hover:border-emerald-200 dark:group-hover:border-emerald-500/30'
+        },
+        amber: { 
+            text: 'text-amber-600 dark:text-amber-400',
+            bg: 'bg-amber-100 dark:bg-amber-500/20',
+            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(245,158,11,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(245,158,11,0.15)] group-hover:border-amber-200 dark:group-hover:border-amber-500/30'
+        },
     };
 
-    // Format currency
+    const style = colorStyles[color] || colorStyles.indigo;
+
     const formatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 }).format(value);
     const cleanFormatted = formatted.replace(/\s/g, ' ');
     const symbol = "R$";
     const valueStr = cleanFormatted.replace("R$", "").trim();
 
     return (
-        <div className="relative overflow-hidden bg-white/70 dark:bg-white/[0.04] backdrop-blur-2xl p-6 rounded-2xl border border-slate-200/60 dark:border-white/[0.06] flex flex-col justify-between h-full group hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/[0.03] dark:hover:shadow-black/20 transition-all duration-300">
-            {/* Frosted glass highlight line at top */}
-            <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/10 to-transparent" />
-
-            <div className="flex justify-between items-start mb-5">
-                <div className="p-2.5 rounded-xl bg-slate-100/80 dark:bg-white/[0.06] transition-colors">
-                    <Icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+        <div className={`relative flex flex-col justify-between p-6 md:p-7 h-full bg-white dark:bg-[#0f1524] rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800/80 transition-all duration-300 ${style.glow} group overflow-hidden`}>
+            
+            {/* Top row with distinct Icon box and Badge */}
+            <div className="flex justify-between items-start mb-8 relative z-10">
+                <div className={`p-3.5 rounded-2xl ${style.bg} ${style.text} transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3`}>
+                    <Icon className="w-6 h-6" strokeWidth={2.2} />
                 </div>
-                <div className={`flex items-center gap-1 text-xs font-semibold ${trendTextColor}`}>
-                    {!isNeutral && <IconTrend className="h-3.5 w-3.5" />}
+                
+                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${trendBadge}`}>
+                    {!isNeutral && <IconTrend className="w-4 h-4" strokeWidth={2.5} />}
                     <span>{trend}</span>
                 </div>
             </div>
 
-            <div>
-                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">{title}</p>
+            {/* Value Section */}
+            <div className="relative z-10">
+                <h3 className="text-sm font-semibold tracking-wide text-slate-500 dark:text-slate-400 mb-2">{title}</h3>
                 <div className="flex items-baseline gap-1.5">
-                    <span className="text-sm font-semibold text-slate-400 dark:text-slate-500 self-start mt-1.5">{symbol}</span>
-                    <h4 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <span className="text-lg font-bold text-slate-400 dark:text-slate-500">{symbol}</span>
+                    <span className="text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                         {valueStr}
-                    </h4>
+                    </span>
                 </div>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/[0.04]">
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium flex items-center gap-1.5">
-                    <span className={`w-1.5 h-1.5 rounded-full ${accentDot[color] || 'bg-slate-800 dark:bg-white'} opacity-30`} />
+            {/* Subtitle Footer */}
+            <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800/80 relative z-10 flex items-center justify-between">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-current ${style.text} transition-colors duration-300`} />
                     {subtitle}
                 </p>
             </div>
+            
+            {/* Atmospheric Glow on Hover */}
+            <div className={`absolute -right-10 -top-10 w-40 h-40 ${style.bg} rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none blur-2xl`} />
         </div>
     );
 }
