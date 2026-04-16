@@ -327,17 +327,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
     return (
         <div className="space-y-8 animate-fade-in w-full min-w-0 pb-8">
             {/* Header & Filter */}
-            <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 border-b border-slate-200 dark:border-slate-700/40 pb-6">
-                <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard</h2>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">
-                        {viewMode === 'month'
-                            ? (isSingleMonth
-                                ? `Visão consolidada de ${format(startDate, 'MMMM yyyy', { locale: ptBR })}.`
-                                : `Consolidado de ${format(startDate, 'MMM/yy', { locale: ptBR })} até ${format(endDate, 'MMM/yy', { locale: ptBR })} (${monthsInRange.length} meses).`
-                              )
-                            : `Detalhamento do dia ${format(selectedDate, 'dd/MM/yyyy')}.`}
-                    </p>
+            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 pb-6">
+                <div className="flex items-center text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    {viewMode === 'month'
+                        ? (isSingleMonth
+                            ? `Resumo de ${format(startDate, 'MMMM yyyy', { locale: ptBR })}`
+                            : `Período: ${format(startDate, 'MMM/yy', { locale: ptBR })} a ${format(endDate, 'MMM/yy', { locale: ptBR })}`
+                            )
+                        : `Visão do Dia: ${format(selectedDate, 'dd/MM/yyyy')}`}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
@@ -898,22 +896,30 @@ const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, in
         indigo: { 
             text: 'text-indigo-600 dark:text-indigo-400',
             bg: 'bg-indigo-100 dark:bg-indigo-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(99,102,241,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(99,102,241,0.15)] group-hover:border-indigo-200 dark:group-hover:border-indigo-500/30'
+            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(99,102,241,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(99,102,241,0.15)] group-hover:border-indigo-200 dark:group-hover:border-indigo-500/30',
+            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-indigo-600 dark:from-white dark:to-indigo-300',
+            symbolColor: 'text-indigo-700/60 dark:text-indigo-300/60'
         },
         rose: { 
             text: 'text-rose-600 dark:text-rose-400',
             bg: 'bg-rose-100 dark:bg-rose-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(244,63,94,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(244,63,94,0.15)] group-hover:border-rose-200 dark:group-hover:border-rose-500/30'
+            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(244,63,94,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(244,63,94,0.15)] group-hover:border-rose-200 dark:group-hover:border-rose-500/30',
+            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-rose-600 dark:from-white dark:to-rose-300',
+            symbolColor: 'text-rose-700/60 dark:text-rose-300/60'
         },
         emerald: { 
             text: 'text-emerald-600 dark:text-emerald-400',
             bg: 'bg-emerald-100 dark:bg-emerald-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.15)] group-hover:border-emerald-200 dark:group-hover:border-emerald-500/30'
+            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.15)] group-hover:border-emerald-200 dark:group-hover:border-emerald-500/30',
+            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-emerald-600 dark:from-white dark:to-emerald-300',
+            symbolColor: 'text-emerald-700/60 dark:text-emerald-300/60'
         },
         amber: { 
             text: 'text-amber-600 dark:text-amber-400',
             bg: 'bg-amber-100 dark:bg-amber-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(245,158,11,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(245,158,11,0.15)] group-hover:border-amber-200 dark:group-hover:border-amber-500/30'
+            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(245,158,11,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(245,158,11,0.15)] group-hover:border-amber-200 dark:group-hover:border-amber-500/30',
+            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-amber-600 dark:from-white dark:to-amber-300',
+            symbolColor: 'text-amber-700/60 dark:text-amber-300/60'
         },
     };
 
@@ -943,8 +949,8 @@ const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, in
             <div className="relative z-10">
                 <h3 className="text-sm font-semibold tracking-wide text-slate-500 dark:text-slate-400 mb-2">{title}</h3>
                 <div className="flex items-baseline gap-1.5">
-                    <span className="text-lg font-bold text-slate-400 dark:text-slate-500">{symbol}</span>
-                    <span className="text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    <span className={`text-lg font-bold ${style.symbolColor}`}>{symbol}</span>
+                    <span className={`text-3xl lg:text-4xl font-extrabold tracking-tight ${style.valueGradient}`}>
                         {valueStr}
                     </span>
                 </div>

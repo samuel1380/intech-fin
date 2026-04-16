@@ -280,7 +280,7 @@ function App() {
 
   const getHeaderTitle = (tab: string) => {
     const titles: Record<string, string> = {
-      'dashboard': '',
+      'dashboard': 'Visão Consolidada',
       'transactions': 'Gestão de Fluxo de Caixa',
       'accounts': 'Contas a Pagar & Receber',
       'reports': 'Relatórios & Auditoria Fiscal',
