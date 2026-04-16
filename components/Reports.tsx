@@ -26,12 +26,27 @@ const COLORS = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'
 const EMPLOYEE_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f43f5e', '#14b8a6'];
 
 const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
-    const hasData = transactions.length > 0;
     const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
     const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
 
+    // Filters
+    const [viewMode, setViewMode] = useState<'month' | 'day'>('month');
+    const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
+    const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+
+    const filteredTransactions = transactions.filter(t => {
+        if (viewMode === 'day') {
+            return t.date === selectedDate;
+        } else {
+            return t.date.startsWith(selectedMonth);
+        }
+    });
+
+    const hasData = filteredTransactions.length > 0;
+    // End of duplicates
+
     // ===== CÁLCULOS FINANCEIROS =====
-    const totalIncome = transactions
+    const totalIncome = filteredTransactions
         .filter(t => t.type === TransactionType.INCOME && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
         .reduce((s, t) => {
             if (t.status === TransactionStatus.PARTIAL && t.pendingAmount) {
@@ -40,11 +55,11 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             return s + t.amount;
         }, 0);
 
-    const totalExpense = transactions
+    const totalExpense = filteredTransactions
         .filter(t => t.type === TransactionType.EXPENSE && t.status === TransactionStatus.COMPLETED)
         .reduce((s, t) => s + t.amount, 0);
 
-    const totalCommissions = transactions
+    const totalCommissions = filteredTransactions
         .filter(t => t.commissionAmount && (t.status === TransactionStatus.COMPLETED || t.status === TransactionStatus.PARTIAL))
         .reduce((acc, curr) => {
             if (curr.status === TransactionStatus.PARTIAL && curr.pendingAmount && curr.amount > curr.pendingAmount) {
@@ -63,7 +78,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
     const netAfterTax = grossProfit - estimatedTax;
     const profitMargin = totalIncome > 0 ? (netAfterTax / totalIncome) * 100 : 0;
 
-    const pendingTotal = transactions
+    const pendingTotal = filteredTransactions
         .filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount)
         .reduce((s, t) => s + (t.pendingAmount || 0), 0);
 
@@ -71,7 +86,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
     const employeeMap: Record<string, EmployeeReport> = {};
     const today = new Date().toISOString().split('T')[0];
 
-    transactions.filter(t => t.employeeName).forEach(t => {
+    filteredTransactions.filter(t => t.employeeName).forEach(t => {
         const name = t.employeeName!;
         if (!employeeMap[name]) {
             employeeMap[name] = {
@@ -111,7 +126,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
     const selectedEmp = selectedEmployee ? employeeMap[selectedEmployee] : null;
 
     // ===== DADOS PARA GRÁFICOS =====
-    const expenseDataMap = transactions
+    const expenseDataMap = filteredTransactions
         .filter(t => t.type === TransactionType.EXPENSE)
         .reduce((acc, curr) => {
             acc[curr.category] = (acc[curr.category] || 0) + curr.amount;
@@ -319,7 +334,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
         doc.text("Detalhamento de Transações", 14, lastTableY + 15);
 
         const tableColumn = ["Data", "Descrição", "Categoria", "Valor", "Pendente", "Status", "Funcionário", "Comissão", "Pgto Comis."];
-        const tableRows = transactions.map(t => {
+        const tableRows = filteredTransactions.map(t => {
             const [year, month, day] = t.date.split('-');
             let formattedCommDate = '-';
             if (t.commissionPaymentDate) {
@@ -375,25 +390,49 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
     // ===== RENDER =====
     return (
         <div className="space-y-8 w-full animate-fade-in pb-8">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-200 dark:border-slate-700/40 pb-6">
+            {/* Header & Filter */}
+            <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-6 border-b border-slate-200 dark:border-slate-700/40 pb-6">
                 <div>
                     <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Relatórios & Auditoria</h2>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">Emissão de documentos oficiais e análise fiscal completa.</p>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">Emissão de documentos e análise fiscal.</p>
                 </div>
-                <button
-                    onClick={handleDownloadPDF}
-                    disabled={!hasData}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all w-full md:w-auto justify-center font-bold text-sm
-                        ${hasData
-                            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 active:scale-[0.98]'
-                            : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
-                        }`}
-                >
-                    <FileText className="h-5 w-5" />
-                    Gerar Relatório PDF
-                    <Download className="h-4 w-4" />
-                </button>
+
+                {/* Filters */}
+                <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                    <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex w-max border border-slate-200 dark:border-slate-700">
+                        <button onClick={() => setViewMode('month')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Mensal</button>
+                        <button onClick={() => setViewMode('day')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'day' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Diário</button>
+                    </div>
+
+                    {viewMode === 'month' ? (
+                        <input
+                            type="month"
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(e.target.value)}
+                            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 shadow-sm font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 dark:text-slate-200"
+                        />
+                    ) : (
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 shadow-sm font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 dark:text-slate-200"
+                        />
+                    )}
+
+                    <button
+                        onClick={handleDownloadPDF}
+                        disabled={!hasData}
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl transition-all w-full sm:w-auto justify-center font-bold text-sm
+                            ${hasData
+                                ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800 shadow-lg shadow-indigo-500/20 active:scale-[0.98]'
+                                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                            }`}
+                    >
+                        <FileText className="h-4 w-4" />
+                        PDF
+                    </button>
+                </div>
             </div>
 
             {/* Summary Cards */}
@@ -717,7 +756,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                     <div className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 p-8 rounded-2xl shadow-xl text-white relative overflow-hidden">
                         <div className="relative z-10">
                             <h3 className="text-xl font-bold mb-1">Auditoria Automática</h3>
-                            <p className="text-indigo-200/70 text-sm mb-6">Análise fiscal em tempo real baseada em {transactions.length} transações.</p>
+                            <p className="text-indigo-200/70 text-sm mb-6">Análise fiscal ref. ao período selecionado ({filteredTransactions.length} registros).</p>
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
                                     <span className="text-[11px] text-indigo-300/80 uppercase tracking-wider font-bold">Lucro Bruto</span>

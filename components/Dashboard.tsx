@@ -338,9 +338,9 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                         : `Visão do Dia: ${format(selectedDate, 'dd/MM/yyyy')}`}
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                     {/* View Toggle */}
-                    <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex border border-slate-200 dark:border-slate-700">
+                    <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex w-max border border-slate-200 dark:border-slate-700">
                         <button
                             onClick={() => setViewMode('month')}
                             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
@@ -357,7 +357,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
 
                     {/* Date Picker: Month Range or Single Day */}
                     {viewMode === 'month' ? (
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             {/* Mês Início */}
                             <div className="relative group min-w-[140px]">
                                 <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
