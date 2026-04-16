@@ -592,7 +592,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     </div>
 
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                        {transactions
+                        {filteredTransactions
                             .filter(t => t.commissionAmount && t.commissionPaymentDate)
                             .sort((a, b) => new Date(a.commissionPaymentDate!).getTime() - new Date(b.commissionPaymentDate!).getTime())
                             .filter(t => new Date(t.commissionPaymentDate!) >= new Date(new Date().setHours(0, 0, 0, 0)))
@@ -643,7 +643,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                     </div>
                                 );
                             })}
-                        {transactions.filter(t => t.commissionAmount && t.commissionPaymentDate && new Date(t.commissionPaymentDate) >= new Date(new Date().setHours(0, 0, 0, 0))).length === 0 && (
+                        {filteredTransactions.filter(t => t.commissionAmount && t.commissionPaymentDate && new Date(t.commissionPaymentDate) >= new Date(new Date().setHours(0, 0, 0, 0))).length === 0 && (
                             <div className="text-center py-8">
                                 <p className="text-slate-400 text-sm italic">Nenhuma comissão agendada.</p>
                             </div>
@@ -664,7 +664,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     </div>
 
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                        {transactions
+                        {filteredTransactions
                             .filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount && t.pendingAmount > 0)
                             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                             .map(t => (
@@ -687,7 +687,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                     </div>
                                 </div>
                             ))}
-                        {transactions.filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount && t.pendingAmount > 0).length === 0 && (
+                        {filteredTransactions.filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount && t.pendingAmount > 0).length === 0 && (
                             <div className="text-center py-8">
                                 <p className="text-slate-400 text-sm italic">Nenhum pagamento pendente.</p>
                             </div>

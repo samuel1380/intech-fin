@@ -73,7 +73,8 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
     const filtered = transactions.filter(t => {
         const matchesFilter = filter === 'ALL' || t.type === filter;
         const matchesSearch = t.description.toLowerCase().includes(search.toLowerCase()) ||
-            t.category.toLowerCase().includes(search.toLowerCase());
+            t.category.toLowerCase().includes(search.toLowerCase()) ||
+            (t.employeeName && t.employeeName.toLowerCase().includes(search.toLowerCase()));
         return matchesFilter && matchesSearch;
     });
 
