@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Transaction, TransactionType, TransactionStatus, TaxSetting } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList } from 'recharts';
-import { Download, PieChart as PieIcon, FileText, TrendingUp, TrendingDown, DollarSign, Receipt, Users, Percent, X, ChevronRight, User, Calendar, Briefcase, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Download, PieChart as PieIcon, FileText, TrendingUp, TrendingDown, DollarSign, Receipt, Users, Percent, X, ChevronRight, User, Calendar, Briefcase, ArrowUpRight, ArrowDownRight, CalendarRange, ChevronDown } from 'lucide-react';
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface Props {
     transactions: Transaction[];
@@ -31,16 +32,32 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
     // Filters
     const [viewMode, setViewMode] = useState<'month' | 'day'>('month');
-    const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
+    const [startMonth, setStartMonth] = useState(format(new Date(), 'yyyy-MM'));
+    const [endMonth, setEndMonth] = useState(format(new Date(), 'yyyy-MM'));
     const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+
+    const handleStartMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setStartMonth(val);
+        if (val > endMonth) setEndMonth(val);
+    };
+
+    const handleEndMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setEndMonth(val);
+        if (val < startMonth) setStartMonth(val);
+    };
 
     const filteredTransactions = transactions.filter(t => {
         if (viewMode === 'day') {
             return t.date === selectedDate;
         } else {
-            return t.date.startsWith(selectedMonth);
+            const txMonth = t.date.substring(0, 7);
+            return txMonth >= startMonth && txMonth <= endMonth;
         }
     });
+
+    const isSingleMonth = startMonth === endMonth;
 
     const hasData = filteredTransactions.length > 0;
     // End of duplicates
@@ -405,12 +422,49 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                     </div>
 
                     {viewMode === 'month' ? (
-                        <input
-                            type="month"
-                            value={selectedMonth}
-                            onChange={(e) => setSelectedMonth(e.target.value)}
-                            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 shadow-sm font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 dark:text-slate-200"
-                        />
+                        <div className="flex flex-wrap items-center gap-2">
+                            {/* Mês Início */}
+                            <div className="relative group min-w-[140px]">
+                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                    <div className="flex items-center gap-1.5">
+                                        <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
+                                        <span className="text-slate-700 dark:text-slate-200 font-bold text-sm capitalize">
+                                            {format(parseISO(`${startMonth}-01`), 'MMM yyyy', { locale: ptBR })}
+                                        </span>
+                                    </div>
+                                    <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                </div>
+                                <input
+                                    type="month"
+                                    value={startMonth}
+                                    onChange={handleStartMonthChange}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 appearance-none [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0"
+                                    style={{ colorScheme: 'light' }}
+                                />
+                            </div>
+
+                            <span className="text-slate-400 dark:text-slate-500 font-bold text-sm">até</span>
+
+                            {/* Mês Fim */}
+                            <div className="relative group min-w-[140px]">
+                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                    <div className="flex items-center gap-1.5">
+                                        <CalendarRange className="h-4 w-4 text-violet-500 shrink-0" />
+                                        <span className="text-slate-700 dark:text-slate-200 font-bold text-sm capitalize">
+                                            {format(parseISO(`${endMonth}-01`), 'MMM yyyy', { locale: ptBR })}
+                                        </span>
+                                    </div>
+                                    <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                </div>
+                                <input
+                                    type="month"
+                                    value={endMonth}
+                                    onChange={handleEndMonthChange}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 appearance-none [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0"
+                                    style={{ colorScheme: 'light' }}
+                                />
+                            </div>
+                        </div>
                     ) : (
                         <input
                             type="date"
