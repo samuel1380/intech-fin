@@ -1,0 +1,4 @@
+Coloque aqui a imagem que você deseja usar como fundo da tela de login.
+A imagem deve se chamar 'background.jpg', 'background.png' ou 'background.webp'.
+O sistema irá procurar por esses nomes nesta ordem de prioridade.
+Se nenhuma imagem for encontrada, o fundo padrão será utilizado.
