@@ -656,13 +656,6 @@ const Settings: React.FC<SettingsProps> = ({
           </div>
         </div>
 
-        {/* Informação Geral / Alerta */}
-        <div className="mb-6 p-4 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-xl">
-          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-            O plano gratuito do Supabase suspende o banco de dados se não houver atividade por 7 dias. Esta ferramenta realiza um "ping" periódico (insere e exclui imediatamente um registro de teste) para mantê-lo ativo.
-          </p>
-        </div>
-
         {/* Toggle Principal de Anti-Inatividade */}
         <div className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-300 mb-6
           ${keepAliveConfig.enabled
