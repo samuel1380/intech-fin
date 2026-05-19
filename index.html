@@ -3,12 +3,47 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <!-- SEO & PWA Primary -->
   <title>FinNexus Enterprise - Gestão Financeira</title>
+  <meta name="description" content="Plataforma enterprise de gestão financeira com IA, relatórios avançados e controle total de fluxo de caixa." />
+  <meta name="keywords" content="gestão financeira, enterprise, fluxo de caixa, relatórios financeiros, contabilidade" />
+  <meta name="author" content="InTech Finance" />
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/icons/icon-192x192.png" />
+  <link rel="shortcut icon" href="/icons/icon-192x192.png" />
+
+  <!-- Apple PWA (iOS) -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FinNexus" />
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-144x144.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png" />
+
+  <!-- Theme & Color -->
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="msapplication-TileColor" content="#4f46e5" />
+  <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="FinNexus Enterprise" />
+  <meta property="og:description" content="Gestão Financeira Empresarial Inteligente" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/icons/icon-512x512.png" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet">
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -28,15 +63,16 @@
               900: '#312e81',
             },
             slate: {
-              850: '#1e293b', // Custom dark
+              850: '#1e293b',
               900: '#0f172a',
-              950: '#020617', // Deeper dark for bg
+              950: '#020617',
             }
           },
           animation: {
             'fade-in': 'fadeIn 0.5s ease-out',
             'fade-in-up': 'fadeInUp 0.6s ease-out',
             'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'slide-in-bottom': 'slideInBottom 0.3s ease-out',
           },
           keyframes: {
             fadeIn: {
@@ -46,97 +82,96 @@
             fadeInUp: {
               '0%': { opacity: '0', transform: 'translateY(10px)' },
               '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            slideInBottom: {
+              '0%': { opacity: '0', transform: 'translateX(-50%) translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateX(-50%) translateY(0)' },
             }
           }
         }
       }
     }
   </script>
+
   <style>
     /* Modern Scrollbar - Light */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; }
+    .dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-
-    /* Scrollbar - Dark */
-    .dark ::-webkit-scrollbar-thumb {
-      background: #334155;
-    }
-
-    .dark ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
-
-    /* Glassmorphism Utilities */
+    /* Glassmorphism */
     .glass-panel {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255,255,255,0.95);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(226, 232, 240, 0.6);
+      border: 1px solid rgba(226,232,240,0.6);
     }
-
     .dark .glass-panel {
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15,23,42,0.75);
+      border: 1px solid rgba(255,255,255,0.08);
     }
-
     .glass-card-dark {
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(15,23,42,0.6);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
-    /* Clean Table Styles */
-    .table-row-hover:hover td {
-      transition: background-color 0.2s;
+    /* Table */
+    .table-row-hover:hover td { transition: background-color 0.2s; }
+
+    /* iOS & Android Safe Areas Setup */
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
     }
 
-    /* Mobile Safe Area Padding */
-    .safe-padding-bottom {
-      padding-bottom: env(safe-area-inset-bottom, 1rem);
+    .safe-padding-bottom { 
+      padding-bottom: max(var(--sab), 1rem) !important; 
+    }
+    
+    .safe-padding-top { 
+      padding-top: max(var(--sat), 1rem) !important; 
     }
 
-    .safe-padding-top {
-      padding-top: env(safe-area-inset-top, 0px);
+    /* Fix for Android/iOS PWA where status bar overlaps the viewport-fit=cover but env() evaluates to 0 */
+    @media all and (display-mode: standalone) and (max-width: 768px) {
+      .safe-padding-top {
+        padding-top: max(var(--sat), 45px) !important;
+      }
+      .safe-padding-bottom {
+        padding-bottom: max(var(--sab), 24px) !important;
+      }
     }
 
-    /* Smooth theme transition */
-    html {
-      transition: background-color 0.3s ease;
-    }
-
-    /* Dark mode global improvements */
-    .dark body {
-      background-color: #0c1222;
-    }
-
-    /* Dark mode selection */
-    .dark ::selection {
-      background: rgba(99, 102, 241, 0.3);
-      color: #e0e7ff;
-    }
+    /* Theme transition */
+    html { transition: background-color 0.3s ease; }
+    .dark body { background-color: #0c1222; }
+    .dark ::selection { background: rgba(99,102,241,0.3); color: #e0e7ff; }
   </style>
 
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+          .then(function (reg) {
+            console.log('[PWA] Service Worker registrado:', reg.scope);
+          })
+          .catch(function (err) {
+            console.warn('[PWA] Falha ao registrar SW:', err);
+          });
+      });
+    }
+  </script>
 </head>
 
-<body
-  class="text-slate-900 dark:text-slate-100 dark:bg-[#0c1222] antialiased overflow-hidden selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300">
+<body class="text-slate-900 dark:text-slate-100 dark:bg-[#0c1222] antialiased overflow-hidden selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300">
   <div id="root"></div>
+
   <script type="module" src="/index.tsx"></script>
 </body>
 

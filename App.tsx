@@ -6,11 +6,15 @@ import Reports from './components/Reports';
 import AIAssistant from './components/AIAssistant';
 import Accounts from './components/Accounts';
 import ThemeToggle from './components/ThemeToggle';
+import Settings from './components/Settings';
+import DatabaseManager from './components/DatabaseManager';
 import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteTransactionFromDb, clearDatabase, updateTransactionStatus, updateTransactionInDb } from './services/transactionService';
 import { getTaxSettingsFromDb, addTaxSettingToDb, deleteTaxSettingFromDb } from './services/taxService';
 import { isSupabaseConfigured } from './services/supabase';
+import { loadNotificationPrefs, checkAndTriggerLocalNotifications } from './services/notificationService';
 import { Transaction, FinancialSummary, TaxSetting } from './types';
-import { Menu, Database, Trash2, CheckCircle2, Lock, User, Cloud, AlertTriangle, Percent, Plus, Bell } from 'lucide-react';
+import { Menu, Lock, User } from 'lucide-react';
+import { checkAndTriggerKeepAlive } from './services/keepAliveService';
 
 const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => void }) => {
   const [email, setEmail] = useState('');
@@ -28,13 +32,13 @@ const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => vo
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-violet-600/30 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
 
-      <div className="relative z-10 w-full max-w-md p-8 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl animate-fade-in-up m-4 ring-1 ring-white/10">
-        <div className="text-center mb-10">
-          <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/30 mb-4">
-            <Lock className="w-8 h-8 text-white" />
+      <div className="relative z-10 w-full max-w-sm sm:max-w-md p-6 sm:p-8 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl animate-fade-in-up md:m-4 ring-1 ring-white/10 mx-auto">
+        <div className="text-center mb-6 sm:mb-10">
+          <div className="inline-flex w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-indigo-500/30 mb-4 bg-white border-2 border-white/20">
+            <img src="/logo.png" alt="FinNexus Logo" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-4xl font-bold text-white tracking-tight mb-2">FinNexus</h1>
-          <p className="text-slate-400 font-medium">Acesso Restrito Enterprise</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">FinNexus</h1>
+          <p className="text-slate-400 font-medium text-sm sm:text-base">Acesso Restrito Enterprise</p>
         </div>
         <form onSubmit={(e) => { e.preventDefault(); onLogin(email, password); }} className="space-y-5">
           <div className="space-y-1">
@@ -90,56 +94,13 @@ function App() {
   const [newTaxName, setNewTaxName] = useState('');
   const [newTaxPercent, setNewTaxPercent] = useState('');
 
-  // Notification states
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [notifyBillsToPay, setNotifyBillsToPay] = useState(true);
-  const [notifyBillsToExpire, setNotifyBillsToExpire] = useState(true);
-  const [notifyCommissions, setNotifyCommissions] = useState(true);
-  const [notifyDebts, setNotifyDebts] = useState(true);
-
   // Check login persistence
   useEffect(() => {
     const storedAuth = localStorage.getItem('finnexus_auth');
     if (storedAuth === 'true') {
       setIsAuthenticated(true);
     }
-
-    const savedSettings = localStorage.getItem('finnexus_notifications');
-    if (savedSettings) {
-      const s = JSON.parse(savedSettings);
-      setNotificationsEnabled(s.enabled ?? false);
-      setNotifyBillsToPay(s.billsToPay ?? true);
-      setNotifyBillsToExpire(s.billsToExpire ?? true);
-      setNotifyCommissions(s.commissions ?? true);
-      setNotifyDebts(s.debts ?? true);
-    }
   }, []);
-
-  const saveNotificationSettings = (enabled: boolean, billsToPay: boolean, billsToExpire: boolean, commissions: boolean, debts: boolean) => {
-     localStorage.setItem('finnexus_notifications', JSON.stringify({
-       enabled, billsToPay, billsToExpire, commissions, debts
-     }));
-  };
-
-  const handleNotificationsToggle = async () => {
-    const willEnable = !notificationsEnabled;
-    if (willEnable) {
-      if ('Notification' in window) {
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-           alert('Você precisa permitir as notificações no seu navegador ou nas configurações do seu celular (onde este PWA/app foi instalado).');
-           return;
-        }
-      } else {
-        alert('Este dispositivo não suporta notificações nativas.');
-        return;
-      }
-    }
-    setNotificationsEnabled(willEnable);
-    saveNotificationSettings(willEnable, notifyBillsToPay, notifyBillsToExpire, notifyCommissions, notifyDebts);
-  };
-
-
 
   const handleLogin = (email: string, pass: string) => {
     // Credenciais Definitivas
@@ -225,6 +186,21 @@ function App() {
       setTransactions(finalData);
       setTaxSettings(taxes);
       setSummary(calculateSummary(finalData, taxes));
+
+      // Check and trigger local notifications based on user preferences
+      try {
+        const notifPrefs = await loadNotificationPrefs();
+        await checkAndTriggerLocalNotifications(finalData, notifPrefs);
+      } catch (notifError) {
+        console.warn('Notification check failed:', notifError);
+      }
+
+      // Evitar inatividade do Supabase (Keep-Alive)
+      try {
+        await checkAndTriggerKeepAlive();
+      } catch (keepAliveError) {
+        console.warn('Keep-alive check failed:', keepAliveError);
+      }
     } catch (error: any) {
       console.error("Erro ao carregar banco de dados:", error);
       if (!isSupabaseConfigured) {
@@ -274,16 +250,14 @@ function App() {
   }
 
   const handleResetDatabase = async () => {
-    if (confirm('PERIGO: Isso apagará TODOS os registros financeiros. Deseja continuar?')) {
-      try {
-        await clearDatabase();
-        await loadData();
-        alert('Sistema resetado para configurações de fábrica.');
-      } catch (error: any) {
-        alert(error.message || 'Ocorreu um erro ao resetar os dados.');
-      }
+    try {
+      await clearDatabase();
+      await loadData();
+      alert('Sistema resetado para configurações de fábrica.');
+    } catch (error: any) {
+      alert(error.message || 'Ocorreu um erro ao resetar os dados.');
     }
-  }
+  };
 
   const handleAddTax = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -314,12 +288,13 @@ function App() {
 
   const getHeaderTitle = (tab: string) => {
     const titles: Record<string, string> = {
-      'dashboard': '',
+      'dashboard': 'Visão Consolidada',
       'transactions': 'Gestão de Fluxo de Caixa',
       'accounts': 'Contas a Pagar & Receber',
       'reports': 'Relatórios & Auditoria Fiscal',
       'ai-advisor': 'Consultoria Inteligente (IA)',
-      'settings': 'Configurações do Sistema'
+      'settings': 'Configurações do Sistema',
+      'database': 'Gerenciamento de Banco de Dados'
     };
     return titles[tab] || tab;
   };
@@ -350,25 +325,25 @@ function App() {
 
       <div className={`flex-1 flex flex-col h-full transition-[margin] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} w-full`}>
 
-        <header className="bg-white/80 dark:bg-[#111a2e]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/50 px-4 md:px-8 py-4 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-colors duration-300">
-          <div className="flex items-center gap-4">
+        <header className="bg-white/80 dark:bg-[#111a2e]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/50 px-4 md:px-8 py-4 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-colors duration-300 gap-2">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors shrink-0"
             >
-              <Menu className="h-6 w-6" />
+              <Menu className="h-6 w-6 lg:h-5 lg:w-5" />
             </button>
-            <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight truncate">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight truncate leading-tight">
               {getHeaderTitle(activeTab)}
             </h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
             <ThemeToggle />
             <div className="text-right hidden sm:block">
               <p className="text-sm font-bold text-slate-900 dark:text-slate-100">João Silva (CFO)</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">TechCorp Brasil Ltda.</p>
             </div>
-            <div className="h-10 w-10 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-200 shrink-0 cursor-pointer hover:shadow-indigo-300 transition-shadow ring-2 ring-white dark:ring-slate-700">
+            <div className="h-9 w-9 md:h-10 md:w-10 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-200 shrink-0 cursor-pointer hover:shadow-indigo-300 transition-shadow ring-2 ring-white dark:ring-slate-700 text-sm">
               JS
             </div>
           </div>
@@ -413,207 +388,19 @@ function App() {
                 {activeTab === 'ai-advisor' && <AIAssistant summary={summary} transactions={transactions} />}
 
                 {activeTab === 'settings' && (
-                  <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-                    <div className="bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 p-8 rounded-2xl shadow-xl dark:shadow-none">
-                      <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                        <Database className="h-6 w-6 text-indigo-600" />
-                        Gerenciamento de Dados
-                      </h2>
-                      <p className="text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-                        Os dados são armazenados de forma {typeof isSupabaseConfigured !== 'undefined' && isSupabaseConfigured ? 'segura na nuvem (Supabase)' : 'local no seu navegador (IndexedDB)'}.
-                        Isso garante total privacidade e controle sobre suas informações financeiras.
-                      </p>
-
-                      <div className="space-y-4">
-                        {isSupabaseConfigured ? (
-                          <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30 rounded-xl flex items-center gap-4">
-                            <div className="p-3 bg-white dark:bg-slate-800 rounded-full text-emerald-600 dark:text-emerald-400 shadow-sm ring-1 ring-emerald-100 dark:ring-emerald-800/50">
-                              <Cloud className="h-6 w-6" />
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-emerald-800 dark:text-emerald-400">Banco de Dados em Nuvem Ativo</h4>
-                              <p className="text-sm text-emerald-700 dark:text-emerald-500">Sincronização em tempo real ativada via Supabase.</p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="p-6 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/30 rounded-xl flex items-center gap-4 text-center sm:text-left">
-                            <div className="p-3 bg-white dark:bg-slate-800 rounded-full text-rose-600 dark:text-rose-400 shadow-sm ring-1 ring-rose-100 dark:ring-rose-800/50">
-                              <AlertTriangle className="h-6 w-6" />
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-rose-800 dark:text-rose-400">Sistema Desconectado</h4>
-                              <p className="text-sm text-rose-700 dark:text-rose-500 font-medium">O banco de dados não está configurado. Por segurança, o salvamento local foi desativado.</p>
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="p-6 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/30 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                          <div>
-                            <h4 className="font-bold text-rose-800 dark:text-rose-400 flex items-center gap-2">
-                              <Trash2 className="h-4 w-4" /> Zona de Perigo
-                            </h4>
-                            <p className="text-sm text-rose-700 dark:text-rose-500 mt-1">A exclusão do banco de dados remove todo o histórico na nuvem.</p>
-                          </div>
-                          <button
-                            onClick={handleResetDatabase}
-                            className="px-6 py-3 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 text-rose-600 dark:text-rose-400 font-semibold rounded-lg hover:bg-rose-600 hover:text-white transition-all shadow-sm w-full sm:w-auto"
-                          >
-                            Resetar Banco de Dados
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 p-8 rounded-2xl shadow-xl dark:shadow-none">
-                      <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                        <Percent className="h-6 w-6 text-indigo-600" />
-                        Configuração de Impostos
-                      </h2>
-                      <p className="text-slate-600 dark:text-slate-300 mb-6">
-                        Configure os impostos incidentes sobre o faturamento. O sistema somará as porcentagens para calcular a provisão fiscal.
-                      </p>
-
-                      <div className="space-y-3 mb-8">
-                        {taxSettings.map(tax => (
-                          <div key={tax.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800 transition-all hover:border-indigo-200">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs ring-1 ring-indigo-100 dark:ring-indigo-800/50">
-                                %
-                              </div>
-                              <div>
-                                <h5 className="font-bold text-slate-800 dark:text-slate-200">{tax.name}</h5>
-                                <p className="text-xs text-slate-500 font-medium">{tax.percentage}% do lucro </p>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => handleDeleteTax(tax.id)}
-                              className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ))}
-                        {taxSettings.length === 0 && (
-                          <div className="text-center py-6 bg-slate-50 dark:bg-slate-800/20 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
-                            <p className="text-sm text-slate-500">Nenhum imposto configurado. Usando padrão de 15%.</p>
-                          </div>
-                        )}
-                      </div>
-
-                      <form onSubmit={handleAddTax} className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                        <div className="md:col-span-2">
-                          <input
-                            required
-                            placeholder="Nome (Ex: ISS)"
-                            value={newTaxName}
-                            onChange={e => setNewTaxName(e.target.value)}
-                            className="w-full h-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-medium dark:text-white"
-                          />
-                        </div>
-                        <div className="md:col-span-2 relative">
-                          <input
-                            required
-                            type="number"
-                            step="0.01"
-                            placeholder="Porcentagem (%)"
-                            value={newTaxPercent}
-                            onChange={e => setNewTaxPercent(e.target.value)}
-                            className="w-full h-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-medium dark:text-white pr-10"
-                          />
-                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
-                        </div>
-                        <button
-                          type="submit"
-                          className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2"
-                        >
-                          <Plus className="h-4 w-4" />
-                          <span>Adicionar</span>
-                        </button>
-                      </form>
-                    </div>
-
-                    {/* NEW NOTIFICATION SETTINGS */}
-                    <div className="bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 p-8 rounded-2xl shadow-xl dark:shadow-none mt-6">
-                      <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                        <Bell className="h-6 w-6 text-indigo-600" />
-                        Notificações & Alertas (PWA/Celular)
-                      </h2>
-                      <p className="text-slate-600 dark:text-slate-300 mb-6 font-medium">
-                        Ative os alertas no seu celular para receber lembretes de pagamentos, comissões ou faturas quase vencendo.
-                      </p>
-
-                      <div className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 rounded-xl mb-6">
-                        <div>
-                          <h4 className="font-bold text-indigo-900 dark:text-indigo-400">Notificações Gerais</h4>
-                          <p className="text-sm text-indigo-700 dark:text-indigo-300">Habilitar envio de alertas para seu aparelho.</p>
-                        </div>
-                        <button
-                          onClick={handleNotificationsToggle}
-                          className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${notificationsEnabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'}`}
-                        >
-                          <span
-                            className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md shadow-slate-400/30 transition-transform duration-300 ease-in-out ${notificationsEnabled ? 'translate-x-7' : 'translate-x-1'}`}
-                          />
-                        </button>
-                      </div>
-
-                      <div className={`space-y-4 transition-all duration-500 overflow-hidden ${notificationsEnabled ? 'opacity-100 max-h-[500px]' : 'opacity-50 max-h-[500px] pointer-events-none'}`}>
-                        {/* Option 1 */}
-                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                          <div>
-                            <h5 className="font-bold text-slate-800 dark:text-slate-200">Contas prestes a pagar</h5>
-                            <p className="text-xs text-slate-500 font-medium">Aviso de despesas pro dia.</p>
-                          </div>
-                          <button
-                            onClick={() => { setNotifyBillsToPay(!notifyBillsToPay); saveNotificationSettings(notificationsEnabled, !notifyBillsToPay, notifyBillsToExpire, notifyCommissions, notifyDebts); }}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${notifyBillsToPay ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'}`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${notifyBillsToPay ? 'translate-x-6' : 'translate-x-1'}`} />
-                          </button>
-                        </div>
-                        {/* Option 2 */}
-                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                          <div>
-                            <h5 className="font-bold text-slate-800 dark:text-slate-200">Contas prestes a vencer</h5>
-                            <p className="text-xs text-slate-500 font-medium">Alerta na véspera do vencimento de despesas importantes.</p>
-                          </div>
-                          <button
-                            onClick={() => { setNotifyBillsToExpire(!notifyBillsToExpire); saveNotificationSettings(notificationsEnabled, notifyBillsToPay, !notifyBillsToExpire, notifyCommissions, notifyDebts); }}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${notifyBillsToExpire ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'}`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${notifyBillsToExpire ? 'translate-x-6' : 'translate-x-1'}`} />
-                          </button>
-                        </div>
-                        {/* Option 3 */}
-                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                          <div>
-                            <h5 className="font-bold text-slate-800 dark:text-slate-200">Dia do pagamento de comissão</h5>
-                            <p className="text-xs text-slate-500 font-medium">Aviso de que hoje é dia de receber uma comissão.</p>
-                          </div>
-                          <button
-                            onClick={() => { setNotifyCommissions(!notifyCommissions); saveNotificationSettings(notificationsEnabled, notifyBillsToPay, notifyBillsToExpire, !notifyCommissions, notifyDebts); }}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${notifyCommissions ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'}`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${notifyCommissions ? 'translate-x-6' : 'translate-x-1'}`} />
-                          </button>
-                        </div>
-                        {/* Option 4 */}
-                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
-                          <div>
-                            <h5 className="font-bold text-slate-800 dark:text-slate-200">Aviso de cobrança de dívida</h5>
-                            <p className="text-xs text-slate-500 font-medium">Lembrete de que hoje é o dia de cobrar/receber uma dívida.</p>
-                          </div>
-                          <button
-                            onClick={() => { setNotifyDebts(!notifyDebts); saveNotificationSettings(notificationsEnabled, notifyBillsToPay, notifyBillsToExpire, notifyCommissions, !notifyDebts); }}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${notifyDebts ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-700'}`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${notifyDebts ? 'translate-x-6' : 'translate-x-1'}`} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
+                  <Settings
+                    transactions={transactions}
+                    taxSettings={taxSettings}
+                    onAddTax={handleAddTax}
+                    onDeleteTax={handleDeleteTax}
+                    newTaxName={newTaxName}
+                    setNewTaxName={setNewTaxName}
+                    newTaxPercent={newTaxPercent}
+                    setNewTaxPercent={setNewTaxPercent}
+                  />
+                )}
+                {activeTab === 'database' && (
+                  <DatabaseManager onResetDatabase={handleResetDatabase} />
                 )}
               </>
             )}
