@@ -651,7 +651,7 @@ const Settings: React.FC<SettingsProps> = ({
               Anti-Inatividade do Supabase (Keep-Alive)
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 ml-[52px]">
-              Evite que seu banco de dados Supabase gratuito seja pausado por inatividade.
+              Evite que seu banco de dados Supabase seja pausado por inatividade.
             </p>
           </div>
         </div>

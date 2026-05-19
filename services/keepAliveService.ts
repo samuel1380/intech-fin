@@ -49,7 +49,7 @@ export const pingSupabase = async (): Promise<boolean> => {
     category: TransactionCategory.OTHER,
     status: TransactionStatus.COMPLETED,
     date: today,
-    notes: 'Registro de teste inserido e removido automaticamente para evitar o congelamento do banco de dados no plano gratuito do Supabase.',
+    notes: 'Registro de teste inserido e removido automaticamente para evitar o congelamento do banco de dados do Supabase.',
   };
 
   // 1. Inserir registro
