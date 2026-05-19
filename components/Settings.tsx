@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Bell, BellOff, AlertTriangle, CreditCard, Calendar, DollarSign,
   BarChart2, Wallet, ArrowDownCircle, Target, BookOpen, RefreshCw,
-  CheckCircle, XCircle, Loader2, Info, Database, Trash2, Cloud, Percent, Plus
+  CheckCircle, XCircle, Loader2, Info, Database, Trash2, Cloud, Percent, Plus, Play
 } from 'lucide-react';
 import {
   NotificationPreferences,
@@ -17,6 +17,7 @@ import {
 } from '../services/notificationService';
 import { isSupabaseConfigured } from '../services/supabase';
 import { TaxSetting } from '../types';
+import { getKeepAliveConfig, saveKeepAliveConfig, runKeepAlivePing, KeepAliveConfig } from '../services/keepAliveService';
 
 // ============================================================
 // COMPONENTE: Toggle Switch (igual ao ThemeToggle)
@@ -174,6 +175,13 @@ const Settings: React.FC<SettingsProps> = ({
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [swRegistered, setSwRegistered] = useState(false);
   const [pushSubscription, setPushSubscription] = useState<PushSubscription | null>(null);
+  const [keepAliveConfig, setKeepAliveConfig] = useState<KeepAliveConfig>({
+    enabled: false,
+    intervalDays: 4,
+    lastPing: 0,
+    pingLogs: []
+  });
+  const [isPingInProgress, setIsPingInProgress] = useState(false);
 
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
@@ -199,9 +207,42 @@ const Settings: React.FC<SettingsProps> = ({
       // Carregar preferências
       const savedPrefs = await loadNotificationPrefs();
       setPrefs(savedPrefs);
+
+      // Carregar preferências de keep-alive
+      const config = getKeepAliveConfig();
+      setKeepAliveConfig(config);
     };
     init();
   }, []);
+
+  const handleToggleKeepAlive = (enabled: boolean) => {
+    const updated = { ...keepAliveConfig, enabled };
+    setKeepAliveConfig(updated);
+    saveKeepAliveConfig(updated);
+    showToast(enabled ? 'Anti-inatividade ativado!' : 'Anti-inatividade desativado.', 'info');
+  };
+
+  const handleIntervalChange = (val: number) => {
+    const cleanVal = Math.max(1, Math.min(6, val)); // entre 1 e 6 dias
+    const updated = { ...keepAliveConfig, intervalDays: cleanVal };
+    setKeepAliveConfig(updated);
+    saveKeepAliveConfig(updated);
+  };
+
+  const handleManualPing = async () => {
+    setIsPingInProgress(true);
+    try {
+      const updated = await runKeepAlivePing();
+      setKeepAliveConfig(updated);
+      showToast('Ping realizado com sucesso! Banco ativo.', 'success');
+    } catch (err: any) {
+      showToast('Falha no ping: ' + (err.message || 'Verifique sua conexão.'), 'error');
+      // Recarregar os logs atualizados com o erro
+      setKeepAliveConfig(getKeepAliveConfig());
+    } finally {
+      setIsPingInProgress(false);
+    }
+  };
 
   // Salvar prefs com debounce quando mudam
   const savePrefs = useCallback(async (newPrefs: NotificationPreferences, sub?: PushSubscription | null) => {
@@ -597,6 +638,159 @@ const Settings: React.FC<SettingsProps> = ({
             <span>Adicionar</span>
           </button>
         </form>
+      </div>
+
+      {/* ===== SEÇÃO: ANTI-INATIVIDADE DO BANCO DE DADOS (SUPABASE KEEPALIVE) ===== */}
+      <div className="bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 p-6 md:p-8 rounded-2xl shadow-xl dark:shadow-none">
+        <div className="flex items-start justify-between mb-6 gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <Database className="h-5 w-5 text-white" />
+              </div>
+              Anti-Inatividade do Supabase (Keep-Alive)
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 ml-[52px]">
+              Evite que seu banco de dados Supabase gratuito seja pausado por inatividade.
+            </p>
+          </div>
+        </div>
+
+        {/* Informação Geral / Alerta */}
+        <div className="mb-6 p-4 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-xl">
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            O plano gratuito do Supabase suspende o banco de dados se não houver atividade por 7 dias. Esta ferramenta realiza um "ping" periódico (insere e exclui imediatamente um registro de teste) para mantê-lo ativo.
+          </p>
+        </div>
+
+        {/* Toggle Principal de Anti-Inatividade */}
+        <div className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-300 mb-6
+          ${keepAliveConfig.enabled
+            ? 'border-indigo-300 bg-gradient-to-r from-indigo-50 to-violet-50 dark:border-indigo-700/60 dark:from-indigo-900/20 dark:to-violet-900/20'
+            : 'border-slate-200 bg-slate-50 dark:border-slate-700/40 dark:bg-slate-800/20'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-sm transition-colors duration-300
+              ${keepAliveConfig.enabled ? 'bg-indigo-600 shadow-indigo-500/30' : 'bg-slate-200 dark:bg-slate-700'}`}>
+              <Database className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="font-bold text-slate-800 dark:text-slate-100">
+                {keepAliveConfig.enabled ? 'Anti-Inatividade Ativo' : 'Anti-Inatividade Inativo'}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {keepAliveConfig.enabled ? 'O sistema verificará e enviará pings periódicos.' : 'Ative para habilitar o ping no navegador.'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <ToggleSwitch
+              checked={keepAliveConfig.enabled}
+              onChange={handleToggleKeepAlive}
+            />
+          </div>
+        </div>
+
+        {/* Configurações Avançadas e Ping Manual */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Configurações Locais</h3>
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-xl">
+                <div>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Frequência do Ping</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">Intervalo recomendado: 4 dias</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={1} max={6}
+                    value={keepAliveConfig.intervalDays}
+                    onChange={(e) => handleIntervalChange(Number(e.target.value))}
+                    className="w-16 px-2 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                  />
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">dias</span>
+                </div>
+              </div>
+
+              {/* Botão de teste manual */}
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-xl flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Testar Conexão</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">Executa um ping de teste agora</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={isPingInProgress}
+                  onClick={handleManualPing}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 rounded-xl transition-all shadow-md shadow-indigo-500/10"
+                >
+                  {isPingInProgress ? (
+                    <RefreshCw className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Play className="h-3 w-3" />
+                  )}
+                  {isPingInProgress ? 'Enviando...' : 'Ping Manual'}
+                </button>
+              </div>
+            </div>
+
+            {/* Logs de Pings */}
+            <div className="mt-4">
+              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Histórico de Pings (Navegador)</p>
+              <div className="bg-slate-900 text-slate-200 font-mono text-[11px] p-3 rounded-xl h-36 overflow-y-auto border border-slate-800 space-y-1">
+                {keepAliveConfig.pingLogs.length > 0 ? (
+                  keepAliveConfig.pingLogs.map((log, idx) => (
+                    <div key={idx} className={log.includes('Sucesso') ? 'text-emerald-400' : 'text-rose-400'}>
+                      {log}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-slate-500 text-center py-8">Nenhum log registrado ainda.</div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Solução Serverless Automática */}
+          <div className="space-y-4 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 lg:pl-6 pt-6 lg:pt-0">
+            <h3 className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-2">
+              <Cloud className="h-4 w-4 text-sky-500" />
+              Solução Serverless Recomendada
+            </h3>
+            
+            <div className="space-y-3">
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-semibold">
+                Para que o banco não pause mesmo que você passe semanas sem abrir este site, nós criamos um workflow do <strong>GitHub Actions</strong> no código do seu projeto.
+              </p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Como ativar no seu GitHub:
+              </p>
+              <ol className="list-decimal list-inside text-xs text-slate-600 dark:text-slate-400 space-y-1.5 ml-1">
+                <li>Abra o seu repositório no GitHub.</li>
+                <li>Vá em <strong>Settings</strong> &gt; <strong>Secrets and variables</strong> &gt; <strong>Actions</strong>.</li>
+                <li>Clique em <strong>New repository secret</strong> e crie os dois Secrets:</li>
+              </ol>
+              
+              <div className="bg-slate-900 p-2.5 rounded-xl border border-slate-800 font-mono text-[11px] space-y-1.5 text-slate-300">
+                <div className="flex justify-between items-center">
+                  <span>Name: <strong className="text-indigo-400">SUPABASE_URL</strong></span>
+                  <button type="button" onClick={() => { navigator.clipboard.writeText('SUPABASE_URL'); showToast('Copiado!', 'success'); }} className="text-[10px] text-slate-500 hover:text-white px-1.5 py-0.5 bg-slate-800 rounded">Copiar</button>
+                </div>
+                <div className="flex justify-between items-center border-t border-slate-800/50 pt-1.5">
+                  <span>Name: <strong className="text-indigo-400">SUPABASE_ANON_KEY</strong></span>
+                  <button type="button" onClick={() => { navigator.clipboard.writeText('SUPABASE_ANON_KEY'); showToast('Copiado!', 'success'); }} className="text-[10px] text-slate-500 hover:text-white px-1.5 py-0.5 bg-slate-800 rounded">Copiar</button>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 italic leading-relaxed">
+                Pronto! O GitHub irá rodar um script a cada 4 dias em segundo plano na nuvem para manter o seu Supabase ativo para sempre, sem custo.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

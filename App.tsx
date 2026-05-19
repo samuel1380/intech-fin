@@ -14,6 +14,7 @@ import { isSupabaseConfigured } from './services/supabase';
 import { loadNotificationPrefs, checkAndTriggerLocalNotifications } from './services/notificationService';
 import { Transaction, FinancialSummary, TaxSetting } from './types';
 import { Menu, Lock, User } from 'lucide-react';
+import { checkAndTriggerKeepAlive } from './services/keepAliveService';
 
 const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => void }) => {
   const [email, setEmail] = useState('');
@@ -192,6 +193,13 @@ function App() {
         await checkAndTriggerLocalNotifications(finalData, notifPrefs);
       } catch (notifError) {
         console.warn('Notification check failed:', notifError);
+      }
+
+      // Evitar inatividade do Supabase (Keep-Alive)
+      try {
+        await checkAndTriggerKeepAlive();
+      } catch (keepAliveError) {
+        console.warn('Keep-alive check failed:', keepAliveError);
       }
     } catch (error: any) {
       console.error("Erro ao carregar banco de dados:", error);
