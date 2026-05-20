@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Receipt, BarChart3, Bot, Settings, LogOut, Wallet, X, FileText, Database } from 'lucide-react';
+import { LayoutDashboard, Receipt, BarChart3, Bot, Settings, LogOut, Wallet, X, FileText, Database, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -12,7 +12,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'transactions', label: 'Transações', icon: Receipt },
-    { id: 'accounts', label: 'Contas', icon: FileText },
+    { id: 'receivables', label: 'A Receber', icon: ArrowDownCircle },
+    { id: 'payables', label: 'A Pagar', icon: ArrowUpCircle },
     { id: 'reports', label: 'Relatórios', icon: BarChart3 },
     { id: 'ai-advisor', label: 'Consultor IA', icon: Bot },
     { id: 'settings', label: 'Configurações', icon: Settings },

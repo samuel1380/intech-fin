@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Transaction, TransactionType, TransactionStatus } from '../types';
 import { 
     ArrowDownCircle, ArrowUpCircle, Clock, AlertTriangle, CheckCircle, 
@@ -9,12 +9,17 @@ import { format } from 'date-fns';
 interface Props {
     transactions: Transaction[];
     onUpdateTransaction: (id: string, updates: Partial<Transaction>) => Promise<void>;
+    initialTab?: 'alerts' | 'receivable' | 'payable';
 }
 
-const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction }) => {
-    const [activeTab, setActiveTab] = useState<'alerts' | 'receivable' | 'payable'>('alerts');
+const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialTab = 'alerts' }) => {
+    const [activeTab, setActiveTab] = useState<'alerts' | 'receivable' | 'payable'>(initialTab);
     const [searchTerm, setSearchTerm] = useState('');
     const [markingId, setMarkingId] = useState<string | null>(null);
+
+    useEffect(() => {
+        setActiveTab(initialTab);
+    }, [initialTab]);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);

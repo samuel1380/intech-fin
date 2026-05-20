@@ -121,8 +121,8 @@ function App() {
   }
 
   // Carregar dados do Banco de Dados + Gerar Recorrências
-  const loadData = async () => {
-    setIsLoading(true);
+  const loadData = async (silent = false) => {
+    if (!silent) setIsLoading(true);
     try {
       const [data, taxes] = await Promise.all([
         getAllTransactionsFromDb(),
@@ -229,25 +229,25 @@ function App() {
 
   const handleAddTransaction = async (newTx: Omit<Transaction, 'id'>) => {
     await addTransactionToDb(newTx);
-    await loadData();
+    await loadData(true);
   };
 
   const handleDeleteTransaction = async (id: string) => {
     if (confirm('Tem certeza que deseja excluir este registro? A ação é irreversível.')) {
       await deleteTransactionFromDb(id);
-      await loadData();
+      await loadData(true);
     }
   };
 
   const handleUpdateStatus = async (id: string, status: any) => {
     await updateTransactionStatus(id, status);
-    await loadData();
-  }
+    await loadData(true);
+  };
 
   const handleUpdateTransaction = async (id: string, updates: any) => {
     await updateTransactionInDb(id, updates);
-    await loadData();
-  }
+    await loadData(true);
+  };
 
   const handleResetDatabase = async () => {
     try {
@@ -269,7 +269,7 @@ function App() {
       });
       setNewTaxName('');
       setNewTaxPercent('');
-      await loadData();
+      await loadData(true);
     } catch (error) {
       alert('Erro ao adicionar imposto.');
     }
@@ -278,7 +278,7 @@ function App() {
   const handleDeleteTax = async (id: string) => {
     if (confirm('Remover este imposto?')) {
       await deleteTaxSettingFromDb(id);
-      await loadData();
+      await loadData(true);
     }
   };
 
@@ -290,6 +290,8 @@ function App() {
     const titles: Record<string, string> = {
       'dashboard': 'Visão Consolidada',
       'transactions': 'Gestão de Fluxo de Caixa',
+      'receivables': 'Contas a Receber',
+      'payables': 'Contas a Pagar',
       'accounts': 'Contas a Pagar & Receber',
       'reports': 'Relatórios & Auditoria Fiscal',
       'ai-advisor': 'Consultoria Inteligente (IA)',
@@ -376,6 +378,20 @@ function App() {
                     onDeleteTransaction={handleDeleteTransaction}
                     onUpdateStatus={handleUpdateStatus}
                     onUpdateTransaction={handleUpdateTransaction}
+                  />
+                )}
+                {activeTab === 'receivables' && (
+                  <Accounts
+                    transactions={transactions}
+                    onUpdateTransaction={handleUpdateTransaction}
+                    initialTab="receivable"
+                  />
+                )}
+                {activeTab === 'payables' && (
+                  <Accounts
+                    transactions={transactions}
+                    onUpdateTransaction={handleUpdateTransaction}
+                    initialTab="payable"
                   />
                 )}
                 {activeTab === 'accounts' && (
