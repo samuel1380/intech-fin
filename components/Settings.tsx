@@ -550,6 +550,63 @@ const Settings: React.FC<SettingsProps> = ({
               </div>
             </NotifItem>
 
+            {/* Resumo Diário de Faturamento */}
+            <NotifItem
+              icon="💰"
+              iconBg="bg-emerald-600"
+              title="Resumo de Faturamento Diário"
+              description="Notificação diária do faturamento de hoje com uma mensagem motivadora"
+              enabled={prefs.dailySummary}
+              onToggle={(v) => updatePref('dailySummary', v)}
+            >
+              <div className="pt-3 flex items-center gap-3">
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                  Horário do Alerta
+                </label>
+                <input
+                  type="time"
+                  value={prefs.dailySummaryTime}
+                  onChange={(e) => updatePref('dailySummaryTime', e.target.value)}
+                  className="px-3 py-1.5 text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                />
+              </div>
+            </NotifItem>
+
+            {/* Frequência de Verificação */}
+            <div className="bg-slate-50/50 dark:bg-slate-800/10 border border-slate-100 dark:border-slate-800/40 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <RefreshCw className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-800 dark:text-slate-100 text-sm">
+                    Frequência de Verificação
+                  </h4>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 leading-snug">
+                    Intervalo de verificação automática das notificações locais
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 self-end sm:self-center">
+                <input
+                  type="number"
+                  min={1}
+                  value={prefs.checkIntervalValue || 15}
+                  onChange={(e) => updatePref('checkIntervalValue', Number(e.target.value))}
+                  className="w-16 px-2 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                />
+                <select
+                  value={prefs.checkIntervalUnit || 'minutes'}
+                  onChange={(e) => updatePref('checkIntervalUnit', e.target.value as any)}
+                  className="px-2 py-1.5 text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                >
+                  <option value="seconds">segundo(s)</option>
+                  <option value="minutes">minuto(s)</option>
+                  <option value="hours">hora(s)</option>
+                </select>
+              </div>
+            </div>
+
             {/* Botão de teste */}
             <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800">
               <button

@@ -32,6 +32,13 @@ export const getKeepAliveConfig = async (): Promise<KeepAliveConfig> => {
       .eq('key', 'keepalive')
       .maybeSingle();
 
+    if (error) {
+      console.warn('[Keep-Alive] Não foi possível carregar do Supabase:', error.message);
+      if (error.code === '42P01') {
+        console.error('[Keep-Alive] A tabela "system_settings" não existe. Você precisa executar as novas instruções do arquivo "supabase_migrations.sql" no SQL Editor do Supabase.');
+      }
+    }
+
     if (!error && data?.value) {
       const dbConfig = { ...DEFAULT_CONFIG, ...data.value };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dbConfig));

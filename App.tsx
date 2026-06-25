@@ -246,10 +246,23 @@ function App() {
   useEffect(() => {
     if (!isAuthenticated || transactions.length === 0) return;
 
+    let intervalId: any;
+
     const triggerCheck = async () => {
       try {
         const notifPrefs = await loadNotificationPrefs();
         await checkAndTriggerLocalNotifications(transactions, notifPrefs);
+
+        // Recriar o timer de acordo com o valor configurado
+        const val = notifPrefs.checkIntervalValue || 15;
+        const unit = notifPrefs.checkIntervalUnit || 'minutes';
+        let ms = 15 * 60 * 1000;
+        if (unit === 'seconds') ms = val * 1000;
+        else if (unit === 'minutes') ms = val * 60 * 1000;
+        else if (unit === 'hours') ms = val * 60 * 60 * 1000;
+
+        clearInterval(intervalId);
+        intervalId = setInterval(triggerCheck, ms);
       } catch (err) {
         console.warn('Erro ao verificar notificações locais:', err);
       }
@@ -264,12 +277,12 @@ function App() {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Verificar periodicamente a cada 15 minutos
-    const interval = setInterval(triggerCheck, 15 * 60 * 1000);
+    // Disparar verificação imediata na montagem
+    triggerCheck();
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      clearInterval(interval);
+      clearInterval(intervalId);
     };
   }, [isAuthenticated, transactions]);
 

@@ -28,6 +28,12 @@ export interface NotificationPreferences {
   recurringBillsDays: number;
   // Resumo semanal
   weeklySummary: boolean;
+  // Resumo diário de faturamento
+  dailySummary: boolean;
+  dailySummaryTime: string; // formato 'HH:mm'
+  // Frequência de verificação no frontend
+  checkIntervalValue: number;
+  checkIntervalUnit: 'seconds' | 'minutes' | 'hours';
 }
 
 export const DEFAULT_NOTIFICATION_PREFS: NotificationPreferences = {
@@ -46,6 +52,10 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPreferences = {
   recurringBills: true,
   recurringBillsDays: 3,
   weeklySummary: false,
+  dailySummary: true,
+  dailySummaryTime: '18:00',
+  checkIntervalValue: 15,
+  checkIntervalUnit: 'minutes',
 };
 
 // ============================================================
@@ -195,6 +205,13 @@ export async function loadNotificationPrefs(): Promise<NotificationPreferences> 
       .eq('user_id', 'intechfin_default')
       .single();
 
+    if (error) {
+      console.warn('[Notifications] Não foi possível carregar do Supabase:', error.message);
+      if (error.code === '42P01') {
+        console.error('[Notifications] A tabela "notification_preferences" não existe no Supabase. Execute o arquivo "supabase_migrations.sql" no SQL Editor do Supabase.');
+      }
+    }
+
     if (!error && data?.preferences) {
       // Merge com defaults para garantir novos campos
       const merged = { ...DEFAULT_NOTIFICATION_PREFS, ...data.preferences };
@@ -218,14 +235,37 @@ export async function sendLocalNotification(
 ): Promise<void> {
   if (Notification.permission !== 'granted') return;
 
-  const registration = await navigator.serviceWorker.ready;
-  await registration.showNotification(title, {
+  const options: NotificationOptions = {
     body,
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-72x72.png',
     data: { url },
     vibrate: [200, 100, 200],
-  });
+  };
+
+  try {
+    if ('serviceWorker' in navigator) {
+      const swReadyPromise = navigator.serviceWorker.ready;
+      // Promessa de timeout de 1.5s
+      const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
+      
+      const registration = await Promise.race([swReadyPromise, timeoutPromise]);
+      
+      if (registration) {
+        await registration.showNotification(title, options);
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn('[PWA] Falha ao enviar notificação via Service Worker, usando fallback nativo:', err);
+  }
+
+  // Fallback nativo
+  try {
+    new Notification(title, options);
+  } catch (err) {
+    console.error('[PWA] Falha no fallback nativo de notificação:', err);
+  }
 }
 
 function getLocalDateString(date: Date): string {
@@ -351,6 +391,47 @@ export async function checkAndTriggerLocalNotifications(
         'Hoje é o dia de fechar o mês! Revise receitas, despesas e pendências.',
         '/index.html#reports'
       );
+    }
+  }
+
+  // === RESUMO DIÁRIO DE FATURAMENTO ===
+  if (prefs.dailySummary) {
+    const targetTime = prefs.dailySummaryTime || '18:00';
+    const [targetHour, targetMinute] = targetTime.split(':').map(Number);
+
+    const currentHour = today.getHours();
+    const currentMinute = today.getMinutes();
+
+    // Evitar disparos repetidos no mesmo minuto
+    const lastDailySent = localStorage.getItem('finnexus_last_daily_summary_sent');
+
+    if (currentHour === targetHour && currentMinute === targetMinute && lastDailySent !== todayStr) {
+      const todayRevenue = transactions.filter((t) => {
+        return (
+          t.type === 'RECEITA' &&
+          (t.status === 'CONCLUÍDO' || t.status === 'PAGTO PARCIAL') &&
+          t.date === todayStr
+        );
+      });
+
+      const totalFaturado = todayRevenue.reduce((s: number, t: any) => s + t.amount, 0);
+
+      const frases = [
+        "Ótimo trabalho hoje! Continue firme rumo ao sucesso financeiro! 🚀",
+        "Cada passo conta. O faturamento de hoje é o fruto do seu esforço! 💪",
+        "Mais um dia produtivo! Sua dedicação está transformando o negócio. 📈",
+        "Parabéns pelos resultados de hoje! O sucesso é a soma de pequenos esforços diários. ✨",
+        "O sucesso não é por acaso, é trabalho duro, perseverança e amor pelo que faz! 🏆"
+      ];
+      const fraseMotivadora = frases[Math.floor(Math.random() * frases.length)];
+
+      await sendLocalNotification(
+        '💰 Resumo de Faturamento Diário',
+        `Hoje você faturou R$ ${totalFaturado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. ${fraseMotivadora}`,
+        '/index.html#dashboard'
+      );
+
+      localStorage.setItem('finnexus_last_daily_summary_sent', todayStr);
     }
   }
 }
