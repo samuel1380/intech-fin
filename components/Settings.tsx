@@ -14,6 +14,7 @@ import {
   saveNotificationPrefs,
   loadNotificationPrefs,
   sendLocalNotification,
+  checkAndTriggerLocalNotifications,
 } from '../services/notificationService';
 import { isSupabaseConfigured } from '../services/supabase';
 import { TaxSetting } from '../types';
@@ -209,24 +210,24 @@ const Settings: React.FC<SettingsProps> = ({
       setPrefs(savedPrefs);
 
       // Carregar preferências de keep-alive
-      const config = getKeepAliveConfig();
+      const config = await getKeepAliveConfig();
       setKeepAliveConfig(config);
     };
     init();
   }, []);
 
-  const handleToggleKeepAlive = (enabled: boolean) => {
+  const handleToggleKeepAlive = async (enabled: boolean) => {
     const updated = { ...keepAliveConfig, enabled };
     setKeepAliveConfig(updated);
-    saveKeepAliveConfig(updated);
+    await saveKeepAliveConfig(updated);
     showToast(enabled ? 'Anti-inatividade ativado!' : 'Anti-inatividade desativado.', 'info');
   };
 
-  const handleIntervalChange = (val: number) => {
+  const handleIntervalChange = async (val: number) => {
     const cleanVal = Math.max(1, Math.min(6, val)); // entre 1 e 6 dias
     const updated = { ...keepAliveConfig, intervalDays: cleanVal };
     setKeepAliveConfig(updated);
-    saveKeepAliveConfig(updated);
+    await saveKeepAliveConfig(updated);
   };
 
   const handleManualPing = async () => {
@@ -249,12 +250,15 @@ const Settings: React.FC<SettingsProps> = ({
     setIsSaving(true);
     try {
       await saveNotificationPrefs(newPrefs, sub !== undefined ? sub : pushSubscription);
+      if (newPrefs.enabled) {
+        await checkAndTriggerLocalNotifications(transactions, newPrefs);
+      }
     } catch (err) {
       console.error('Erro ao salvar prefs:', err);
     } finally {
       setIsSaving(false);
     }
-  }, [pushSubscription]);
+  }, [pushSubscription, transactions]);
 
   const updatePref = <K extends keyof NotificationPreferences>(
     key: K,

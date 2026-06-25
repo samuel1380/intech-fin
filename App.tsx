@@ -94,12 +94,27 @@ function App() {
   const [newTaxName, setNewTaxName] = useState('');
   const [newTaxPercent, setNewTaxPercent] = useState('');
 
-  // Check login persistence
+  // Check login persistence and handle hash-based tab navigation
   useEffect(() => {
     const storedAuth = localStorage.getItem('finnexus_auth');
     if (storedAuth === 'true') {
       setIsAuthenticated(true);
     }
+
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash) {
+        const tab = hash.replace('#', '');
+        const validTabs = ['dashboard', 'transactions', 'receivables', 'payables', 'accounts', 'reports', 'ai-advisor', 'settings', 'database'];
+        if (validTabs.includes(tab)) {
+          setActiveTab(tab);
+        }
+      }
+    };
+
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const handleLogin = (email: string, pass: string) => {
@@ -226,6 +241,37 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [isAuthenticated]);
+
+  // Verificar notificações quando o app volta ao foco ou periodicamente
+  useEffect(() => {
+    if (!isAuthenticated || transactions.length === 0) return;
+
+    const triggerCheck = async () => {
+      try {
+        const notifPrefs = await loadNotificationPrefs();
+        await checkAndTriggerLocalNotifications(transactions, notifPrefs);
+      } catch (err) {
+        console.warn('Erro ao verificar notificações locais:', err);
+      }
+    };
+
+    // Verificar ao mudar visibilidade (quando o usuário abre/volta para o PWA)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        triggerCheck();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Verificar periodicamente a cada 15 minutos
+    const interval = setInterval(triggerCheck, 15 * 60 * 1000);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(interval);
+    };
+  }, [isAuthenticated, transactions]);
 
   const handleAddTransaction = async (newTx: Omit<Transaction, 'id'>) => {
     await addTransactionToDb(newTx);

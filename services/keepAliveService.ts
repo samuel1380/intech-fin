@@ -17,19 +17,48 @@ const DEFAULT_CONFIG: KeepAliveConfig = {
 
 const STORAGE_KEY = 'finnexus_keepalive_config';
 
-export const getKeepAliveConfig = (): KeepAliveConfig => {
+export const getKeepAliveConfig = async (): Promise<KeepAliveConfig> => {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return DEFAULT_CONFIG;
-    const parsed = JSON.parse(data);
-    return { ...DEFAULT_CONFIG, ...parsed };
+    const localData = localStorage.getItem(STORAGE_KEY);
+    const localConfig = localData ? JSON.parse(localData) : DEFAULT_CONFIG;
+
+    if (!isSupabaseConfigured) {
+      return localConfig;
+    }
+
+    const { data, error } = await supabase
+      .from('system_settings')
+      .select('value')
+      .eq('key', 'keepalive')
+      .maybeSingle();
+
+    if (!error && data?.value) {
+      const dbConfig = { ...DEFAULT_CONFIG, ...data.value };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dbConfig));
+      return dbConfig;
+    }
+    
+    return localConfig;
   } catch {
     return DEFAULT_CONFIG;
   }
 };
 
-export const saveKeepAliveConfig = (config: KeepAliveConfig) => {
+export const saveKeepAliveConfig = async (config: KeepAliveConfig): Promise<void> => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+
+  if (!isSupabaseConfigured) return;
+
+  try {
+    await supabase
+      .from('system_settings')
+      .upsert(
+        { key: 'keepalive', value: config, updated_at: new Date().toISOString() },
+        { onConflict: 'key' }
+      );
+  } catch (err) {
+    console.error('Erro de conexão ao salvar keep-alive:', err);
+  }
 };
 
 // Realiza o ping no Supabase (insere e deleta)
@@ -76,9 +105,9 @@ export const pingSupabase = async (): Promise<boolean> => {
   return true;
 };
 
-// Executa o ping e registra no log local
+// Executa o ping e registra no log local/Supabase
 export const runKeepAlivePing = async (): Promise<KeepAliveConfig> => {
-  const config = getKeepAliveConfig();
+  const config = await getKeepAliveConfig();
   const timestamp = Date.now();
   const dateStr = new Date(timestamp).toLocaleString('pt-BR');
 
@@ -94,7 +123,7 @@ export const runKeepAlivePing = async (): Promise<KeepAliveConfig> => {
       pingLogs: updatedLogs,
     };
     
-    saveKeepAliveConfig(updatedConfig);
+    await saveKeepAliveConfig(updatedConfig);
     return updatedConfig;
   } catch (err: any) {
     const errorMsg = err.message || 'Erro desconhecido';
@@ -106,14 +135,14 @@ export const runKeepAlivePing = async (): Promise<KeepAliveConfig> => {
       pingLogs: updatedLogs,
     };
     
-    saveKeepAliveConfig(updatedConfig);
+    await saveKeepAliveConfig(updatedConfig);
     throw err;
   }
 };
 
 // Verifica se é necessário rodar o ping (baseado no tempo decorrido)
 export const checkAndTriggerKeepAlive = async (): Promise<KeepAliveConfig | null> => {
-  const config = getKeepAliveConfig();
+  const config = await getKeepAliveConfig();
   if (!config.enabled) return null;
 
   const msInterval = config.intervalDays * 24 * 60 * 60 * 1000;

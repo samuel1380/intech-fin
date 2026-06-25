@@ -228,6 +228,13 @@ export async function sendLocalNotification(
   });
 }
 
+function getLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // ============================================================
 // VERIFICAR NOTIFICAÇÕES LOCAIS (executa ao inicializar o app)
 // Simula o que o cron job faria no backend
@@ -239,14 +246,14 @@ export async function checkAndTriggerLocalNotifications(
   if (!prefs.enabled || Notification.permission !== 'granted') return;
 
   const today = new Date();
-  const todayStr = today.toISOString().split('T')[0];
+  const todayStr = getLocalDateString(today);
 
   // === CONTAS PRESTES A VENCER (DESPESAS PENDENTES) ===
   if (prefs.billsDueSoon) {
     const dueSoonDays = prefs.billsDueSoonDays || 3;
     const dueSoonDate = new Date(today);
     dueSoonDate.setDate(dueSoonDate.getDate() + dueSoonDays);
-    const dueSoonStr = dueSoonDate.toISOString().split('T')[0];
+    const dueSoonStr = getLocalDateString(dueSoonDate);
 
     const overdueBills = transactions.filter((t) => {
       return (
@@ -288,7 +295,7 @@ export async function checkAndTriggerLocalNotifications(
     const receivableDays = prefs.debtReceivableDays || 2;
     const receivableDate = new Date(today);
     receivableDate.setDate(receivableDate.getDate() + receivableDays);
-    const receivableStr = receivableDate.toISOString().split('T')[0];
+    const receivableStr = getLocalDateString(receivableDate);
 
     const receivables = transactions.filter((t) => {
       return (
@@ -314,7 +321,7 @@ export async function checkAndTriggerLocalNotifications(
     const recurringDays = prefs.recurringBillsDays || 3;
     const recurringDate = new Date(today);
     recurringDate.setDate(recurringDate.getDate() + recurringDays);
-    const recurringStr = recurringDate.toISOString().split('T')[0];
+    const recurringStr = getLocalDateString(recurringDate);
 
     const recurringDue = transactions.filter((t) => {
       return (
