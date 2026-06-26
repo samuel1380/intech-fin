@@ -28,9 +28,10 @@ export interface NotificationPreferences {
   recurringBillsDays: number;
   // Resumo semanal
   weeklySummary: boolean;
-  // Resumo diário de faturamento
+  // Resumo diário de faturamento (agora periódico)
   dailySummary: boolean;
-  dailySummaryTime: string; // formato 'HH:mm'
+  dailySummaryIntervalValue: number;
+  dailySummaryIntervalUnit: 'seconds' | 'minutes' | 'hours' | 'days';
   // Frequência de verificação no frontend
   checkIntervalValue: number;
   checkIntervalUnit: 'seconds' | 'minutes' | 'hours';
@@ -53,7 +54,8 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPreferences = {
   recurringBillsDays: 3,
   weeklySummary: false,
   dailySummary: true,
-  dailySummaryTime: '18:00',
+  dailySummaryIntervalValue: 1,
+  dailySummaryIntervalUnit: 'hours',
   checkIntervalValue: 15,
   checkIntervalUnit: 'minutes',
 };
@@ -394,18 +396,22 @@ export async function checkAndTriggerLocalNotifications(
     }
   }
 
-  // === RESUMO DIÁRIO DE FATURAMENTO ===
+  // === RESUMO DIÁRIO DE FATURAMENTO (PERIÓDICO) ===
   if (prefs.dailySummary) {
-    const targetTime = prefs.dailySummaryTime || '18:00';
-    const [targetHour, targetMinute] = targetTime.split(':').map(Number);
+    const val = prefs.dailySummaryIntervalValue || 1;
+    const unit = prefs.dailySummaryIntervalUnit || 'hours';
 
-    const currentHour = today.getHours();
-    const currentMinute = today.getMinutes();
+    let msInterval = 1 * 60 * 60 * 1000;
+    if (unit === 'seconds') msInterval = val * 1000;
+    else if (unit === 'minutes') msInterval = val * 60 * 1000;
+    else if (unit === 'hours') msInterval = val * 60 * 60 * 1000;
+    else if (unit === 'days') msInterval = val * 24 * 60 * 60 * 1000;
 
-    // Evitar disparos repetidos no mesmo minuto
-    const lastDailySent = localStorage.getItem('finnexus_last_daily_summary_sent');
+    const now = Date.now();
+    const lastDailySentStr = localStorage.getItem('finnexus_last_daily_summary_sent_time') || '0';
+    const lastDailySent = parseInt(lastDailySentStr, 10);
 
-    if (currentHour === targetHour && currentMinute === targetMinute && lastDailySent !== todayStr) {
+    if (now - lastDailySent >= msInterval) {
       const todayRevenue = transactions.filter((t) => {
         return (
           t.type === 'RECEITA' &&
@@ -426,12 +432,12 @@ export async function checkAndTriggerLocalNotifications(
       const fraseMotivadora = frases[Math.floor(Math.random() * frases.length)];
 
       await sendLocalNotification(
-        '💰 Resumo de Faturamento Diário',
+        '💰 Resumo de Faturamento',
         `Hoje você faturou R$ ${totalFaturado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. ${fraseMotivadora}`,
         '/index.html#dashboard'
       );
 
-      localStorage.setItem('finnexus_last_daily_summary_sent', todayStr);
+      localStorage.setItem('finnexus_last_daily_summary_sent_time', String(now));
     }
   }
 }

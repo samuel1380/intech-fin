@@ -117,28 +117,28 @@ interface NotifItemProps {
 const NotifItem: React.FC<NotifItemProps> = ({
   icon, iconBg, title, description, enabled, onToggle, disabled = false, children
 }) => (
-  <div className={`rounded-xl border transition-all duration-300 overflow-hidden
+  <div className={`rounded-2xl border transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md
     ${enabled && !disabled
-      ? 'border-indigo-200 bg-indigo-50/50 dark:border-indigo-800/40 dark:bg-indigo-900/10'
-      : 'border-slate-100 bg-slate-50/50 dark:border-slate-800/40 dark:bg-slate-800/10'
+      ? 'border-indigo-500/30 bg-gradient-to-br from-indigo-50/60 to-violet-50/60 dark:from-indigo-950/20 dark:to-violet-950/20 backdrop-blur-md'
+      : 'border-slate-200/60 bg-white/40 dark:border-slate-800/40 dark:bg-slate-900/10 backdrop-blur-md'
     }`}
   >
-    <div className="flex items-center justify-between p-4">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-white text-base ${iconBg}`}>
+    <div className="flex items-center justify-between p-5">
+      <div className="flex items-center gap-4 min-w-0">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white text-base shadow-sm ring-4 ring-white/10 dark:ring-black/10 ${iconBg}`}>
           {icon}
         </div>
         <div className="min-w-0">
-          <p className={`font-semibold text-sm truncate ${enabled && !disabled ? 'text-slate-800 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400'}`}>
+          <p className={`font-bold text-sm md:text-base tracking-tight ${enabled && !disabled ? 'text-slate-800 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400'}`}>
             {title}
           </p>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 leading-snug">{description}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-snug font-medium">{description}</p>
         </div>
       </div>
       <ToggleSwitch checked={enabled} onChange={onToggle} disabled={disabled} size="sm" />
     </div>
     {enabled && !disabled && children && (
-      <div className="px-4 pb-4 pt-0 border-t border-indigo-100 dark:border-indigo-800/30">
+      <div className="px-5 pb-5 pt-0 border-t border-indigo-500/10 dark:border-indigo-800/10">
         {children}
       </div>
     )}
@@ -562,14 +562,25 @@ const Settings: React.FC<SettingsProps> = ({
               <div className="pt-3 space-y-3">
                 <div className="flex items-center gap-3">
                   <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                    Horário do Alerta
+                    Enviar a cada
                   </label>
                   <input
-                    type="time"
-                    value={prefs.dailySummaryTime}
-                    onChange={(e) => updatePref('dailySummaryTime', e.target.value)}
-                    className="px-3 py-1.5 text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                    type="number"
+                    min={1}
+                    value={prefs.dailySummaryIntervalValue || 1}
+                    onChange={(e) => updatePref('dailySummaryIntervalValue', Number(e.target.value))}
+                    className="w-16 px-2 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
                   />
+                  <select
+                    value={prefs.dailySummaryIntervalUnit || 'hours'}
+                    onChange={(e) => updatePref('dailySummaryIntervalUnit', e.target.value as any)}
+                    className="px-2 py-1.5 text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                  >
+                    <option value="seconds">segundo(s)</option>
+                    <option value="minutes">minuto(s)</option>
+                    <option value="hours">hora(s)</option>
+                    <option value="days">dia(s)</option>
+                  </select>
                 </div>
                 <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
