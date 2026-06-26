@@ -559,16 +559,22 @@ const Settings: React.FC<SettingsProps> = ({
               enabled={prefs.dailySummary}
               onToggle={(v) => updatePref('dailySummary', v)}
             >
-              <div className="pt-3 flex items-center gap-3">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                  Horário do Alerta
-                </label>
-                <input
-                  type="time"
-                  value={prefs.dailySummaryTime}
-                  onChange={(e) => updatePref('dailySummaryTime', e.target.value)}
-                  className="px-3 py-1.5 text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
-                />
+              <div className="pt-3 space-y-3">
+                <div className="flex items-center gap-3">
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                    Horário do Alerta
+                  </label>
+                  <input
+                    type="time"
+                    value={prefs.dailySummaryTime}
+                    onChange={(e) => updatePref('dailySummaryTime', e.target.value)}
+                    className="px-3 py-1.5 text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                  />
+                </div>
+                <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  🌍 Esta configuração é global e sincroniza em todos os seus celulares/computadores.
+                </div>
               </div>
             </NotifItem>
 
