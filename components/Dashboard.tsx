@@ -30,6 +30,12 @@ const subDays = (date: Date, amount: number) => {
     return newDate;
 };
 
+const formatShortDate = (d: Date) => {
+    let formatted = format(d, 'MMM yyyy', { locale: ptBR });
+    formatted = formatted.replace('.', '').replace(' de', '');
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+};
+
 const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransactions, taxSettings = [] }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [startDate, setStartDate] = useState(new Date());
@@ -323,48 +329,45 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
         }
         return null;
     };
-
     return (
         <div className="space-y-8 animate-fade-in w-full min-w-0 pb-8">
             {/* Header & Filter */}
             <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 pb-6">
-                <div className="flex items-center text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                    <Calendar className="w-4 h-4 mr-2" />
+                <div className="flex items-center text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest gap-2">
+                    <Calendar className="w-4.5 h-4.5 text-slate-400 dark:text-slate-500" />
                     {viewMode === 'month'
                         ? (isSingleMonth
-                            ? `Resumo de ${format(startDate, 'MMMM yyyy', { locale: ptBR })}`
-                            : `Período: ${format(startDate, 'MMM/yy', { locale: ptBR })} a ${format(endDate, 'MMM/yy', { locale: ptBR })}`
+                            ? `RESUMO DE ${format(startDate, 'MMMM yyyy', { locale: ptBR }).toUpperCase()}`
+                            : `PERÍODO: ${formatShortDate(startDate).toUpperCase()} ATÉ ${formatShortDate(endDate).toUpperCase()}`
                             )
-                        : `Visão do Dia: ${format(selectedDate, 'dd/MM/yyyy')}`}
+                        : `VISÃO DO DIA: ${format(selectedDate, 'dd/MM/yyyy')}`}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                     {/* View Toggle */}
-                    <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex w-max border border-slate-200 dark:border-slate-700">
+                    <div className="bg-slate-100 dark:bg-slate-800/60 p-1 rounded-2xl inline-flex w-max border border-slate-200/50 dark:border-slate-700/40">
                         <button
                             onClick={() => setViewMode('month')}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                            className={`px-5 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${viewMode === 'month' ? 'bg-[#eef2ff] dark:bg-indigo-950/40 text-[#4f46e5] dark:text-indigo-400 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
                         >
                             Mensal
                         </button>
                         <button
                             onClick={() => setViewMode('day')}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'day' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                            className={`px-5 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${viewMode === 'day' ? 'bg-[#eef2ff] dark:bg-indigo-950/40 text-[#4f46e5] dark:text-indigo-400 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
                         >
                             Diário
                         </button>
                     </div>
-
-                    {/* Date Picker: Month Range or Single Day */}
                     {viewMode === 'month' ? (
                         <div className="flex flex-wrap items-center gap-2">
                             {/* Mês Início */}
                             <div className="relative group min-w-[140px]">
-                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-[#111a2e]/60 border border-slate-200/60 dark:border-slate-800/80 rounded-2xl px-3.5 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-800/20 transition-colors cursor-pointer">
                                     <div className="flex items-center gap-1.5">
                                         <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
-                                        <span className="text-slate-700 dark:text-slate-200 font-bold text-sm capitalize">
-                                            {format(startDate, 'MMM yyyy', { locale: ptBR })}
+                                        <span className="text-slate-750 dark:text-slate-200 font-extrabold text-xs tracking-tight">
+                                            {formatShortDate(startDate)}
                                         </span>
                                     </div>
                                     <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
@@ -378,15 +381,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                 />
                             </div>
 
-                            <span className="text-slate-400 dark:text-slate-500 font-bold text-sm">até</span>
+                            <span className="text-slate-400 dark:text-slate-500 font-bold text-xs">até</span>
 
                             {/* Mês Fim */}
                             <div className="relative group min-w-[140px]">
-                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-[#111a2e]/60 border border-slate-200/60 dark:border-slate-800/80 rounded-2xl px-3.5 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-800/20 transition-colors cursor-pointer">
                                     <div className="flex items-center gap-1.5">
-                                        <CalendarRange className="h-4 w-4 text-violet-500 shrink-0" />
-                                        <span className="text-slate-700 dark:text-slate-200 font-bold text-sm capitalize">
-                                            {format(endDate, 'MMM yyyy', { locale: ptBR })}
+                                        <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
+                                        <span className="text-slate-750 dark:text-slate-200 font-extrabold text-xs tracking-tight">
+                                            {formatShortDate(endDate)}
                                         </span>
                                     </div>
                                     <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
@@ -642,8 +645,11 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                 );
                             })}
                         {filteredTransactions.filter(t => t.commissionAmount && t.commissionPaymentDate && new Date(t.commissionPaymentDate) >= new Date(new Date().setHours(0, 0, 0, 0))).length === 0 && (
-                            <div className="text-center py-8">
-                                <p className="text-slate-400 text-sm italic">Nenhuma comissão agendada.</p>
+                            <div className="flex flex-col items-center justify-center py-12 text-center">
+                                <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center mb-4 border border-slate-100/60 dark:border-slate-800">
+                                    <Calendar className="h-6 w-6 text-indigo-400 dark:text-indigo-500" />
+                                </div>
+                                <p className="text-slate-400 dark:text-slate-500 text-sm font-semibold">Nenhuma comissão agendada.</p>
                             </div>
                         )}
                     </div>

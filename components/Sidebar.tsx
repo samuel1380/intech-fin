@@ -68,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
       </nav>
  
       {/* Bottom Section - Logout */}
-      <div className="p-4 border-t border-[#1a1f3d]/60 safe-padding-bottom shrink-0 bg-[#0e122b]">
+      <div className="p-4 border-t border-[#1a1f3d]/60 safe-padding-bottom shrink-0 bg-[#0e122b] relative z-10">
         <button
           onClick={onLogout}
           className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-bold text-sm text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all group"
@@ -76,6 +76,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
           <LogOut className="h-5 w-5 shrink-0 group-hover:-translate-x-0.5 transition-transform" />
           <span className={`whitespace-nowrap transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 lg:hidden pointer-events-none'}`}>Desconectar</span>
         </button>
+      </div>
+
+      {/* Decorative Wave at the Bottom */}
+      <div className="absolute bottom-0 left-0 right-0 pointer-events-none opacity-[0.08] z-0 overflow-hidden h-28">
+        <svg viewBox="0 0 1440 320" className="w-full h-full object-cover">
+          <path fill="#4f46e5" fillOpacity="1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,224C672,213,768,171,864,144C960,117,1056,107,1152,112C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
       </div>
     </aside>
   );
