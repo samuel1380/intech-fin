@@ -895,31 +895,43 @@ const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, in
     const colorStyles: Record<string, any> = {
         indigo: { 
             text: 'text-indigo-600 dark:text-indigo-400',
-            bg: 'bg-indigo-100 dark:bg-indigo-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(99,102,241,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(99,102,241,0.15)] group-hover:border-indigo-200 dark:group-hover:border-indigo-500/30',
-            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-indigo-600 dark:from-white dark:to-indigo-300',
-            symbolColor: 'text-indigo-700/60 dark:text-indigo-300/60'
+            bg: 'bg-indigo-50 dark:bg-indigo-500/10',
+            glow: 'hover:shadow-lg hover:shadow-indigo-500/5 hover:border-indigo-300 dark:hover:border-indigo-500/20',
+            valueGradient: 'text-slate-900 dark:text-white',
+            symbolColor: 'text-indigo-600 dark:text-indigo-400 font-bold',
+            hex: '#6366f1',
+            fillPath: "M 0 30 Q 15 15, 30 25 T 60 18 T 90 28 L 100 24 L 100 40 L 0 40 Z",
+            strokePath: "M 0 30 Q 15 15, 30 25 T 60 18 T 90 28 L 100 24"
         },
         rose: { 
             text: 'text-rose-600 dark:text-rose-400',
-            bg: 'bg-rose-100 dark:bg-rose-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(244,63,94,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(244,63,94,0.15)] group-hover:border-rose-200 dark:group-hover:border-rose-500/30',
-            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-rose-600 dark:from-white dark:to-rose-300',
-            symbolColor: 'text-rose-700/60 dark:text-rose-300/60'
+            bg: 'bg-rose-50 dark:bg-rose-500/10',
+            glow: 'hover:shadow-lg hover:shadow-rose-500/5 hover:border-rose-300 dark:hover:border-rose-500/20',
+            valueGradient: 'text-slate-900 dark:text-white',
+            symbolColor: 'text-rose-600 dark:text-rose-400 font-bold',
+            hex: '#f43f5e',
+            fillPath: "M 0 25 Q 20 38, 40 18 T 80 32 L 100 28 L 100 40 L 0 40 Z",
+            strokePath: "M 0 25 Q 20 38, 40 18 T 80 32 L 100 28"
         },
         emerald: { 
             text: 'text-emerald-600 dark:text-emerald-400',
-            bg: 'bg-emerald-100 dark:bg-emerald-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.15)] group-hover:border-emerald-200 dark:group-hover:border-emerald-500/30',
-            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-emerald-600 dark:from-white dark:to-emerald-300',
-            symbolColor: 'text-emerald-700/60 dark:text-emerald-300/60'
+            bg: 'bg-emerald-50 dark:bg-emerald-500/10',
+            glow: 'hover:shadow-lg hover:shadow-emerald-500/5 hover:border-emerald-300 dark:hover:border-emerald-500/20',
+            valueGradient: 'text-slate-900 dark:text-white',
+            symbolColor: 'text-emerald-600 dark:text-emerald-400 font-bold',
+            hex: '#10b981',
+            fillPath: "M 0 35 Q 20 20, 40 32 T 80 15 L 100 20 L 100 40 L 0 40 Z",
+            strokePath: "M 0 35 Q 20 20, 40 32 T 80 15 L 100 20"
         },
         amber: { 
             text: 'text-amber-600 dark:text-amber-400',
-            bg: 'bg-amber-100 dark:bg-amber-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(245,158,11,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(245,158,11,0.15)] group-hover:border-amber-200 dark:group-hover:border-amber-500/30',
-            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-amber-600 dark:from-white dark:to-amber-300',
-            symbolColor: 'text-amber-700/60 dark:text-amber-300/60'
+            bg: 'bg-amber-50 dark:bg-amber-500/10',
+            glow: 'hover:shadow-lg hover:shadow-amber-500/5 hover:border-amber-300 dark:hover:border-amber-500/20',
+            valueGradient: 'text-slate-900 dark:text-white',
+            symbolColor: 'text-amber-600 dark:text-amber-400 font-bold',
+            hex: '#f59e0b',
+            fillPath: "M 0 20 Q 25 35, 50 18 T 100 25 L 100 40 L 0 40 Z",
+            strokePath: "M 0 20 Q 25 35, 50 18 T 100 25"
         },
     };
 
@@ -931,41 +943,52 @@ const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, in
     const valueStr = cleanFormatted.replace("R$", "").trim();
 
     return (
-        <div className={`relative flex flex-col justify-between p-6 md:p-7 h-full bg-white dark:bg-[#0f1524] rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800/80 transition-all duration-300 ${style.glow} group overflow-hidden`}>
+        <div className={`relative flex flex-col justify-between p-6 md:p-7 h-[210px] bg-white dark:bg-[#111a2e]/60 rounded-3xl border border-slate-100 dark:border-slate-800/40 transition-all duration-300 ${style.glow} group overflow-hidden`}>
             
             {/* Top row with distinct Icon box and Badge */}
-            <div className="flex justify-between items-start mb-8 relative z-10">
-                <div className={`p-3.5 rounded-2xl ${style.bg} ${style.text} transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3`}>
-                    <Icon className="w-6 h-6" strokeWidth={2.2} />
+            <div className="flex justify-between items-start mb-4 relative z-10">
+                <div className={`p-3 rounded-2xl ${style.bg} ${style.text} transition-transform duration-300 group-hover:scale-105`}>
+                    <Icon className="w-5 h-5" strokeWidth={2.2} />
                 </div>
                 
-                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${trendBadge}`}>
-                    {!isNeutral && <IconTrend className="w-4 h-4" strokeWidth={2.5} />}
+                <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${trendBadge}`}>
+                    {!isNeutral && <IconTrend className="w-3.5 h-3.5" strokeWidth={2.5} />}
                     <span>{trend}</span>
                 </div>
             </div>
 
             {/* Value Section */}
-            <div className="relative z-10">
-                <h3 className="text-sm font-semibold tracking-wide text-slate-500 dark:text-slate-400 mb-2">{title}</h3>
-                <div className="flex items-baseline gap-1.5">
-                    <span className={`text-lg font-bold ${style.symbolColor}`}>{symbol}</span>
-                    <span className={`text-3xl lg:text-4xl font-extrabold tracking-tight ${style.valueGradient}`}>
+            <div className="relative z-10 mb-4">
+                <h3 className="text-xs font-bold tracking-wide text-slate-400 dark:text-slate-500 uppercase mb-1">{title}</h3>
+                <div className="flex items-baseline gap-1">
+                    <span className={`text-base font-extrabold ${style.symbolColor}`}>{symbol}</span>
+                    <span className={`text-2xl lg:text-3xl font-extrabold tracking-tight ${style.valueGradient}`}>
                         {valueStr}
                     </span>
                 </div>
             </div>
 
             {/* Subtitle Footer */}
-            <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800/80 relative z-10 flex items-center justify-between">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-current ${style.text} transition-colors duration-300`} />
+            <div className="pt-3 border-t border-slate-100/60 dark:border-slate-800/40 relative z-10 flex items-center justify-between">
+                <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-current ${style.text} transition-colors duration-300`} />
                     {subtitle}
                 </p>
             </div>
             
-            {/* Atmospheric Glow on Hover */}
-            <div className={`absolute -right-10 -top-10 w-40 h-40 ${style.bg} rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none blur-2xl`} />
+            {/* Sparkline wave background */}
+            <div className="absolute bottom-0 left-0 right-0 h-12 overflow-hidden pointer-events-none rounded-b-3xl">
+                <svg className="w-full h-full" viewBox="0 0 100 40" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id={`sparklineGrad-${color}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={style.hex} stopOpacity="0.12" />
+                            <stop offset="100%" stopColor={style.hex} stopOpacity="0.0" />
+                        </linearGradient>
+                    </defs>
+                    <path d={style.fillPath} fill={`url(#sparklineGrad-${color})`} />
+                    <path d={style.strokePath} fill="none" stroke={style.hex} strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+                </svg>
+            </div>
         </div>
     );
 }
