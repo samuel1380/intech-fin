@@ -386,32 +386,25 @@ function App() {
 
       <div className={`flex-1 flex flex-col h-full transition-[margin] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} w-full`}>
 
-        <header className="bg-white/90 dark:bg-[#0c1222]/90 backdrop-blur-md border-b border-slate-150 dark:border-slate-800/40 px-4 md:px-8 py-4.5 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-colors duration-300 gap-4">
-          <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
+        <header className="bg-white/80 dark:bg-[#111a2e]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/50 px-4 md:px-8 py-4 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-colors duration-300 gap-2">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-400 focus:outline-none transition-colors shrink-0 border border-slate-200/60 dark:border-slate-800"
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors shrink-0"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-6 w-6 lg:h-5 lg:w-5" />
             </button>
-            <div className="min-w-0">
-              <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight truncate leading-tight">
-                {getHeaderTitle(activeTab)}
-              </h1>
-              {activeTab === 'dashboard' ? (
-                <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5 font-medium">Bem-vindo de volta, João! 👋</p>
-              ) : (
-                <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-0.5 font-medium">Painel Financeiro Corporativo</p>
-              )}
-            </div>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight truncate leading-tight">
+              {getHeaderTitle(activeTab)}
+            </h1>
           </div>
-          <div className="flex items-center gap-3 md:gap-5 shrink-0">
-            <ThemeToggle className="scale-90 md:scale-100" />
-            <div className="text-right hidden md:block">
-              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">João Silva (CFO)</p>
-              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mt-0.5">TechCorp Brasil Ltda.</p>
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
+            <ThemeToggle />
+            <div className="text-right hidden sm:block">
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">João Silva (CFO)</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">TechCorp Brasil Ltda.</p>
             </div>
-            <div className="h-10 w-10 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-extrabold shadow-md shadow-indigo-500/20 shrink-0 cursor-pointer hover:scale-105 active:scale-95 transition-all ring-2 ring-white dark:ring-slate-800 text-sm">
+            <div className="h-9 w-9 md:h-10 md:w-10 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-200 shrink-0 cursor-pointer hover:shadow-indigo-300 transition-shadow ring-2 ring-white dark:ring-slate-700 text-sm">
               JS
             </div>
           </div>
