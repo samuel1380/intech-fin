@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Receipt, BarChart3, Bot, Settings, LogOut, Database, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
+import { LayoutDashboard, Receipt, BarChart3, Bot, Settings, LogOut, Wallet, X, FileText, Database, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -22,72 +22,59 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col h-full overflow-x-hidden
-        ${isOpen ? 'w-[260px] translate-x-0' : 'w-[72px] -translate-x-full lg:translate-x-0'}
-      `}
-      style={{
-        background: 'linear-gradient(180deg, #0F172A 0%, #0B1120 100%)',
-      }}
+      className={`fixed inset-y-0 left-0 z-40 bg-slate-900 dark:bg-[#0a1120] text-white transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-full border-r border-slate-800 dark:border-slate-700/30 overflow-x-hidden
+            ${isOpen ? 'w-64 translate-x-0' : 'w-20 -translate-x-full lg:translate-x-0'}
+            `}
     >
-      {/* Brand */}
-      <div className="h-16 flex items-center px-5 border-b border-white/[0.06] shrink-0 safe-padding-top">
+      {/* Header / Brand */}
+      <div className="py-5 flex items-center px-6 border-b border-slate-800/50 shrink-0 safe-padding-top">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-white shrink-0 shadow-sm">
+          <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-black/20 shrink-0 bg-white">
             <img src="/logo.png" alt="FinNexus Logo" className="w-full h-full object-cover" />
           </div>
-          <div className={`transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 lg:hidden pointer-events-none'}`}>
-            <span className="font-bold text-[15px] text-white tracking-tight block leading-none">FinNexus</span>
-            <span className="text-[9px] text-surface-400 font-semibold uppercase tracking-[0.2em] mt-0.5 block">Enterprise</span>
+          <div className={`transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 lg:hidden pointer-events-none'}`}>
+            <span className="font-bold text-lg tracking-tight block leading-none">FinNexus</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Enterprise</span>
           </div>
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto overflow-x-hidden">
-        {menuItems.map((item) => {
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all duration-200 group relative
-                ${isActive
-                  ? 'bg-brand-600 text-white shadow-md shadow-brand-600/20'
-                  : 'text-surface-400 hover:text-white hover:bg-white/[0.06]'
-                }
-              `}
-            >
-              <item.icon
-                className={`h-[18px] w-[18px] shrink-0 transition-colors duration-200
-                  ${isActive ? 'text-white' : 'text-surface-500 group-hover:text-brand-400'}
-                `}
-                strokeWidth={isActive ? 2.2 : 1.8}
-              />
-              <span className={`whitespace-nowrap text-[13px] transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 lg:hidden pointer-events-none'}`}>
-                {item.label}
-              </span>
+      {/* Navigation Menu */}
+      <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
+        {menuItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all group relative
+                        ${activeTab === item.id
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
+                : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}
+                        `}
+          >
+            <item.icon className={`h-5 w-5 shrink-0 transition-colors ${activeTab === item.id ? 'text-white' : 'text-slate-500 group-hover:text-indigo-400'}`} />
+            <span className={`whitespace-nowrap transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 lg:hidden pointer-events-none'}`}>{item.label}</span>
 
-              {/* Tooltip for collapsed state */}
-              {!isOpen && (
-                <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-surface-800 text-white text-xs font-medium rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all whitespace-nowrap z-50 shadow-lg border border-surface-700">
-                  {item.label}
-                </div>
-              )}
-            </button>
-          );
-        })}
+            {!isOpen && (
+              <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                {item.label}
+              </div>
+            )}
+
+            {activeTab === item.id && isOpen && (
+              <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></div>
+            )}
+          </button>
+        ))}
       </nav>
 
-      {/* Logout */}
-      <div className="p-3 border-t border-white/[0.06] safe-padding-bottom shrink-0">
+      {/* Bottom Section - Logout */}
+      <div className="p-4 border-t border-slate-800 dark:border-slate-700/30 safe-padding-bottom shrink-0 bg-slate-900 dark:bg-[#0a1120]">
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-surface-400 hover:text-danger-500 hover:bg-danger-500/[0.08] transition-all duration-200 group"
+          className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all group"
         >
-          <LogOut className="h-[18px] w-[18px] shrink-0 group-hover:-translate-x-0.5 transition-transform duration-200" strokeWidth={1.8} />
-          <span className={`whitespace-nowrap text-[13px] transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 lg:hidden pointer-events-none'}`}>
-            Desconectar
-          </span>
+          <LogOut className="h-5 w-5 shrink-0 group-hover:-translate-x-1 transition-transform" />
+          <span className={`whitespace-nowrap transition-all duration-300 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 lg:hidden pointer-events-none'}`}>Desconectar</span>
         </button>
       </div>
     </aside>

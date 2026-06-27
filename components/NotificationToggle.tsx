@@ -18,10 +18,10 @@ export const NotificationToggle: React.FC<NotificationToggleProps> = ({
         <button
             onClick={onToggle}
             disabled={disabled}
-            className={`group relative flex items-center w-[68px] h-[34px] rounded-full p-[3px] transition-all duration-500 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-surface-900 ${className} ${
+            className={`group relative flex items-center w-[68px] h-[34px] rounded-full p-[3px] transition-all duration-500 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 ${className} ${
                 isEnabled
                     ? 'bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25'
-                    : 'bg-gradient-to-r from-surface-300 to-surface-400 shadow-lg shadow-surface-400/25'
+                    : 'bg-gradient-to-r from-slate-300 to-slate-400 shadow-lg shadow-slate-400/25'
             } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             aria-label={isEnabled ? 'Desativar notificações' : 'Ativar notificações'}
             title={isEnabled ? 'Notificações Ativas' : 'Notificações Desativadas'}
@@ -40,7 +40,7 @@ export const NotificationToggle: React.FC<NotificationToggleProps> = ({
                 {isEnabled ? (
                     <Bell className="w-[16px] h-[16px] text-emerald-500 transition-all duration-400" />
                 ) : (
-                    <BellOff className="w-[16px] h-[16px] text-surface-400 transition-all duration-400" />
+                    <BellOff className="w-[16px] h-[16px] text-slate-400 transition-all duration-400" />
                 )}
             </div>
         </button>
