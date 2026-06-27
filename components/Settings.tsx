@@ -3,7 +3,7 @@ import {
   Bell, BellOff, AlertTriangle, CreditCard, Calendar, DollarSign,
   BarChart2, Wallet, ArrowDownCircle, Target, BookOpen, RefreshCw,
   CheckCircle, XCircle, Loader2, Info, Database, Trash2, Cloud, Percent, Plus, Play,
-  Settings as SettingsIcon, ShieldAlert, Cpu
+  Settings as SettingsIcon, ShieldAlert, Cpu, User, Upload
 } from 'lucide-react';
 import {
   NotificationPreferences,
@@ -18,7 +18,7 @@ import {
   checkAndTriggerLocalNotifications,
 } from '../services/notificationService';
 import { isSupabaseConfigured } from '../services/supabase';
-import { TaxSetting } from '../types';
+import { TaxSetting, UserProfile } from '../types';
 import { getKeepAliveConfig, saveKeepAliveConfig, runKeepAlivePing, KeepAliveConfig } from '../services/keepAliveService';
 
 // ============================================================
@@ -158,6 +158,8 @@ interface SettingsProps {
   setNewTaxName: (v: string) => void;
   newTaxPercent: string;
   setNewTaxPercent: (v: string) => void;
+  profile: UserProfile;
+  onUpdateProfile: (profile: UserProfile) => Promise<void>;
 }
 
 const Settings: React.FC<SettingsProps> = ({
@@ -169,6 +171,8 @@ const Settings: React.FC<SettingsProps> = ({
   setNewTaxName,
   newTaxPercent,
   setNewTaxPercent,
+  profile,
+  onUpdateProfile,
 }) => {
   const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULT_NOTIFICATION_PREFS);
   const [permStatus, setPermStatus] = useState<NotificationPermission>('default');
@@ -177,6 +181,52 @@ const Settings: React.FC<SettingsProps> = ({
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [swRegistered, setSwRegistered] = useState(false);
   const [pushSubscription, setPushSubscription] = useState<PushSubscription | null>(null);
+  
+  // Profile settings state
+  const [profileName, setProfileName] = useState(profile.name);
+  const [companyName, setCompanyName] = useState(profile.companyName);
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl || '');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  useEffect(() => {
+    setProfileName(profile.name);
+    setCompanyName(profile.companyName);
+    setAvatarUrl(profile.avatarUrl || '');
+  }, [profile]);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('A imagem deve ter no máximo 2MB.', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingProfile(true);
+    try {
+      await onUpdateProfile({
+        ...profile,
+        name: profileName,
+        companyName: companyName,
+        avatarUrl: avatarUrl
+      });
+      showToast('Perfil atualizado com sucesso!', 'success');
+    } catch (err: any) {
+      showToast(`Erro ao salvar perfil: ${err.message || 'Erro de conexão'}`, 'error');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
   const [keepAliveConfig, setKeepAliveConfig] = useState<KeepAliveConfig>({
     enabled: false,
     intervalDays: 4,
@@ -343,6 +393,110 @@ const Settings: React.FC<SettingsProps> = ({
           onClose={() => setToast(null)}
         />
       )}
+
+      {/* ===== SEÇÃO: CONFIGURAÇÕES DE PERFIL ===== */}
+      <div className="bg-white dark:bg-[#0F172A]/60 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none transition-all duration-300">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <User className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-[#0F172A] dark:text-white tracking-tight">
+              Perfil da Conta
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              Gerencie as informações da sua conta corporativa e foto de perfil.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSaveProfile} className="space-y-6">
+          <div className="flex flex-col md:flex-row items-center gap-6 pb-6 border-b border-[#EEF2F7] dark:border-white/[0.06]">
+            {/* Foto de Perfil Upload */}
+            <div className="relative group shrink-0 cursor-pointer">
+              <div className="h-20 w-20 rounded-full overflow-hidden ring-4 ring-indigo-500/10 dark:ring-indigo-500/20 bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Preview Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="h-10 w-10 text-slate-400 dark:text-slate-500" />
+                )}
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <Upload className="h-5 w-5 text-white animate-pulse" />
+                </div>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                title="Alterar foto de perfil"
+              />
+            </div>
+            
+            <div className="text-center md:text-left">
+              <p className="text-sm font-semibold text-[#0F172A] dark:text-slate-200">Foto de Perfil</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+                PNG, JPG ou WEBP. Tamanho máximo recomendado: 2MB.
+              </p>
+              {avatarUrl && (
+                <button
+                  type="button"
+                  onClick={() => setAvatarUrl('')}
+                  className="text-xs text-rose-500 hover:text-rose-600 font-semibold mt-2 block hover:underline"
+                >
+                  Remover Foto
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 ml-1">
+                Nome da Conta / Usuário
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Ex: João Silva (CFO)"
+                value={profileName}
+                onChange={(e) => setProfileName(e.target.value)}
+                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-[#EEF2F7] dark:border-slate-800 rounded-[12px] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm font-semibold dark:text-white placeholder-slate-400"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 ml-1">
+                Nome da Empresa
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Ex: TechCorp Brasil Ltda."
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-[#EEF2F7] dark:border-slate-800 rounded-[12px] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm font-semibold dark:text-white placeholder-slate-400"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              type="submit"
+              disabled={isSavingProfile}
+              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-semibold rounded-[12px] shadow-md shadow-indigo-500/15 hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm"
+            >
+              {isSavingProfile ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Salvando...</span>
+                </>
+              ) : (
+                <span>Salvar Alterações</span>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
 
       {/* ===== SEÇÃO: NOTIFICAÇÕES ===== */}
       <div className="bg-white dark:bg-[#0F172A]/60 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none transition-all duration-300">

@@ -12,7 +12,8 @@ import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteT
 import { getTaxSettingsFromDb, addTaxSettingToDb, deleteTaxSettingFromDb } from './services/taxService';
 import { isSupabaseConfigured } from './services/supabase';
 import { loadNotificationPrefs, checkAndTriggerLocalNotifications } from './services/notificationService';
-import { Transaction, FinancialSummary, TaxSetting } from './types';
+import { getProfileConfig, saveProfileConfig, DEFAULT_PROFILE } from './services/profileService';
+import { Transaction, FinancialSummary, TaxSetting, UserProfile } from './types';
 import { Menu, Lock, User } from 'lucide-react';
 import { checkAndTriggerKeepAlive } from './services/keepAliveService';
 
@@ -81,6 +82,15 @@ const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => vo
   );
 };
 
+const getInitials = (name: string) => {
+  if (!name) return 'JS';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return parts[0].substring(0, 2).toUpperCase();
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -93,6 +103,16 @@ function App() {
   const [taxSettings, setTaxSettings] = useState<TaxSetting[]>([]);
   const [newTaxName, setNewTaxName] = useState('');
   const [newTaxPercent, setNewTaxPercent] = useState('');
+  const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
+
+  const handleUpdateProfile = async (updatedProfile: UserProfile) => {
+    try {
+      await saveProfileConfig(updatedProfile);
+      setProfile(updatedProfile);
+    } catch (err) {
+      console.error('Erro ao atualizar perfil:', err);
+    }
+  };
 
   // Check login persistence and handle hash-based tab navigation
   useEffect(() => {
@@ -139,9 +159,10 @@ function App() {
   const loadData = async (silent = false) => {
     if (!silent) setIsLoading(true);
     try {
-      const [data, taxes] = await Promise.all([
+      const [data, taxes, profileData] = await Promise.all([
         getAllTransactionsFromDb(),
-        getTaxSettingsFromDb()
+        getTaxSettingsFromDb(),
+        getProfileConfig()
       ]);
 
       // ===== AUTO-GERAR DESPESAS RECORRENTES =====
@@ -200,6 +221,7 @@ function App() {
 
       setTransactions(finalData);
       setTaxSettings(taxes);
+      setProfile(profileData);
       setSummary(calculateSummary(finalData, taxes));
 
       // Check and trigger local notifications based on user preferences
@@ -401,12 +423,20 @@ function App() {
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
             <ThemeToggle />
             <div className="text-right hidden sm:block">
-              <p className="text-[13px] font-semibold text-[#0F172A] dark:text-white">João Silva (CFO)</p>
-              <p className="text-[11px] text-[#64748B] dark:text-slate-400 font-medium">TechCorp Brasil Ltda.</p>
+              <p className="text-[13px] font-semibold text-[#0F172A] dark:text-white">{profile.name}</p>
+              <p className="text-[11px] text-[#64748B] dark:text-slate-400 font-medium">{profile.companyName}</p>
             </div>
-            <div className="h-9 w-9 md:h-10 md:w-10 bg-gradient-to-br from-indigo-600 to-violet-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md shadow-indigo-500/15 shrink-0 cursor-pointer hover:shadow-lg hover:shadow-indigo-500/20 transition-all duration-200 ring-2 ring-white dark:ring-slate-800 text-[13px]">
-              JS
-            </div>
+            {profile.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt="Foto de Perfil"
+                className="h-9 w-9 md:h-10 md:w-10 rounded-full object-cover shadow-md shrink-0 cursor-pointer ring-2 ring-white dark:ring-slate-800"
+              />
+            ) : (
+              <div className="h-9 w-9 md:h-10 md:w-10 bg-gradient-to-br from-indigo-600 to-violet-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md shadow-indigo-500/15 shrink-0 cursor-pointer hover:shadow-lg hover:shadow-indigo-500/20 transition-all duration-200 ring-2 ring-white dark:ring-slate-800 text-[13px]">
+                {getInitials(profile.name)}
+              </div>
+            )}
           </div>
         </header>
 
@@ -472,6 +502,8 @@ function App() {
                     setNewTaxName={setNewTaxName}
                     newTaxPercent={newTaxPercent}
                     setNewTaxPercent={setNewTaxPercent}
+                    profile={profile}
+                    onUpdateProfile={handleUpdateProfile}
                   />
                 )}
                 {activeTab === 'database' && (

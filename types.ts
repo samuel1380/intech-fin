@@ -67,8 +67,9 @@ export interface FinancialSummary {
 export interface UserProfile {
   name: string;
   email: string;
-  role: 'admin' | 'viewer';
+  role: string;
   companyName: string;
+  avatarUrl?: string;
 }
 
 export interface TaxSetting {
