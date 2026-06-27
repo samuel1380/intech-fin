@@ -21,60 +21,67 @@ const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => vo
   const [password, setPassword] = useState('');
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-surface-950 relative overflow-hidden">
       {/* Background Effects */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-40 transition-opacity duration-1000"
+        className="absolute inset-0 bg-cover bg-center opacity-30 transition-opacity duration-1000"
         style={{
           backgroundImage: `url('/login-background/background.jpg'), url('/login-background/background.png'), url('/login-background/background.webp'), url('https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&fit=crop&q=80')`
         }}
       ></div>
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-violet-600/30 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-600/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-700/15 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4"></div>
 
-      <div className="relative z-10 w-full max-w-sm sm:max-w-md p-6 sm:p-8 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl animate-fade-in-up md:m-4 ring-1 ring-white/10 mx-auto">
-        <div className="text-center mb-6 sm:mb-10">
-          <div className="inline-flex w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-indigo-500/30 mb-4 bg-white border-2 border-white/20">
+      <div className="relative z-10 w-full max-w-[400px] p-8 sm:p-10 bg-white/[0.04] backdrop-blur-3xl border border-white/[0.08] rounded-2xl shadow-2xl animate-fade-in-up mx-4 ring-1 ring-white/[0.05]">
+        {/* Logo & Title */}
+        <div className="text-center mb-8">
+          <div className="inline-flex w-14 h-14 rounded-xl overflow-hidden shadow-lg mb-4 bg-white border border-white/10">
             <img src="/logo.png" alt="FinNexus Logo" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">FinNexus</h1>
-          <p className="text-slate-400 font-medium text-sm sm:text-base">Acesso Restrito Enterprise</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight mb-1">FinNexus</h1>
+          <p className="text-surface-400 font-medium text-sm">Acesso Restrito Enterprise</p>
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); onLogin(email, password); }} className="space-y-5">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Credencial</label>
+
+        {/* Form */}
+        <form onSubmit={(e) => { e.preventDefault(); onLogin(email, password); }} className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider ml-0.5">Credencial</label>
             <div className="relative group">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-surface-500 group-focus-within:text-brand-400 transition-colors duration-200" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none placeholder-slate-600 transition-all font-medium"
+                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500/40 outline-none placeholder-surface-600 transition-all duration-200 font-medium"
                 placeholder="Digite seu e-mail"
                 required
               />
             </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Senha</label>
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider ml-0.5">Senha</label>
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-surface-500 group-focus-within:text-brand-400 transition-colors duration-200" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none placeholder-slate-600 transition-all font-medium"
+                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500/40 outline-none placeholder-surface-600 transition-all duration-200 font-medium"
                 placeholder="Digite sua senha"
                 required
               />
             </div>
           </div>
-          <button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-500/25 transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2 mt-4">
+          <button
+            type="submit"
+            className="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-brand-600/20 transition-all duration-200 flex justify-center items-center gap-2 mt-2 btn-premium text-sm"
+          >
             Acessar Dashboard
           </button>
         </form>
-        <div className="mt-8 pt-6 border-t border-white/5 text-center">
-          <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">Segurança de Nível Bancário • Criptografia AES-256</p>
+
+        <div className="mt-6 pt-5 border-t border-white/[0.04] text-center">
+          <p className="text-[10px] text-surface-500 font-medium tracking-wider uppercase">Segurança de Nível Bancário · Criptografia AES-256</p>
         </div>
       </div>
     </div>
@@ -94,7 +101,6 @@ function App() {
   const [newTaxName, setNewTaxName] = useState('');
   const [newTaxPercent, setNewTaxPercent] = useState('');
 
-  // Check login persistence and handle hash-based tab navigation
   useEffect(() => {
     const storedAuth = localStorage.getItem('finnexus_auth');
     if (storedAuth === 'true') {
@@ -118,7 +124,6 @@ function App() {
   }, []);
 
   const handleLogin = (email: string, pass: string) => {
-    // Credenciais Definitivas
     const VALID_EMAIL = 'intechfin@financeiro.com.br';
     const VALID_PASS = 'Intech2026#';
 
@@ -135,7 +140,6 @@ function App() {
     setIsAuthenticated(false);
   }
 
-  // Carregar dados do Banco de Dados + Gerar Recorrências
   const loadData = async (silent = false) => {
     if (!silent) setIsLoading(true);
     try {
@@ -144,33 +148,25 @@ function App() {
         getTaxSettingsFromDb()
       ]);
 
-      // ===== AUTO-GERAR DESPESAS RECORRENTES =====
       const today = new Date();
       const recurringTemplates = data.filter(t => t.isRecurring && t.type === 'DESPESA');
 
       for (const template of recurringTemplates) {
         const interval = template.recurringIntervalMonths || 1;
         const day = template.recurringDay || 1;
-
-        // Find all existing instances of this recurring expense (same description, category, amount, recurring)
         const existingDates = data
           .filter(t => t.description === template.description && t.category === template.category && t.amount === template.amount)
           .map(t => t.date);
 
-        // Generate dates from template date forward
         const templateDate = new Date(template.date + 'T12:00:00');
         let checkDate = new Date(templateDate);
-
-        // Move to the next occurrence after the template
         checkDate.setMonth(checkDate.getMonth() + interval);
 
-        // Generate up to 12 months ahead max, only if the date has passed or is today
         let safetyCounter = 0;
         while (checkDate <= today && safetyCounter < 24) {
           safetyCounter++;
           const dateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-          // Only create if it doesn't already exist
           if (!existingDates.includes(dateStr)) {
             try {
               await addTransactionToDb({
@@ -185,24 +181,20 @@ function App() {
                 recurringIntervalMonths: interval,
                 recurringDay: day,
               });
-              console.log(`📅 Despesa recorrente gerada: ${template.description} em ${dateStr}`);
             } catch (err) {
               console.warn('Erro ao gerar recorrência:', err);
             }
           }
-
           checkDate.setMonth(checkDate.getMonth() + interval);
         }
       }
 
-      // Reload data if we generated anything
       const finalData = recurringTemplates.length > 0 ? await getAllTransactionsFromDb() : data;
 
       setTransactions(finalData);
       setTaxSettings(taxes);
       setSummary(calculateSummary(finalData, taxes));
 
-      // Check and trigger local notifications based on user preferences
       try {
         const notifPrefs = await loadNotificationPrefs();
         await checkAndTriggerLocalNotifications(finalData, notifPrefs);
@@ -210,7 +202,6 @@ function App() {
         console.warn('Notification check failed:', notifError);
       }
 
-      // Evitar inatividade do Supabase (Keep-Alive)
       try {
         await checkAndTriggerKeepAlive();
       } catch (keepAliveError) {
@@ -242,7 +233,6 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, [isAuthenticated]);
 
-  // Verificar notificações quando o app volta ao foco ou periodicamente
   useEffect(() => {
     if (!isAuthenticated || transactions.length === 0) return;
 
@@ -253,7 +243,6 @@ function App() {
         const notifPrefs = await loadNotificationPrefs();
         await checkAndTriggerLocalNotifications(transactions, notifPrefs);
 
-        // Recriar o timer de acordo com o valor configurado
         const val = notifPrefs.checkIntervalValue || 15;
         const unit = notifPrefs.checkIntervalUnit || 'minutes';
         let ms = 15 * 60 * 1000;
@@ -268,7 +257,6 @@ function App() {
       }
     };
 
-    // Verificar ao mudar visibilidade (quando o usuário abre/volta para o PWA)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         triggerCheck();
@@ -276,8 +264,6 @@ function App() {
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Disparar verificação imediata na montagem
     triggerCheck();
 
     return () => {
@@ -368,11 +354,11 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen supports-[height:100dvh]:h-[100dvh] bg-slate-50 dark:bg-[#0c1222] overflow-hidden font-sans transition-colors duration-300">
-      {/* Overlay para fechar sidebar no mobile */}
+    <div className="flex h-screen supports-[height:100dvh]:h-[100dvh] bg-surface-50 dark:bg-[#0B1120] overflow-hidden font-sans transition-colors duration-300">
+      {/* Mobile Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 lg:hidden"
+          className="fixed inset-0 bg-surface-950/40 backdrop-blur-sm z-30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -384,41 +370,47 @@ function App() {
         isOpen={sidebarOpen}
       />
 
-      <div className={`flex-1 flex flex-col h-full transition-[margin] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} w-full`}>
-
-        <header className="bg-white/80 dark:bg-[#111a2e]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/50 px-4 md:px-8 py-4 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-colors duration-300 gap-2">
-          <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
+      <div className={`flex-1 flex flex-col h-full transition-[margin] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${sidebarOpen ? 'lg:ml-[260px]' : 'lg:ml-[72px]'} w-full`}>
+        {/* Header */}
+        <header className="h-16 bg-white/90 dark:bg-surface-900/80 backdrop-blur-xl border-b border-surface-200/60 dark:border-surface-800/60 px-4 md:px-6 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-colors duration-300 gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors shrink-0"
+              className="p-2 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg text-surface-500 dark:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500/40 transition-colors duration-200 shrink-0"
             >
-              <Menu className="h-6 w-6 lg:h-5 lg:w-5" />
+              <Menu className="h-5 w-5" strokeWidth={1.8} />
             </button>
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight truncate leading-tight">
-              {getHeaderTitle(activeTab)}
-            </h1>
-          </div>
-          <div className="flex items-center gap-2 md:gap-4 shrink-0">
-            <ThemeToggle />
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">João Silva (CFO)</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">TechCorp Brasil Ltda.</p>
+            <div className="min-w-0">
+              <h1 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100 tracking-tight truncate leading-tight">
+                {getHeaderTitle(activeTab)}
+              </h1>
             </div>
-            <div className="h-9 w-9 md:h-10 md:w-10 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-200 shrink-0 cursor-pointer hover:shadow-indigo-300 transition-shadow ring-2 ring-white dark:ring-slate-700 text-sm">
-              JS
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <ThemeToggle />
+            <div className="hidden sm:flex items-center gap-3 pl-3 border-l border-surface-200 dark:border-surface-700/60">
+              <div className="text-right">
+                <p className="text-[13px] font-semibold text-surface-900 dark:text-surface-100 leading-tight">João Silva</p>
+                <p className="text-[11px] text-surface-400 dark:text-surface-500 font-medium">CFO · TechCorp Brasil</p>
+              </div>
+              <div className="h-8 w-8 bg-gradient-to-br from-brand-500 to-brand-700 rounded-full flex items-center justify-center text-white font-semibold shadow-sm shrink-0 cursor-pointer hover:shadow-md transition-shadow duration-200 text-[11px]">
+                JS
+              </div>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 pb-20 scroll-smooth bg-slate-50/50 dark:bg-[#0c1222] transition-colors duration-300">
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-20 scroll-smooth bg-surface-50/50 dark:bg-[#0B1120] transition-colors duration-300">
           <div className="max-w-[1600px] mx-auto min-w-0">
             {isLoading ? (
-              <div className="flex flex-col justify-center items-center h-[60vh] text-slate-500 gap-4">
+              <div className="flex flex-col justify-center items-center h-[60vh] text-surface-400 gap-4">
                 <div className="relative">
-                  <div className="w-16 h-16 border-4 border-slate-200 rounded-full"></div>
-                  <div className="w-16 h-16 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin absolute inset-0"></div>
+                  <div className="w-12 h-12 border-[3px] border-surface-200 dark:border-surface-700 rounded-full"></div>
+                  <div className="w-12 h-12 border-[3px] border-brand-600 rounded-full border-t-transparent animate-spin absolute inset-0"></div>
                 </div>
-                <p className="animate-pulse font-medium text-slate-400">Sincronizando dados seguros...</p>
+                <p className="animate-pulse font-medium text-surface-400 text-sm">Sincronizando dados seguros...</p>
               </div>
             ) : (
               <>
@@ -482,13 +474,6 @@ function App() {
           </div>
         </main>
       </div>
-
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-slate-900/50 z-30 lg:hidden backdrop-blur-sm transition-opacity"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
     </div>
   );
 }

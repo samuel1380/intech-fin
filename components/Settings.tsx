@@ -40,12 +40,12 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ checked, onChange, disabled
       aria-checked={checked}
       disabled={disabled}
       onClick={() => !disabled && onChange(!checked)}
-      className={`relative flex items-center rounded-full transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)] focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 shrink-0
+      className={`relative flex items-center rounded-full transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)] focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-surface-900 shrink-0
         ${isSmall ? 'w-[44px] h-[24px] p-[2px]' : 'w-[56px] h-[30px] p-[3px]'}
         ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:scale-[1.05] active:scale-[0.95]'}
         ${checked
-          ? 'bg-gradient-to-r from-indigo-500 to-violet-600 shadow-md shadow-indigo-500/20'
-          : 'bg-slate-200 dark:bg-slate-700'
+          ? 'bg-gradient-to-r from-brand-500 to-brand-600 shadow-md shadow-brand-500/20'
+          : 'bg-surface-200 dark:bg-surface-700'
         }`}
     >
       <div
@@ -76,20 +76,20 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
   }, [onClose]);
 
   const colors = {
-    success: 'bg-emerald-50/90 border-emerald-200/50 text-emerald-800 dark:bg-emerald-950/30 dark:border-emerald-800/30 dark:text-emerald-300',
-    error: 'bg-rose-50/90 border-rose-200/50 text-rose-800 dark:bg-rose-950/30 dark:border-rose-800/30 dark:text-rose-300',
-    info: 'bg-indigo-50/90 border-indigo-200/50 text-indigo-800 dark:bg-indigo-950/30 dark:border-indigo-800/30 dark:text-indigo-300',
+    success: 'bg-success-50/90 border-success-200/50 text-success-800 dark:bg-success-950/30 dark:border-success-800/30 dark:text-success-300',
+    error: 'bg-danger-50/90 border-danger-200/50 text-danger-800 dark:bg-danger-950/30 dark:border-danger-800/30 dark:text-danger-300',
+    info: 'bg-brand-50/90 border-brand-200/50 text-brand-800 dark:bg-brand-950/30 dark:border-brand-800/30 dark:text-brand-300',
   };
 
   const icons = {
-    success: <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />,
-    error: <XCircle className="h-4 w-4 text-rose-500 shrink-0" />,
-    info: <Info className="h-4 w-4 text-indigo-500 shrink-0" />,
+    success: <CheckCircle className="h-4 w-4 text-success-500 shrink-0" />,
+    error: <XCircle className="h-4 w-4 text-danger-500 shrink-0" />,
+    info: <Info className="h-4 w-4 text-brand-500 shrink-0" />,
   };
 
   return (
     <div
-      className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2.5 px-4 py-3 rounded-2xl border text-sm font-semibold shadow-2xl animate-fade-in-up backdrop-blur-md ${colors[type]}`}
+      className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2.5 px-4 py-3 rounded-xl border text-sm font-semibold shadow-2xl animate-fade-in-up backdrop-blur-md ${colors[type]}`}
       style={{ maxWidth: 'calc(100vw - 2rem)' }}
     >
       {icons[type]}
@@ -118,15 +118,15 @@ interface NotifItemProps {
 const NotifItem: React.FC<NotifItemProps> = ({
   icon, iconBg, title, description, enabled, onToggle, disabled = false, children
 }) => (
-  <div className={`rounded-2xl border transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md
+  <div className={`rounded-xl border transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md
     ${enabled && !disabled
-      ? 'border-indigo-500/30 bg-gradient-to-br from-indigo-50/60 to-violet-50/60 dark:from-indigo-950/20 dark:to-violet-950/20 backdrop-blur-md'
-      : 'border-slate-200/60 bg-white/40 dark:border-slate-800/40 dark:bg-slate-900/10 backdrop-blur-md'
+      ? 'border-brand-500/30 bg-gradient-to-br from-brand-50/60 to-brand-100/60 dark:from-brand-950/20 dark:to-brand-900/20 backdrop-blur-md'
+      : 'border-surface-200/60 bg-white/40 dark:border-surface-800/40 dark:bg-surface-900/10 backdrop-blur-md'
     }`}
   >
     <div className="flex items-center justify-between p-5">
       <div className="flex items-center gap-4 min-w-0">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white text-base shadow-sm ring-4 ring-white/10 dark:ring-black/10 ${iconBg}`}>
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 text-white text-base shadow-sm ring-4 ring-white/10 dark:ring-black/10 ${iconBg}`}>
           {icon}
         </div>
         <div className="min-w-0">
@@ -139,7 +139,7 @@ const NotifItem: React.FC<NotifItemProps> = ({
       <ToggleSwitch checked={enabled} onChange={onToggle} disabled={disabled} size="sm" />
     </div>
     {enabled && !disabled && children && (
-      <div className="px-5 pb-5 pt-0 border-t border-indigo-500/10 dark:border-indigo-800/10">
+        <div className="px-5 pb-5 pt-0 border-t border-brand-500/10 dark:border-brand-800/10">
         {children}
       </div>
     )}
@@ -345,24 +345,24 @@ const Settings: React.FC<SettingsProps> = ({
       )}
 
       {/* ===== SEÇÃO: NOTIFICAÇÕES ===== */}
-      <div className="bg-white/60 dark:bg-[#111a2e]/60 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 p-6 md:p-8 rounded-3xl shadow-xl dark:shadow-none transition-all duration-300">
+      <div className="bg-white dark:bg-surface-900/60 border border-surface-200/60 dark:border-surface-800/60 p-5 md:p-6 rounded-xl shadow-card transition-all duration-300">
         {/* Header da seção */}
         <div className="flex items-start justify-between mb-8 gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <Bell className="h-6 w-6 text-white" />
+            <div className="w-10 h-10 rounded-lg bg-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
+              <Bell className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">
+              <h2 className="text-sm font-semibold text-surface-800 dark:text-white tracking-tight">
                 Notificações Inteligentes
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              <p className="text-[11px] text-surface-400 mt-0.5 font-medium">
                 Receba alertas importantes e prazos diretamente no seu dispositivo.
               </p>
             </div>
           </div>
           {isSaving && (
-            <div className="flex items-center gap-1.5 text-xs text-indigo-500 shrink-0 font-semibold bg-indigo-50 dark:bg-indigo-950/20 px-3 py-1.5 rounded-full border border-indigo-100/50 dark:border-indigo-900/30">
+            <div className="flex items-center gap-1.5 text-xs text-brand-500 shrink-0 font-semibold bg-brand-50 dark:bg-brand-950/20 px-3 py-1.5 rounded-full border border-brand-100/50 dark:border-brand-900/30">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               <span>Sincronizando...</span>
             </div>
@@ -371,11 +371,11 @@ const Settings: React.FC<SettingsProps> = ({
 
         {/* Aviso iOS */}
         {typeof navigator !== 'undefined' && /iPhone|iPad/i.test(navigator.userAgent) && (
-          <div className="mb-6 p-4 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 rounded-2xl flex items-start gap-3">
-            <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 bg-warning-50/70 dark:bg-warning-950/20 border border-warning-200/50 dark:border-warning-900/30 rounded-xl flex items-start gap-3">
+            <Info className="h-5 w-5 text-warning-600 dark:text-warning-400 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-bold text-amber-800 dark:text-amber-300">Compatibilidade com iOS Safari</p>
-              <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 font-medium leading-relaxed">
+              <p className="text-sm font-bold text-warning-800 dark:text-warning-300">Compatibilidade com iOS Safari</p>
+              <p className="text-xs text-warning-700 dark:text-warning-400 mt-1 font-medium leading-relaxed">
                 No iPhone, as notificações funcionam apenas quando o app está instalado na tela inicial através do botão "Adicionar à Tela de Início".
               </p>
             </div>
@@ -384,9 +384,9 @@ const Settings: React.FC<SettingsProps> = ({
 
         {/* Sistema não suportado */}
         {!isNotifSupported && (
-          <div className="mb-6 p-4 bg-slate-100/70 dark:bg-slate-900/20 border border-slate-200/50 dark:border-slate-800/30 rounded-2xl flex items-start gap-3">
-            <BellOff className="h-5 w-5 text-slate-500 shrink-0 mt-0.5" />
-            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-semibold">
+          <div className="mb-6 p-4 bg-surface-100/70 dark:bg-surface-900/20 border border-surface-200/50 dark:border-surface-800/30 rounded-xl flex items-start gap-3">
+            <BellOff className="h-5 w-5 text-surface-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-surface-600 dark:text-surface-400 leading-relaxed font-semibold">
               Notificações de sistema não são suportadas neste navegador. Recomendamos usar o Google Chrome ou o Safari no iOS 16.4+.
             </p>
           </div>
@@ -394,11 +394,11 @@ const Settings: React.FC<SettingsProps> = ({
 
         {/* Permissão negada */}
         {isNotifBlocked && (
-          <div className="mb-6 p-4 bg-rose-50/70 dark:bg-rose-950/20 border border-rose-200/50 dark:border-rose-900/30 rounded-2xl flex items-start gap-3">
-            <ShieldAlert className="h-5 w-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 bg-danger-50/70 dark:bg-danger-950/20 border border-danger-200/50 dark:border-danger-900/30 rounded-xl flex items-start gap-3">
+            <ShieldAlert className="h-5 w-5 text-danger-600 dark:text-danger-400 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-bold text-rose-800 dark:text-rose-300">Permissão Bloqueada</p>
-              <p className="text-xs text-rose-700 dark:text-rose-400 mt-1 font-medium leading-relaxed">
+              <p className="text-sm font-bold text-danger-800 dark:text-danger-300">Permissão Bloqueada</p>
+              <p className="text-xs text-danger-700 dark:text-danger-400 mt-1 font-medium leading-relaxed">
                 As notificações estão desativadas nas configurações do navegador. Acesse as permissões do site na barra de endereços para liberar o acesso.
               </p>
             </div>
@@ -406,31 +406,31 @@ const Settings: React.FC<SettingsProps> = ({
         )}
 
         {/* Toggle Principal */}
-        <div className={`flex items-center justify-between p-6 rounded-3xl border-2 transition-all duration-300 mb-8
+        <div className={`flex items-center justify-between p-6 rounded-xl border-2 transition-all duration-300 mb-8
           ${prefs.enabled
-            ? 'border-indigo-300 bg-gradient-to-r from-indigo-50/60 to-violet-50/60 dark:border-indigo-500/20 dark:from-indigo-950/10 dark:to-violet-950/10 shadow-sm'
-            : 'border-slate-200/60 bg-slate-50/60 dark:border-slate-800/40 dark:bg-slate-900/10'
+            ? 'border-brand-300 bg-gradient-to-r from-brand-50/60 to-brand-100/60 dark:border-brand-500/20 dark:from-brand-950/10 dark:to-brand-900/10 shadow-sm'
+            : 'border-surface-200/60 bg-surface-50/60 dark:border-surface-800/40 dark:bg-surface-900/10'
           }`}
         >
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm
-              ${prefs.enabled ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm
+              ${prefs.enabled ? 'bg-brand-600 text-white' : 'bg-surface-200 dark:bg-surface-800 text-surface-400 dark:text-surface-500'}`}>
               {prefs.enabled
                 ? <Bell className="h-5 w-5" />
                 : <BellOff className="h-5 w-5" />
               }
             </div>
             <div>
-              <p className="font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+              <p className="font-bold text-surface-800 dark:text-surface-100 tracking-tight">
                 {prefs.enabled ? 'Notificações Ativadas' : 'Notificações Desativadas'}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              <p className="text-xs text-surface-400 dark:text-surface-500 mt-1 font-medium">
                 {prefs.enabled ? 'Você receberá alertas em tempo real.' : 'Ative para habilitar os lembretes do sistema.'}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {isLoadingNotif && <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />}
+            {isLoadingNotif && <Loader2 className="h-4 w-4 animate-spin text-brand-500" />}
             <ToggleSwitch
               checked={prefs.enabled}
               onChange={handleToggleNotifications}
@@ -442,21 +442,21 @@ const Settings: React.FC<SettingsProps> = ({
         {/* Sub-toggles — só mostra se enabled */}
         {prefs.enabled && (
           <div className="space-y-4">
-            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 ml-1">
+            <p className="text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-2 ml-1">
               Tipos de Lembrete
             </p>
 
             {/* Contas prestes a vencer */}
             <NotifItem
-              icon={<AlertTriangle className="h-5 w-5 text-amber-500" />}
-              iconBg="bg-amber-500/10 border border-amber-500/20"
+              icon={<AlertTriangle className="h-5 w-5 text-warning-500" />}
+              iconBg="bg-warning-500/10 border border-warning-500/20"
               title="Contas Prestes a Vencer"
               description="Avisos sobre despesas pendentes próximas do vencimento"
               enabled={prefs.billsDueSoon}
               onToggle={(v) => updatePref('billsDueSoon', v)}
             >
               <div className="pt-4 flex items-center gap-3">
-                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                <label className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider whitespace-nowrap">
                   Avisar com
                 </label>
                 <input
@@ -464,16 +464,16 @@ const Settings: React.FC<SettingsProps> = ({
                   min={1} max={30}
                   value={prefs.billsDueSoonDays}
                   onChange={(e) => updatePref('billsDueSoonDays', Number(e.target.value))}
-                  className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                  className="w-16 px-3.5 py-2.5 text-xs font-bold text-center bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all dark:text-white"
                 />
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">dia(s) de antecedência</span>
+                <span className="text-xs text-surface-400 dark:text-surface-500 font-semibold">dia(s) de antecedência</span>
               </div>
             </NotifItem>
 
             {/* Comissões */}
             <NotifItem
-              icon={<CreditCard className="h-5 w-5 text-blue-500" />}
-              iconBg="bg-blue-500/10 border border-blue-500/20"
+              icon={<CreditCard className="h-5 w-5 text-brand-500" />}
+              iconBg="bg-brand-500/10 border border-brand-500/20"
               title="Dia de Pagamento de Comissão"
               description="Aviso no dia em que as comissões dos funcionários devem ser pagas"
               enabled={prefs.commissionPaymentDay}
@@ -482,15 +482,15 @@ const Settings: React.FC<SettingsProps> = ({
 
             {/* Recebíveis */}
             <NotifItem
-              icon={<DollarSign className="h-5 w-5 text-emerald-500" />}
-              iconBg="bg-emerald-500/10 border border-emerald-500/20"
+              icon={<DollarSign className="h-5 w-5 text-success-500" />}
+              iconBg="bg-success-500/10 border border-success-500/20"
               title="Recebíveis Próximos"
               description="Avisos sobre receitas pendentes prestes a vencer"
               enabled={prefs.debtReceivable}
               onToggle={(v) => updatePref('debtReceivable', v)}
             >
               <div className="pt-4 flex items-center gap-3">
-                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                <label className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider whitespace-nowrap">
                   Avisar com
                 </label>
                 <input
@@ -498,23 +498,23 @@ const Settings: React.FC<SettingsProps> = ({
                   min={1} max={14}
                   value={prefs.debtReceivableDays}
                   onChange={(e) => updatePref('debtReceivableDays', Number(e.target.value))}
-                  className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                  className="w-16 px-3.5 py-2.5 text-xs font-bold text-center bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all dark:text-white"
                 />
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">dia(s) de antecedência</span>
+                <span className="text-xs text-surface-400 dark:text-surface-500 font-semibold">dia(s) de antecedência</span>
               </div>
             </NotifItem>
 
             {/* Contas Recorrentes */}
             <NotifItem
-              icon={<RefreshCw className="h-5 w-5 text-purple-500" />}
-              iconBg="bg-purple-500/10 border border-purple-500/20"
+              icon={<RefreshCw className="h-5 w-5 text-brand-500" />}
+              iconBg="bg-brand-500/10 border border-brand-500/20"
               title="Despesas Recorrentes"
               description="Alerta preventivo antes do vencimento de contas de recorrência fixa"
               enabled={prefs.recurringBills}
               onToggle={(v) => updatePref('recurringBills', v)}
             >
               <div className="pt-4 flex items-center gap-3">
-                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                <label className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider whitespace-nowrap">
                   Avisar com
                 </label>
                 <input
@@ -522,23 +522,23 @@ const Settings: React.FC<SettingsProps> = ({
                   min={1} max={14}
                   value={prefs.recurringBillsDays}
                   onChange={(e) => updatePref('recurringBillsDays', Number(e.target.value))}
-                  className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                  className="w-16 px-3.5 py-2.5 text-xs font-bold text-center bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all dark:text-white"
                 />
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">dia(s) de antecedência</span>
+                <span className="text-xs text-surface-400 dark:text-surface-500 font-semibold">dia(s) de antecedência</span>
               </div>
             </NotifItem>
 
             {/* Fechamento Mensal */}
             <NotifItem
-              icon={<Calendar className="h-5 w-5 text-indigo-500" />}
-              iconBg="bg-indigo-500/10 border border-indigo-500/20"
+              icon={<Calendar className="h-5 w-5 text-brand-500" />}
+              iconBg="bg-brand-500/10 border border-brand-500/20"
               title="Lembrete de Fechamento Mensal"
               description="Alerta mensal para revisar e auditar os relatórios financeiros"
               enabled={prefs.monthlyClose}
               onToggle={(v) => updatePref('monthlyClose', v)}
             >
               <div className="pt-4 flex items-center gap-3">
-                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                <label className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider whitespace-nowrap">
                   Lembrar no dia
                 </label>
                 <input
@@ -546,16 +546,16 @@ const Settings: React.FC<SettingsProps> = ({
                   min={1} max={31}
                   value={prefs.monthlyCloseDay}
                   onChange={(e) => updatePref('monthlyCloseDay', Number(e.target.value))}
-                  className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                  className="w-16 px-3.5 py-2.5 text-xs font-bold text-center bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all dark:text-white"
                 />
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">de cada mês</span>
+                <span className="text-xs text-surface-400 dark:text-surface-500 font-semibold">de cada mês</span>
               </div>
             </NotifItem>
 
             {/* Resumo Diário de Faturamento */}
             <NotifItem
-              icon={<BarChart2 className="h-5 w-5 text-emerald-500" />}
-              iconBg="bg-emerald-500/10 border border-emerald-500/20"
+              icon={<BarChart2 className="h-5 w-5 text-success-500" />}
+              iconBg="bg-success-500/10 border border-success-500/20"
               title="Resumo de Faturamento Diário"
               description="Notificação periódica do total faturado no dia com uma frase motivacional"
               enabled={prefs.dailySummary}
@@ -563,7 +563,7 @@ const Settings: React.FC<SettingsProps> = ({
             >
               <div className="pt-4 space-y-3">
                 <div className="flex items-center gap-3">
-                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                  <label className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider whitespace-nowrap">
                     Enviar a cada
                   </label>
                   <input
@@ -571,12 +571,12 @@ const Settings: React.FC<SettingsProps> = ({
                     min={1}
                     value={prefs.dailySummaryIntervalValue || 1}
                     onChange={(e) => updatePref('dailySummaryIntervalValue', Number(e.target.value))}
-                    className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                    className="w-16 px-3.5 py-2.5 text-xs font-bold text-center bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all dark:text-white"
                   />
                   <select
                     value={prefs.dailySummaryIntervalUnit || 'hours'}
                     onChange={(e) => updatePref('dailySummaryIntervalUnit', e.target.value as any)}
-                    className="px-3 py-1.5 text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white cursor-pointer"
+                    className="px-3.5 py-2.5 text-xs font-bold bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all dark:text-white cursor-pointer"
                   >
                     <option value="seconds">segundo(s)</option>
                     <option value="minutes">minuto(s)</option>
@@ -584,24 +584,24 @@ const Settings: React.FC<SettingsProps> = ({
                     <option value="days">dia(s)</option>
                   </select>
                 </div>
-                <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50/50 dark:bg-emerald-950/20 px-2.5 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <div className="text-[10px] text-success-600 dark:text-success-400 font-semibold bg-success-50/50 dark:bg-success-950/20 px-2.5 py-1.5 rounded-lg border border-success-100 dark:border-success-900/30 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse"></span>
                   🌍 Esta configuração é global e sincroniza em todos os seus celulares/computadores.
                 </div>
               </div>
             </NotifItem>
 
             {/* Frequência de Verificação */}
-            <div className="bg-slate-50/40 dark:bg-slate-900/10 border border-slate-200/50 dark:border-slate-800/40 p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6">
+            <div className="bg-surface-50/40 dark:bg-surface-900/10 border border-surface-200/50 dark:border-surface-800/40 p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
                   <RefreshCw className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm md:text-base">
+                  <h4 className="font-bold text-surface-800 dark:text-surface-100 text-sm md:text-base">
                     Frequência de Verificação
                   </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-snug font-medium">
+                  <p className="text-xs text-surface-400 dark:text-surface-500 mt-1 leading-snug font-medium">
                     Intervalo de varredura automática das notificações locais
                   </p>
                 </div>
@@ -612,12 +612,12 @@ const Settings: React.FC<SettingsProps> = ({
                   min={1}
                   value={prefs.checkIntervalValue || 15}
                   onChange={(e) => updatePref('checkIntervalValue', Number(e.target.value))}
-                  className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                  className="w-16 px-3.5 py-2.5 text-xs font-bold text-center bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all dark:text-white"
                 />
                 <select
                   value={prefs.checkIntervalUnit || 'minutes'}
                   onChange={(e) => updatePref('checkIntervalUnit', e.target.value as any)}
-                  className="px-3 py-1.5 text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white cursor-pointer"
+                  className="px-3.5 py-2.5 text-xs font-bold bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all dark:text-white cursor-pointer"
                 >
                   <option value="seconds">segundo(s)</option>
                   <option value="minutes">minuto(s)</option>
@@ -627,7 +627,7 @@ const Settings: React.FC<SettingsProps> = ({
             </div>
 
             {/* Botão de teste */}
-            <div className="mt-6 pt-6 border-t border-slate-200/50 dark:border-slate-800/40 flex justify-end">
+            <div className="mt-6 pt-6 border-t border-surface-200/50 dark:border-surface-800/40 flex justify-end">
               <button
                 type="button"
                 onClick={async () => {
@@ -642,7 +642,7 @@ const Settings: React.FC<SettingsProps> = ({
                     showToast('Erro ao enviar teste. Verifique as permissões.', 'error');
                   }
                 }}
-                className="flex items-center gap-2 px-5 py-3 text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200/50 dark:border-indigo-900/30 rounded-2xl hover:bg-indigo-100 dark:hover:bg-indigo-900/40 active:scale-[0.98] transition-all"
+                className="flex items-center gap-2 px-5 py-3 text-sm font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/30 border border-brand-200/50 dark:border-brand-900/30 rounded-xl hover:bg-brand-100 dark:hover:bg-brand-900/40 active:scale-[0.98] transition-all"
               >
                 <Cpu className="h-4 w-4" />
                 <span>Enviar Notificação de Teste</span>
@@ -653,16 +653,16 @@ const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* ===== SEÇÃO: IMPOSTOS ===== */}
-      <div className="bg-white/60 dark:bg-[#111a2e]/60 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 p-6 md:p-8 rounded-3xl shadow-xl dark:shadow-none transition-all duration-300">
+      <div className="bg-white dark:bg-surface-900/60 border border-surface-200/60 dark:border-surface-800/60 p-5 md:p-6 rounded-xl shadow-card transition-all duration-300">
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <Percent className="h-6 w-6 text-white" />
+          <div className="w-10 h-10 rounded-lg bg-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
+            <Percent className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">
+            <h2 className="text-sm font-semibold text-surface-800 dark:text-white tracking-tight">
               Configuração de Impostos
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+            <p className="text-[11px] text-surface-400 mt-0.5 font-medium">
               Configure as alíquotas incidentes sobre o faturamento para calcular a provisão fiscal.
             </p>
           </div>
@@ -670,28 +670,28 @@ const Settings: React.FC<SettingsProps> = ({
 
         <div className="space-y-3 mb-8">
           {taxSettings.map((tax) => (
-            <div key={tax.id} className="flex items-center justify-between p-5 bg-white/40 dark:bg-slate-900/10 border border-slate-200/50 dark:border-slate-800/40 rounded-2xl transition-all hover:border-indigo-500/20 hover:shadow-sm">
+            <div key={tax.id} className="flex items-center justify-between p-5 bg-white/40 dark:bg-surface-900/10 border border-surface-200/50 dark:border-surface-800/40 rounded-xl transition-all hover:border-brand-500/20 hover:shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 font-bold text-sm">
+                <div className="w-10 h-10 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 font-bold text-sm">
                   %
                 </div>
                 <div>
-                  <h5 className="font-bold text-slate-800 dark:text-slate-100 text-sm md:text-base tracking-tight">{tax.name}</h5>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">{tax.percentage}% incidente sobre o lucro</p>
+                  <h5 className="font-bold text-surface-800 dark:text-surface-100 text-sm md:text-base tracking-tight">{tax.name}</h5>
+                  <p className="text-xs text-surface-400 dark:text-surface-500 font-semibold mt-0.5">{tax.percentage}% incidente sobre o lucro</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => handleDeleteTax(tax.id)}
-                className="p-2.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl active:scale-[0.9] transition-all"
+                className="p-2.5 text-surface-400 hover:text-danger-500 hover:bg-danger-50 dark:hover:bg-danger-950/20 rounded-xl active:scale-[0.9] transition-all"
               >
                 <Trash2 className="h-4.5 w-4.5" />
               </button>
             </div>
           ))}
           {taxSettings.length === 0 && (
-            <div className="text-center py-8 bg-slate-50/50 dark:bg-slate-900/5 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Nenhum imposto cadastrado. Usando a provisão padrão de 15%.</p>
+            <div className="text-center py-8 bg-surface-50/50 dark:bg-surface-900/5 border-2 border-dashed border-surface-200 dark:border-surface-800 rounded-xl">
+              <p className="text-xs text-surface-400 dark:text-surface-500 font-medium">Nenhum imposto cadastrado. Usando a provisão padrão de 15%.</p>
             </div>
           )}
         </div>
@@ -703,7 +703,7 @@ const Settings: React.FC<SettingsProps> = ({
               placeholder="Nome do Imposto (Ex: ISS, PIS)"
               value={newTaxName}
               onChange={(e) => setNewTaxName(e.target.value)}
-              className="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm font-semibold dark:text-white placeholder-slate-400"
+              className="w-full px-3.5 py-2.5 bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all text-xs font-semibold dark:text-white placeholder-surface-400"
             />
           </div>
           <div className="md:col-span-2 relative">
@@ -714,13 +714,13 @@ const Settings: React.FC<SettingsProps> = ({
               placeholder="Alíquota (%)"
               value={newTaxPercent}
               onChange={(e) => setNewTaxPercent(e.target.value)}
-              className="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm font-semibold dark:text-white placeholder-slate-400 pr-10"
+              className="w-full px-3.5 py-2.5 bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all text-xs font-semibold dark:text-white placeholder-surface-400 pr-10"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-bold text-sm">%</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 font-bold text-xs">%</span>
           </div>
           <button
             type="submit"
-            className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            className="px-6 py-3.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold rounded-lg shadow-md shadow-brand-500/20 hover:shadow-lg hover:shadow-brand-500/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
           >
             <Plus className="h-4 w-4" />
             <span>Adicionar</span>
@@ -729,38 +729,38 @@ const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* ===== SEÇÃO: ANTI-INATIVIDADE DO BANCO DE DADOS (SUPABASE KEEPALIVE) ===== */}
-      <div className="bg-white/60 dark:bg-[#111a2e]/60 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 p-6 md:p-8 rounded-3xl shadow-xl dark:shadow-none transition-all duration-300">
+      <div className="bg-white dark:bg-surface-900/60 border border-surface-200/60 dark:border-surface-800/60 p-5 md:p-6 rounded-xl shadow-card transition-all duration-300">
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <Database className="h-6 w-6 text-white" />
+          <div className="w-10 h-10 rounded-lg bg-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
+            <Database className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">
+            <h2 className="text-sm font-semibold text-surface-800 dark:text-white tracking-tight">
               Anti-Inatividade do Supabase (Keep-Alive)
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+            <p className="text-[11px] text-surface-400 mt-0.5 font-medium">
               Configure pings automáticos to evitar o congelamento e suspensão da sua conta Supabase.
             </p>
           </div>
         </div>
 
         {/* Toggle Principal de Anti-Inatividade */}
-        <div className={`flex items-center justify-between p-6 rounded-3xl border-2 transition-all duration-300 mb-8
+        <div className={`flex items-center justify-between p-6 rounded-xl border-2 transition-all duration-300 mb-8
           ${keepAliveConfig.enabled
-            ? 'border-indigo-300 bg-gradient-to-r from-indigo-50/60 to-violet-50/60 dark:border-indigo-500/20 dark:from-indigo-950/10 dark:to-violet-950/10 shadow-sm'
-            : 'border-slate-200/60 bg-slate-50/60 dark:border-slate-800/40 dark:bg-slate-900/10'
+            ? 'border-brand-300 bg-gradient-to-r from-brand-50/60 to-brand-100/60 dark:border-brand-500/20 dark:from-brand-950/10 dark:to-brand-900/10 shadow-sm'
+            : 'border-surface-200/60 bg-surface-50/60 dark:border-surface-800/40 dark:bg-surface-900/10'
           }`}
         >
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm
-              ${keepAliveConfig.enabled ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm
+              ${keepAliveConfig.enabled ? 'bg-brand-600 text-white' : 'bg-surface-200 dark:bg-surface-800 text-surface-400 dark:text-surface-500'}`}>
               <Database className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+              <p className="font-bold text-surface-800 dark:text-surface-100 tracking-tight">
                 {keepAliveConfig.enabled ? 'Anti-Inatividade Ativo' : 'Anti-Inatividade Inativo'}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              <p className="text-xs text-surface-400 dark:text-surface-500 mt-1 font-medium">
                 {keepAliveConfig.enabled ? 'O navegador enviará pings periódicos quando o app estiver aberto.' : 'Habilite o ping no navegador.'}
               </p>
             </div>
@@ -776,13 +776,13 @@ const Settings: React.FC<SettingsProps> = ({
         {/* Configurações Avançadas e Ping Manual */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
           <div className="space-y-6">
-            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Painel Local</p>
+            <p className="text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider ml-1">Painel Local</p>
             
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-5 bg-white/40 dark:bg-slate-900/10 border border-slate-200/50 dark:border-slate-800/40 rounded-2xl">
+              <div className="flex items-center justify-between p-5 bg-white/40 dark:bg-surface-900/10 border border-surface-200/50 dark:border-surface-800/40 rounded-xl">
                 <div>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100">Frequência do Ping</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Padrão recomendado: 4 dias</p>
+                  <p className="text-sm font-bold text-surface-800 dark:text-surface-100">Frequência do Ping</p>
+                  <p className="text-xs text-surface-400 dark:text-surface-500 mt-1 font-medium">Padrão recomendado: 4 dias</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
@@ -790,23 +790,23 @@ const Settings: React.FC<SettingsProps> = ({
                     min={1} max={6}
                     value={keepAliveConfig.intervalDays}
                     onChange={(e) => handleIntervalChange(Number(e.target.value))}
-                    className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                    className="w-16 px-3.5 py-2.5 text-xs font-bold text-center bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all dark:text-white"
                   />
-                  <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">dias</span>
+                  <span className="text-xs text-surface-400 dark:text-surface-500 font-semibold">dias</span>
                 </div>
               </div>
 
               {/* Botão de teste manual */}
-              <div className="p-5 bg-white/40 dark:bg-slate-900/10 border border-slate-200/50 dark:border-slate-800/40 rounded-2xl flex items-center justify-between">
+              <div className="p-5 bg-white/40 dark:bg-surface-900/10 border border-surface-200/50 dark:border-surface-800/40 rounded-xl flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100">Testar Conexão</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Disparar um ping manual ao banco agora</p>
+                  <p className="text-sm font-bold text-surface-800 dark:text-surface-100">Testar Conexão</p>
+                  <p className="text-xs text-surface-400 dark:text-surface-500 mt-1 font-medium">Disparar um ping manual ao banco agora</p>
                 </div>
                 <button
                   type="button"
                   disabled={isPingInProgress}
                   onClick={handleManualPing}
-                  className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 rounded-xl shadow-md shadow-indigo-500/25 active:scale-[0.98] transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 disabled:bg-surface-400 rounded-xl shadow-md shadow-brand-500/25 active:scale-[0.98] transition-all"
                 >
                   {isPingInProgress ? (
                     <RefreshCw className="h-3.5 w-3.5 animate-spin" />
@@ -820,54 +820,54 @@ const Settings: React.FC<SettingsProps> = ({
 
             {/* Logs de Pings */}
             <div className="mt-6">
-              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 ml-1">Terminal de Logs</p>
-              <div className="bg-slate-950 text-slate-200 font-mono text-[11px] p-4 rounded-2xl h-36 overflow-y-auto border border-slate-850 space-y-1.5 shadow-inner">
+              <p className="text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-3 ml-1">Terminal de Logs</p>
+              <div className="bg-surface-950 text-surface-200 font-mono text-[11px] p-4 rounded-xl h-36 overflow-y-auto border border-surface-800 space-y-1.5 shadow-inner">
                 {keepAliveConfig.pingLogs.length > 0 ? (
                   keepAliveConfig.pingLogs.map((log, idx) => (
-                    <div key={idx} className={log.includes('Sucesso') ? 'text-emerald-400 flex items-center gap-1.5' : 'text-rose-400 flex items-center gap-1.5'}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${log.includes('Sucesso') ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                    <div key={idx} className={log.includes('Sucesso') ? 'text-success-400 flex items-center gap-1.5' : 'text-danger-400 flex items-center gap-1.5'}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${log.includes('Sucesso') ? 'bg-success-500' : 'bg-danger-500'}`}></span>
                       <span>{log}</span>
                     </div>
                   ))
                 ) : (
-                  <div className="text-slate-500 text-center py-10 italic">Nenhum log registrado ainda.</div>
+                  <div className="text-surface-500 text-center py-10 italic">Nenhum log registrado ainda.</div>
                 )}
               </div>
             </div>
           </div>
 
           {/* Solução Serverless Automática */}
-          <div className="space-y-6 lg:border-l border-slate-200/50 dark:border-slate-850 lg:pl-8 pt-8 lg:pt-0">
-            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+          <div className="space-y-6 lg:border-l border-surface-200/50 dark:border-surface-800 lg:pl-8 pt-8 lg:pt-0">
+            <p className="text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider ml-1 flex items-center gap-2">
               <Cloud className="h-4 w-4 text-sky-500 shrink-0" />
               <span>Automação em Nuvem</span>
             </p>
             
             <div className="space-y-4">
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-semibold">
+              <p className="text-xs text-surface-600 dark:text-surface-400 leading-relaxed font-semibold">
                 Para que o banco não congele mesmo se você passar semanas sem abrir este site, configuramos um script automático via GitHub Actions.
               </p>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+              <p className="text-xs text-surface-600 dark:text-surface-400 leading-relaxed font-medium">
                 Siga o passo a passo para ativá-lo:
               </p>
-              <ol className="list-decimal list-inside text-xs text-slate-600 dark:text-slate-400 space-y-2 ml-1 leading-relaxed font-medium">
+              <ol className="list-decimal list-inside text-xs text-surface-600 dark:text-surface-400 space-y-2 ml-1 leading-relaxed font-medium">
                 <li>Acesse o seu repositório no seu GitHub.</li>
                 <li>Vá em <strong>Settings</strong> &gt; <strong>Secrets and variables</strong> &gt; <strong>Actions</strong>.</li>
                 <li>Clique em <strong>New repository secret</strong> e crie os dois Secrets:</li>
               </ol>
               
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-850 font-mono text-[11px] space-y-2.5 text-slate-300 shadow-inner">
-                <div className="flex justify-between items-center bg-slate-900/40 p-2 rounded-xl border border-slate-850/50">
-                  <span>Name: <strong className="text-indigo-400">SUPABASE_URL</strong></span>
-                  <button type="button" onClick={() => { navigator.clipboard.writeText('SUPABASE_URL'); showToast('Copiado!', 'success'); }} className="text-[10px] text-slate-400 hover:text-white px-2 py-1 bg-slate-800/80 rounded-lg active:scale-95 transition-all">Copiar</button>
+              <div className="bg-surface-950 p-3 rounded-xl border border-surface-800 font-mono text-[11px] space-y-2.5 text-surface-300 shadow-inner">
+                <div className="flex justify-between items-center bg-surface-900/40 p-2 rounded-lg border border-surface-800/50">
+                  <span>Name: <strong className="text-brand-400">SUPABASE_URL</strong></span>
+                  <button type="button" onClick={() => { navigator.clipboard.writeText('SUPABASE_URL'); showToast('Copiado!', 'success'); }} className="text-[10px] text-surface-400 hover:text-white px-2 py-1 bg-surface-800/80 rounded-lg active:scale-95 transition-all">Copiar</button>
                 </div>
-                <div className="flex justify-between items-center bg-slate-900/40 p-2 rounded-xl border border-slate-850/50">
-                  <span>Name: <strong className="text-indigo-400">SUPABASE_ANON_KEY</strong></span>
-                  <button type="button" onClick={() => { navigator.clipboard.writeText('SUPABASE_ANON_KEY'); showToast('Copiado!', 'success'); }} className="text-[10px] text-slate-400 hover:text-white px-2 py-1 bg-slate-800/80 rounded-lg active:scale-95 transition-all">Copiar</button>
+                <div className="flex justify-between items-center bg-surface-900/40 p-2 rounded-lg border border-surface-800/50">
+                  <span>Name: <strong className="text-brand-400">SUPABASE_ANON_KEY</strong></span>
+                  <button type="button" onClick={() => { navigator.clipboard.writeText('SUPABASE_ANON_KEY'); showToast('Copiado!', 'success'); }} className="text-[10px] text-surface-400 hover:text-white px-2 py-1 bg-surface-800/80 rounded-lg active:scale-95 transition-all">Copiar</button>
                 </div>
               </div>
 
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 italic leading-relaxed font-medium">
+              <p className="text-xs text-surface-400 dark:text-surface-500 mt-3 italic leading-relaxed font-medium">
                 Pronto! O GitHub passará a rodar a tarefa em segundo plano a cada 4 dias na nuvem, garantindo que o seu banco permaneça ativo gratuitamente.
               </p>
             </div>

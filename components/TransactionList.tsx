@@ -275,22 +275,22 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
 
     return (<div className="space-y-6 animate-fade-in w-full pb-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-200 dark:border-slate-700/40 pb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-surface-200 dark:border-surface-800/60 pb-6">
             <div>
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Transações</h2>
-                <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">Controle de caixa e histórico financeiro.</p>
+                <h2 className="text-lg font-semibold text-surface-900 dark:text-white tracking-tight">Transações</h2>
+                <p className="text-surface-400 dark:text-surface-500 mt-0.5 text-xs font-medium">Controle de caixa e histórico financeiro.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
                 <button
                     onClick={handleExportCSV}
-                    className="flex items-center justify-center px-4 py-2.5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm font-semibold text-sm hover:border-slate-300 w-full sm:w-auto"
+                    className="flex items-center justify-center px-4 py-2.5 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700/60 text-surface-600 dark:text-surface-300 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors shadow-sm text-xs font-semibold hover:border-surface-300 w-full sm:w-auto"
                 >
-                    <Download className="h-4 w-4 mr-2 text-slate-500" />
+                    <Download className="h-4 w-4 mr-2 text-surface-400" />
                     Exportar CSV
                 </button>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="flex items-center justify-center px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 hover:shadow-indigo-300 font-bold text-sm transform active:scale-95 w-full sm:w-auto"
+                    className="flex items-center justify-center px-5 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-500 transition-all shadow-sm font-semibold text-xs transform active:scale-95 w-full sm:w-auto"
                 >
                     <Plus className="h-4 w-4 mr-2" />
                     Novo Lançamento
@@ -299,19 +299,19 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         </div>
 
         {/* Toolbar */}
-        <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-1.5 rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-700/40 flex flex-col lg:flex-row gap-4 items-center justify-between">
+        <div className="bg-white dark:bg-surface-900/60 rounded-xl shadow-card border border-surface-200/60 dark:border-surface-800/60 flex flex-col lg:flex-row gap-4 items-center justify-between p-1.5">
             <div className="relative w-full lg:w-96">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-surface-400" />
                 <input
                     type="text"
                     placeholder="Buscar por descrição..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-transparent rounded-xl text-sm focus:outline-none focus:bg-slate-50 dark:focus:bg-slate-900/50 transition-all placeholder:text-slate-400 font-medium text-slate-700 dark:text-slate-200"
+                    className="w-full pl-10 pr-4 py-2.5 bg-transparent rounded-lg text-xs focus:outline-none focus:bg-surface-50 dark:focus:bg-surface-800/50 transition-all placeholder:text-surface-400 font-medium text-surface-700 dark:text-surface-200"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />
             </div>
 
-            <div className="flex bg-slate-100/50 dark:bg-slate-900/50 p-1 rounded-xl w-full lg:w-auto border border-slate-100 dark:border-slate-800">
+            <div className="flex bg-surface-100 dark:bg-surface-800 p-0.5 rounded-lg w-full lg:w-auto border border-surface-200/60 dark:border-surface-700/60">
                 {[
                     { label: 'Todos', value: 'ALL' },
                     { label: 'Receitas', value: TransactionType.INCOME },
@@ -320,9 +320,9 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                     <button
                         key={opt.value}
                         onClick={() => setFilter(opt.value)}
-                        className={`flex-1 px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${filter === opt.value
-                            ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/5'
-                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
+                        className={`flex-1 px-5 py-2 rounded-md text-xs font-semibold transition-all duration-200 whitespace-nowrap ${filter === opt.value
+                            ? 'bg-white dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm'
+                            : 'text-surface-500 dark:text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 hover:bg-surface-200/50 dark:hover:bg-surface-700/50'
                             }`}
                     >
                         {opt.label}
@@ -332,27 +332,27 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         </div>
 
         {/* Main Table Card */}
-        <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-700/40 overflow-hidden w-full flex flex-col h-[600px]">
+        <div className="bg-white dark:bg-surface-900/60 rounded-xl shadow-card border border-surface-200/60 dark:border-surface-800/60 overflow-hidden w-full flex flex-col h-[600px]">
             <div className="overflow-auto custom-scrollbar flex-1 relative">
                 <table className="hidden md:table w-full text-left border-collapse min-w-[900px]">
-                    <thead className="bg-slate-50/90 dark:bg-[#0d1526]/90 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700/40 sticky top-0 z-10">
+                    <thead className="bg-surface-50/50 dark:bg-surface-800/30 backdrop-blur-sm border-b border-surface-100/60 dark:border-surface-800/60 sticky top-0 z-10">
                         <tr>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[120px]">Data</th>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Descrição</th>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[150px]">Categoria</th>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[150px]">Valor</th>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[140px]">Status</th>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[140px]">Ações</th>
+                            <th className="px-6 py-4 text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider w-[120px]">Data</th>
+                            <th className="px-6 py-4 text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">Descrição</th>
+                            <th className="px-6 py-4 text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider w-[150px]">Categoria</th>
+                            <th className="px-6 py-4 text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider text-right w-[150px]">Valor</th>
+                            <th className="px-6 py-4 text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider text-center w-[140px]">Status</th>
+                            <th className="px-6 py-4 text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider text-center w-[140px]">Ações</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody className="divide-y divide-surface-100/60 dark:divide-surface-800/60">
                         {paginatedTransactions.map((t) => {
                             const [year, month, day] = t.date.split('-');
                             const isPending = canMarkAsPaid(t);
                             return (
-                                <tr key={t.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group table-row-hover">
-                                    <td className="px-6 py-4 text-slate-500 font-medium tabular-nums text-sm">{day}/{month}/{year}</td>
-                                    <td className="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200 text-sm">
+                                <tr key={t.id} className="hover:bg-surface-50/50 dark:hover:bg-surface-800/20 transition-colors duration-150 group table-row-hover">
+                                    <td className="px-6 py-4 text-surface-400 dark:text-surface-500 font-medium tabular-nums text-xs">{day}/{month}/{year}</td>
+                                    <td className="px-6 py-4 font-medium text-surface-900 dark:text-surface-200 text-xs">
                                         <div className="flex items-center gap-2">
                                             {t.description}
                                             {t.isRecurring && (
@@ -363,27 +363,27 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             )}
                                         </div>
                                         {t.employeeName && (
-                                            <div className="text-[10px] text-indigo-500 font-bold uppercase mt-1 flex flex-col">
+                                            <div className="text-[10px] text-brand-500 font-bold uppercase mt-1 flex flex-col">
                                                 <span>Técnico: {t.employeeName}</span>
                                                 {t.commissionPaymentDate && (
-                                                    <span className="text-slate-400 normal-case font-medium">
+                                                    <span className="text-surface-400 normal-case font-medium">
                                                         Pagto Comissão: {format(new Date(t.commissionPaymentDate + 'T12:00:00'), 'dd/MM/yyyy')}
                                                     </span>
                                                 )}
                                             </div>
                                         )}
                                         {t.pendingAmount && t.pendingAmount > 0 && (
-                                            <div className="text-[10px] text-rose-500 font-bold uppercase mt-0.5">
+                                            <div className="text-[10px] text-danger-500 font-bold uppercase mt-0.5">
                                                 Pendente: {t.pendingAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                                             </div>
                                         )}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600/50 whitespace-nowrap">
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300 border border-surface-200/50 dark:border-surface-700/50 whitespace-nowrap">
                                             {t.category}
                                         </span>
                                     </td>
-                                    <td className={`px-6 py-4 text-right font-bold font-mono text-sm ${t.type === TransactionType.INCOME ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                    <td className={`px-6 py-4 text-right font-bold font-mono text-xs ${t.type === TransactionType.INCOME ? 'text-success-500' : 'text-danger-500'}`}>
                                         {t.type === TransactionType.INCOME ? '+' : '-'}{formatBRL(t.amount)}
                                     </td>
                                     <td className="px-6 py-4 text-center">
@@ -394,9 +394,9 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                         TransactionStatus.COMPLETED;
                                                 onUpdateStatus(t.id, nextStatus);
                                             }}
-                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold transition-all border shadow-sm cursor-pointer whitespace-nowrap ${t.status === TransactionStatus.COMPLETED ? 'bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200' :
-                                                    t.status === TransactionStatus.PARTIAL ? 'bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200' :
-                                                        'bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200'
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-semibold transition-all border shadow-sm cursor-pointer whitespace-nowrap ${t.status === TransactionStatus.COMPLETED ? 'bg-success-50 text-success-600 border-success-500/20 hover:bg-success-500/10' :
+                                                    t.status === TransactionStatus.PARTIAL ? 'bg-warning-50 text-warning-500 border-warning-500/20 hover:bg-warning-500/10' :
+                                                        'bg-danger-50 text-danger-600 border-danger-500/20 hover:bg-danger-500/10'
                                                 }`}
                                         >
                                             {t.status === TransactionStatus.COMPLETED ? <CheckCircle className="w-3 h-3" /> :
@@ -412,11 +412,11 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                 <button
                                                     onClick={() => handleMarkAsPaid(t)}
                                                     disabled={markingPaidId === t.id}
-                                                    className="p-2 text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-all disabled:opacity-50"
+                                                    className="p-2 text-success-500 hover:text-success-600 dark:hover:text-success-500 hover:bg-success-50 dark:hover:bg-success-500/10 rounded-lg transition-all disabled:opacity-50"
                                                     title="Marcar como Pago"
                                                 >
                                                     {markingPaidId === t.id ? (
-                                                        <div className="w-4 h-4 border-2 border-emerald-300 border-t-emerald-600 rounded-full animate-spin"></div>
+                                                        <div className="w-4 h-4 border-2 border-success-500/30 border-t-success-500 rounded-full animate-spin"></div>
                                                     ) : (
                                                         <Check className="h-4 w-4" />
                                                     )}
@@ -424,14 +424,14 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             )}
                                             <button
                                                 onClick={() => handleEdit(t)}
-                                                className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-all lg:opacity-0 group-hover:opacity-100"
+                                                className="p-2 text-surface-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-all lg:opacity-0 group-hover:opacity-100"
                                                 title="Editar Registro"
                                             >
                                                 <Edit2 className="h-4 w-4" />
                                             </button>
                                             <button
                                                 onClick={() => onDeleteTransaction(t.id)}
-                                                className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-all lg:opacity-0 group-hover:opacity-100"
+                                                className="p-2 text-surface-400 hover:text-danger-600 dark:hover:text-danger-500 hover:bg-danger-50 dark:hover:bg-danger-500/10 rounded-lg transition-all lg:opacity-0 group-hover:opacity-100"
                                                 title="Excluir Registro"
                                             >
                                                 <Trash2 className="h-4 w-4" />
@@ -445,19 +445,19 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                 </table>
 
                 {/* Mobile Cards View */}
-                <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+                <div className="md:hidden divide-y divide-surface-100/60 dark:divide-surface-800/60">
                     {paginatedTransactions.map(t => {
                         const [year, month, day] = t.date.split('-');
                         const isPending = canMarkAsPaid(t);
                         return (
-                            <div key={t.id} className="p-4 flex flex-col gap-3 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                            <div key={t.id} className="p-4 flex flex-col gap-3 hover:bg-surface-50/50 dark:hover:bg-surface-800/20 transition-colors duration-150">
                                 <div className="flex justify-between items-start gap-2">
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-xs font-bold text-slate-500">{day}/{month}/{year}</span>
-                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600/50 truncate">{t.category}</span>
+                                            <span className="text-[10px] font-semibold text-surface-400 dark:text-surface-500">{day}/{month}/{year}</span>
+                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300 border border-surface-200/50 dark:border-surface-700/50 truncate">{t.category}</span>
                                         </div>
-                                        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm leading-snug break-words">{t.description}</h4>
+                                        <h4 className="font-medium text-surface-900 dark:text-surface-200 text-xs leading-snug break-words">{t.description}</h4>
                                         {t.isRecurring && (
                                             <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 mt-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-md border border-purple-200 dark:border-purple-800/50 w-fit">
                                                 <RefreshCw className="h-2.5 w-2.5" />
@@ -465,16 +465,16 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             </span>
                                         )}
                                         {t.employeeName && (
-                                            <div className="text-[10px] text-indigo-500 font-bold uppercase mt-1.5 flex flex-col">
+                                            <div className="text-[10px] text-brand-500 font-bold uppercase mt-1.5 flex flex-col">
                                                 <span>Téc: {t.employeeName}</span>
                                                 {t.commissionPaymentDate && (
-                                                    <span className="text-slate-400 normal-case font-medium">Pagto: {format(new Date(t.commissionPaymentDate + 'T12:00:00'), 'dd/MM/yyyy')}</span>
+                                                    <span className="text-surface-400 normal-case font-medium">Pagto: {format(new Date(t.commissionPaymentDate + 'T12:00:00'), 'dd/MM/yyyy')}</span>
                                                 )}
                                             </div>
                                         )}
                                     </div>
                                     <div className="flex flex-col items-end shrink-0 gap-1.5">
-                                        <span className={`font-bold font-mono text-base ${t.type === TransactionType.INCOME ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                                        <span className={`font-bold font-mono text-xs ${t.type === TransactionType.INCOME ? 'text-success-500 dark:text-success-500' : 'text-danger-500 dark:text-danger-500'}`}>
                                             {t.type === TransactionType.INCOME ? '+' : '-'}{formatBRL(t.amount)}
                                         </span>
                                         <button
@@ -484,9 +484,9 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                         TransactionStatus.COMPLETED;
                                                 onUpdateStatus(t.id, nextStatus);
                                             }}
-                                            className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-all border shadow-sm ${t.status === TransactionStatus.COMPLETED ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50' :
-                                                    t.status === TransactionStatus.PARTIAL ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50' :
-                                                        'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-800/50'
+                                            className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold transition-all border shadow-sm ${t.status === TransactionStatus.COMPLETED ? 'bg-success-50 text-success-600 border-success-500/20 dark:bg-success-500/10 dark:text-success-500 dark:border-success-500/30' :
+                                                    t.status === TransactionStatus.PARTIAL ? 'bg-warning-50 text-warning-500 border-warning-500/20 dark:bg-warning-500/10 dark:text-warning-500 dark:border-warning-500/30' :
+                                                        'bg-danger-50 text-danger-600 border-danger-500/20 dark:bg-danger-500/10 dark:text-danger-500 dark:border-danger-500/30'
                                                 }`}
                                         >
                                             {t.status === TransactionStatus.COMPLETED ? <CheckCircle className="w-3 h-3" /> :
@@ -495,21 +495,21 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             {t.status}
                                         </button>
                                         {t.pendingAmount && t.pendingAmount > 0 && (
-                                            <span className="text-[10px] text-rose-500 font-bold mt-0.5">Pend: {formatBRL(t.pendingAmount)}</span>
+                                            <span className="text-[10px] text-danger-500 font-semibold mt-0.5">Pend: {formatBRL(t.pendingAmount)}</span>
                                         )}
                                     </div>
                                 </div>
                                 
                                 {/* Ações mobile */}
-                                <div className="flex items-center justify-end gap-2 pt-3 mt-1 border-t border-slate-100 dark:border-slate-800/50">
+                                <div className="flex items-center justify-end gap-2 pt-3 mt-1 border-t border-surface-100/60 dark:border-surface-800/60">
                                     {isPending && (
                                         <button
                                             onClick={() => handleMarkAsPaid(t)}
                                             disabled={markingPaidId === t.id}
-                                            className="flex-1 flex justify-center items-center py-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-lg font-bold text-xs gap-1.5 transition-colors"
+                                            className="flex-1 flex justify-center items-center py-2 text-success-600 dark:text-success-500 bg-success-50 dark:bg-success-500/10 border border-success-500/20 dark:border-success-500/30 rounded-lg font-semibold text-xs gap-1.5 transition-colors"
                                         >
                                             {markingPaidId === t.id ? (
-                                                <div className="w-3 h-3 border-2 border-emerald-300 border-t-emerald-600 rounded-full animate-spin"></div>
+                                                <div className="w-3 h-3 border-2 border-success-500/30 border-t-success-500 rounded-full animate-spin"></div>
                                             ) : (
                                                 <Check className="h-3.5 w-3.5" />
                                             )}
@@ -518,13 +518,13 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                     )}
                                     <button
                                         onClick={() => handleEdit(t)}
-                                        className="flex-1 py-2 px-3 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/50 rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs font-bold"
+                                        className="flex-1 py-2 px-3 text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 border border-brand-500/20 dark:border-brand-500/30 rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs font-semibold"
                                     >
                                         <Edit2 className="h-3.5 w-3.5" /> Editar
                                     </button>
                                     <button
                                         onClick={() => onDeleteTransaction(t.id)}
-                                        className="flex-[0.5] py-2 px-3 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50 rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs font-bold"
+                                        className="flex-[0.5] py-2 px-3 text-danger-600 dark:text-danger-500 bg-danger-50 dark:bg-danger-500/10 border border-danger-500/20 dark:border-danger-500/30 rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs font-semibold"
                                     >
                                         <Trash2 className="h-3.5 w-3.5" />
                                     </button>
@@ -537,90 +537,90 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
 
             {/* Pagination */}
             {filtered.length > 0 ? (
-                <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700/40 flex items-center justify-between bg-slate-50/50 dark:bg-[#0d1526]/50 shrink-0">
-                    <span className="text-xs font-medium text-slate-500">
-                        Mostrando <span className="text-slate-800 dark:text-slate-200">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> - <span className="text-slate-800 dark:text-slate-200">{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)}</span> de <span className="text-slate-800 dark:text-slate-200">{filtered.length}</span>
+                <div className="px-6 py-4 border-t border-surface-100/60 dark:border-surface-800/60 flex items-center justify-between bg-surface-50/50 dark:bg-surface-800/20 shrink-0">
+                    <span className="text-xs font-medium text-surface-400">
+                        Mostrando <span className="text-surface-900 dark:text-surface-200">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> - <span className="text-surface-900 dark:text-surface-200">{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)}</span> de <span className="text-surface-900 dark:text-surface-200">{filtered.length}</span>
                     </span>
                     <div className="flex gap-2">
                         <button
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
-                            className="p-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 shadow-sm transition-all"
+                            className="p-2 rounded-lg border border-surface-200 dark:border-surface-700/60 bg-white dark:bg-surface-800 hover:bg-surface-50 dark:hover:bg-surface-700 disabled:opacity-50 disabled:cursor-not-allowed text-surface-600 dark:text-surface-300 shadow-sm transition-all"
                         >
                             <ChevronLeft className="h-4 w-4" />
                         </button>
                         <button
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                             disabled={currentPage === totalPages}
-                            className="p-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 shadow-sm transition-all"
+                            className="p-2 rounded-lg border border-surface-200 dark:border-surface-700/60 bg-white dark:bg-surface-800 hover:bg-surface-50 dark:hover:bg-surface-700 disabled:opacity-50 disabled:cursor-not-allowed text-surface-600 dark:text-surface-300 shadow-sm transition-all"
                         >
                             <ChevronRight className="h-4 w-4" />
                         </button>
                     </div>
                 </div>
             ) : (
-                <div className="p-16 text-center text-slate-400 flex flex-col items-center justify-center flex-1">
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-full mb-4">
-                        <Search className="h-8 w-8 text-slate-300 dark:text-slate-600" />
+                <div className="p-16 text-center text-surface-400 flex flex-col items-center justify-center flex-1">
+                    <div className="p-4 bg-surface-50 dark:bg-surface-800/40 rounded-full mb-4">
+                        <Search className="h-8 w-8 text-surface-300 dark:text-surface-600" />
                     </div>
-                    <h3 className="text-slate-900 dark:text-slate-200 font-semibold mb-1">Nenhum resultado</h3>
-                    <p className="text-sm">Tente ajustar seus filtros ou busca.</p>
+                    <h3 className="text-surface-900 dark:text-surface-200 font-semibold mb-1 text-xs">Nenhum resultado</h3>
+                    <p className="text-xs text-surface-400">Tente ajustar seus filtros ou busca.</p>
                 </div>
             )}
         </div>
 
         {/* Add/Edit Modal */}
         {showModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4 animate-fade-in">
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up ring-1 ring-slate-900/5 max-h-[90vh] overflow-y-auto">
-                    <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 sticky top-0 z-10">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-950/40 backdrop-blur-xl p-4 animate-fade-in">
+                <div className="bg-white dark:bg-surface-900 border border-surface-200/60 dark:border-surface-800/60 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up max-h-[90vh] overflow-y-auto">
+                    <div className="px-6 py-5 border-b border-surface-100/60 dark:border-surface-800/60 flex justify-between items-center bg-surface-50/50 dark:bg-surface-800/30 sticky top-0 z-10">
                         <div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                            <h3 className="text-sm font-semibold text-surface-900 dark:text-white">
                                 {isEditing ? 'Editar Lançamento' : 'Novo Lançamento'}
                             </h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-0.5">
                                 {isEditing ? 'Atualize os detalhes da transação.' : 'Preencha os detalhes da transação.'}
                             </p>
                         </div>
-                        <button onClick={() => { setShowModal(false); setIsEditing(false); setEditingId(null); resetForm(); }} className="p-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition-colors shadow-sm">
+                        <button onClick={() => { setShowModal(false); setIsEditing(false); setEditingId(null); resetForm(); }} className="p-2 bg-white dark:bg-surface-800 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg text-surface-500 dark:text-surface-400 border border-surface-200 dark:border-surface-700/60 transition-colors shadow-sm">
                             <X className="h-4 w-4" />
                         </button>
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-6 space-y-6">
                         {/* Transaction Type Toggle */}
-                        <div className="p-1 bg-slate-100 dark:bg-slate-800 rounded-xl grid grid-cols-2 gap-1 shadow-inner dark:shadow-none">
+                        <div className="p-1 bg-surface-100 dark:bg-surface-800 rounded-lg grid grid-cols-2 gap-1 shadow-inner dark:shadow-none">
                             <button
                                 type="button"
                                 onClick={() => setFormData({ ...formData, type: TransactionType.INCOME })}
-                                className={`py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${formData.type === TransactionType.INCOME
-                                    ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm ring-1 ring-black/5 dark:ring-white/5'
-                                    : 'text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'
+                                className={`py-2.5 rounded-md text-xs font-semibold transition-all flex items-center justify-center gap-2 ${formData.type === TransactionType.INCOME
+                                    ? 'bg-white dark:bg-surface-700 text-success-500 dark:text-success-500 shadow-sm'
+                                    : 'text-surface-500 dark:text-surface-500 hover:text-success-500 dark:hover:text-success-500'
                                     }`}
                             >
-                                <span className={`w-2 h-2 rounded-full ${formData.type === TransactionType.INCOME ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>
+                                <span className={`w-2 h-2 rounded-full ${formData.type === TransactionType.INCOME ? 'bg-success-500' : 'bg-surface-300'}`}></span>
                                 Receita
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setFormData({ ...formData, type: TransactionType.EXPENSE })}
-                                className={`py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${formData.type === TransactionType.EXPENSE
-                                    ? 'bg-white dark:bg-slate-700 text-rose-600 dark:text-rose-400 shadow-sm ring-1 ring-black/5 dark:ring-white/5'
-                                    : 'text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400'
+                                className={`py-2.5 rounded-md text-xs font-semibold transition-all flex items-center justify-center gap-2 ${formData.type === TransactionType.EXPENSE
+                                    ? 'bg-white dark:bg-surface-700 text-danger-500 dark:text-danger-500 shadow-sm'
+                                    : 'text-surface-500 dark:text-surface-500 hover:text-danger-500 dark:hover:text-danger-500'
                                     }`}
                             >
-                                <span className={`w-2 h-2 rounded-full ${formData.type === TransactionType.EXPENSE ? 'bg-rose-500' : 'bg-slate-300'}`}></span>
+                                <span className={`w-2 h-2 rounded-full ${formData.type === TransactionType.EXPENSE ? 'bg-danger-500' : 'bg-surface-300'}`}></span>
                                 Despesa
                             </button>
                         </div>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Descrição</label>
+                                <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Descrição</label>
                                 <input
                                     required
                                     type="text"
-                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-medium text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+                                    className="w-full px-4 py-3 bg-surface-50 dark:bg-surface-800/50 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:bg-white dark:focus:bg-surface-800 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all font-medium text-xs text-surface-800 dark:text-surface-200 placeholder:text-surface-400"
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
                                     placeholder="Ex: Pagamento Fornecedor XYZ"
@@ -629,14 +629,14 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Valor (R$)</label>
+                                    <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Valor (R$)</label>
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R$</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-400 font-bold">R$</span>
                                         <input
                                             required
                                             type="number"
                                             step="0.01"
-                                            className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-mono font-bold text-slate-800 dark:text-slate-200"
+                                            className="w-full pl-11 pr-4 py-3 bg-surface-50 dark:bg-surface-800/50 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:bg-white dark:focus:bg-surface-800 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all font-mono font-bold text-xs text-surface-800 dark:text-surface-200"
                                             value={formData.amount}
                                             onChange={e => {
                                                 const val = e.target.value;
@@ -652,22 +652,22 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Data do Serviço / Lançamento</label>
+                                    <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Data do Serviço / Lançamento</label>
                                     <input
                                         required
                                         type="date"
-                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-medium text-slate-700 dark:text-slate-200"
+                                        className="w-full px-4 py-3 bg-surface-50 dark:bg-surface-800/50 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:bg-white dark:focus:bg-surface-800 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all font-medium text-xs text-surface-700 dark:text-surface-200"
                                         value={formData.serviceDate}
                                         onChange={e => setFormData({ ...formData, serviceDate: e.target.value })}
                                         title="Quando o serviço foi executado ou a despesa contraída"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Data do Vencimento / Pagamento</label>
+                                    <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Data do Vencimento / Pagamento</label>
                                     <input
                                         required
                                         type="date"
-                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-medium text-slate-700 dark:text-slate-200"
+                                        className="w-full px-4 py-3 bg-surface-50 dark:bg-surface-800/50 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:bg-white dark:focus:bg-surface-800 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all font-medium text-xs text-surface-700 dark:text-surface-200"
                                         value={formData.date}
                                         onChange={e => setFormData({ ...formData, date: e.target.value })}
                                         title="Quando essa conta vence ou foi paga"
@@ -677,7 +677,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                             
                             {/* ===== SEÇÃO: PARCELAMENTO ===== */}
                             {!isEditing && !formData.isRecurring && (
-                                <div className="p-4 bg-sky-50/50 dark:bg-sky-900/10 rounded-2xl border border-sky-100 dark:border-sky-800/50 space-y-4">
+                                <div className="p-4 bg-sky-50/50 dark:bg-sky-900/10 rounded-xl border border-sky-100 dark:border-sky-800/50 space-y-4">
                                     <div className="flex items-center justify-between">
                                         <h4 className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-widest flex items-center gap-1.5">
                                             <Layers className="h-3 w-3" />
@@ -688,7 +688,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             onClick={() => setFormData({ ...formData, isInstallment: !formData.isInstallment })}
                                             className={`relative w-11 h-6 rounded-full transition-all duration-200 ${formData.isInstallment
                                                 ? 'bg-sky-600'
-                                                : 'bg-slate-200 dark:bg-slate-700'
+                                                : 'bg-surface-200 dark:bg-surface-700'
                                                 }`}
                                         >
                                             <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ${formData.isInstallment ? 'translate-x-5' : ''}`}></div>
@@ -698,21 +698,21 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                     {formData.isInstallment && (
                                         <div className="grid grid-cols-2 gap-4 animate-fade-in">
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Qtd. de Parcelas</label>
+                                                <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Qtd. de Parcelas</label>
                                                 <input
                                                     type="number"
                                                     min="2"
                                                     max="72"
-                                                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none transition-all font-medium text-slate-800 dark:text-slate-200"
+                                                    className="w-full px-4 py-3 bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none transition-all font-medium text-xs text-surface-800 dark:text-surface-200"
                                                     value={formData.installCount}
                                                     onChange={e => setFormData({ ...formData, installCount: e.target.value })}
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Intervalo (Dias)</label>
+                                                <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Intervalo (Dias)</label>
                                                 <div className="relative">
                                                     <select
-                                                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 appearance-none"
+                                                        className="w-full px-4 py-3 bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none transition-all text-xs font-medium text-surface-700 dark:text-surface-200 appearance-none"
                                                         value={formData.installInterval}
                                                         onChange={e => setFormData({ ...formData, installInterval: e.target.value })}
                                                     >
@@ -722,7 +722,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                         <option value="45">45 dias</option>
                                                         <option value="60">Bimestral (60 dias)</option>
                                                     </select>
-                                                    <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                                    <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-surface-400 pointer-events-none" />
                                                 </div>
                                             </div>
                                             <p className="col-span-2 text-[10px] text-sky-500 dark:text-sky-400 italic ml-1 leading-relaxed">
@@ -736,10 +736,10 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Categoria</label>
+                                    <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Categoria</label>
                                     <div className="relative">
                                         <select
-                                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 appearance-none"
+                                            className="w-full px-4 py-3 bg-surface-50 dark:bg-surface-800/50 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:bg-white dark:focus:bg-surface-800 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all text-xs font-medium text-surface-700 dark:text-surface-200 appearance-none"
                                             value={formData.category}
                                             onChange={e => setFormData({ ...formData, category: e.target.value as TransactionCategory })}
                                         >
@@ -766,14 +766,14 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                 <option value={TransactionCategory.OTHER}>Outros</option>
                                             </optgroup>
                                         </select>
-                                        <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                        <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-surface-400 pointer-events-none" />
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Status</label>
+                                    <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Status</label>
                                     <div className="relative">
                                         <select
-                                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 appearance-none"
+                                            className="w-full px-4 py-3 bg-surface-50 dark:bg-surface-800/50 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:bg-white dark:focus:bg-surface-800 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all text-xs font-medium text-surface-700 dark:text-surface-200 appearance-none"
                                             value={formData.status}
                                             onChange={e => setFormData({ ...formData, status: e.target.value as TransactionStatus })}
                                         >
@@ -781,14 +781,14 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             <option value={TransactionStatus.PENDING}>Pendente</option>
                                             <option value={TransactionStatus.PARTIAL}>Pagto Parcial</option>
                                         </select>
-                                        <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                        <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-surface-400 pointer-events-none" />
                                     </div>
                                 </div>
                             </div>
 
                             {/* ===== SEÇÃO: DESPESA RECORRENTE ===== */}
                             {formData.type === TransactionType.EXPENSE && (
-                                <div className="p-4 bg-purple-50/50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-800/50 space-y-4">
+                                <div className="p-4 bg-purple-50/50 dark:bg-purple-900/10 rounded-xl border border-purple-100 dark:border-purple-800/50 space-y-4">
                                     <div className="flex items-center justify-between">
                                         <h4 className="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest flex items-center gap-1.5">
                                             <RefreshCw className="h-3 w-3" />
@@ -799,7 +799,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             onClick={() => setFormData({ ...formData, isRecurring: !formData.isRecurring })}
                                             className={`relative w-11 h-6 rounded-full transition-all duration-200 ${formData.isRecurring
                                                 ? 'bg-purple-600'
-                                                : 'bg-slate-200 dark:bg-slate-700'
+                                                : 'bg-surface-200 dark:bg-surface-700'
                                                 }`}
                                         >
                                             <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ${formData.isRecurring ? 'translate-x-5' : ''
@@ -810,10 +810,10 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                     {formData.isRecurring && (
                                         <div className="grid grid-cols-2 gap-4 animate-fade-in">
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Repetir a cada</label>
+                                                <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Repetir a cada</label>
                                                 <div className="relative">
                                                     <select
-                                                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 appearance-none"
+                                                        className="w-full px-4 py-3 bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition-all text-xs font-medium text-surface-700 dark:text-surface-200 appearance-none"
                                                         value={formData.recurringIntervalMonths}
                                                         onChange={e => setFormData({ ...formData, recurringIntervalMonths: e.target.value })}
                                                     >
@@ -823,16 +823,16 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                         <option value="6">6 meses</option>
                                                         <option value="12">12 meses (anual)</option>
                                                     </select>
-                                                    <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                                    <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-surface-400 pointer-events-none" />
                                                 </div>
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Dia do Vencimento</label>
+                                                <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Dia do Vencimento</label>
                                                 <input
                                                     type="number"
                                                     min="1"
                                                     max="28"
-                                                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono font-bold text-slate-800 dark:text-slate-200"
+                                                    className="w-full px-4 py-3 bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono font-bold text-xs text-surface-800 dark:text-surface-200"
                                                     value={formData.recurringDay}
                                                     onChange={e => setFormData({ ...formData, recurringDay: e.target.value })}
                                                     placeholder="10"
@@ -847,18 +847,18 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                             )}
 
                             {/* Campos de Funcionário, Comissão e Pendência */}
-                            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 space-y-4">
-                                <h4 className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
+                            <div className="p-4 bg-brand-50/50 dark:bg-brand-500/10 rounded-xl border border-brand-500/20 dark:border-brand-500/30 space-y-4">
+                                <h4 className="text-[10px] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest flex items-center gap-1.5">
                                     <Users className="h-3 w-3" />
                                     Equipe, Comissão & Pagamento
                                 </h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="col-span-2" ref={employeeDropdownRef}>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Funcionário</label>
+                                        <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Funcionário</label>
                                         <div className="relative">
                                             <input
                                                 type="text"
-                                                className="w-full px-4 py-3 pr-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-800 dark:text-slate-200 placeholder:text-slate-400"
+                                                className="w-full px-4 py-3 pr-10 bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all font-medium text-xs text-surface-800 dark:text-surface-200 placeholder:text-surface-400"
                                                 value={formData.employeeName}
                                                 onChange={e => {
                                                     setFormData({ ...formData, employeeName: e.target.value });
@@ -875,7 +875,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowEmployeeDropdown(!showEmployeeDropdown)}
-                                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-indigo-500 transition-colors rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-surface-400 hover:text-brand-500 transition-colors rounded-lg hover:bg-brand-50 dark:hover:bg-brand-500/10"
                                                 >
                                                     <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${showEmployeeDropdown ? 'rotate-180' : ''}`} />
                                                 </button>
@@ -883,7 +883,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
 
                                             {/* Dropdown de funcionários salvos */}
                                             {showEmployeeDropdown && savedEmployees.length > 0 && (
-                                                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden animate-fade-in">
+                                                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg shadow-xl overflow-hidden animate-fade-in">
                                                     <div className="max-h-48 overflow-y-auto">
                                                         {filteredEmployees.length > 0 ? (
                                                             filteredEmployees.map((name) => (
@@ -895,37 +895,37 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                                         setShowEmployeeDropdown(false);
                                                                         setEmployeeSearch('');
                                                                     }}
-                                                                    className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors flex items-center gap-3 ${
+                                                                    className={`w-full text-left px-4 py-2.5 text-xs font-medium transition-colors flex items-center gap-3 ${
                                                                         formData.employeeName === name
-                                                                            ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
-                                                                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                                                                            ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400'
+                                                                            : 'text-surface-700 dark:text-surface-200 hover:bg-surface-50 dark:hover:bg-surface-700/50'
                                                                     }`}
                                                                 >
-                                                                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                                                                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                                                                         {name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
                                                                     </div>
                                                                     <span>{name}</span>
                                                                     {formData.employeeName === name && (
-                                                                        <CheckCircle className="h-4 w-4 text-indigo-500 ml-auto" />
+                                                                        <CheckCircle className="h-4 w-4 text-brand-500 ml-auto" />
                                                                     )}
                                                                 </button>
                                                             ))
                                                         ) : (
-                                                            <div className="px-4 py-3 text-sm text-slate-400 text-center">
+                                                            <div className="px-4 py-3 text-xs text-surface-400 text-center">
                                                                 Nenhum funcionário encontrado
                                                             </div>
                                                         )}
                                                     </div>
                                                     {/* Opção de adicionar novo se o texto digitado não é um dos existentes */}
                                                     {formData.employeeName && !savedEmployees.includes(formData.employeeName) && (
-                                                        <div className="border-t border-slate-100 dark:border-slate-700">
+                                                        <div className="border-t border-surface-100/60 dark:border-surface-700/60">
                                                             <button
                                                                 type="button"
                                                                 onClick={() => {
                                                                     setShowEmployeeDropdown(false);
                                                                     setEmployeeSearch('');
                                                                 }}
-                                                                className="w-full text-left px-4 py-2.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors flex items-center gap-2"
+                                                                className="w-full text-left px-4 py-2.5 text-xs font-semibold text-success-600 dark:text-success-500 hover:bg-success-50 dark:hover:bg-success-500/10 transition-colors flex items-center gap-2"
                                                             >
                                                                 <UserPlus className="h-4 w-4" />
                                                                 Adicionar "{formData.employeeName}" como novo
@@ -937,12 +937,12 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Comissão (%)</label>
+                                        <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Comissão (%)</label>
                                         <div className="relative">
                                             <input
                                                 type="number"
                                                 step="0.1"
-                                                className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-mono font-bold text-slate-800 dark:text-slate-200"
+                                                className="w-full px-4 py-3 bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all font-mono font-bold text-xs text-surface-800 dark:text-surface-200"
                                                 value={formData.commissionRate}
                                                 onChange={e => {
                                                     const rate = e.target.value;
@@ -951,17 +951,17 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                 }}
                                                 placeholder="Ex: 10"
                                             />
-                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 font-bold">%</span>
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Comissão (R$)</label>
+                                        <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Comissão (R$)</label>
                                         <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R$</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-400 font-bold">R$</span>
                                             <input
                                                 type="number"
                                                 step="0.01"
-                                                className="w-full pl-11 pr-4 py-3 bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none font-mono font-bold text-slate-500 dark:text-slate-400 cursor-not-allowed"
+                                                className="w-full pl-11 pr-4 py-3 bg-surface-100 dark:bg-surface-700/50 border border-surface-200/60 dark:border-surface-700/60 rounded-lg outline-none font-mono font-bold text-xs text-surface-500 dark:text-surface-400 cursor-not-allowed"
                                                 value={formData.commissionAmount}
                                                 readOnly
                                                 placeholder="0,00"
@@ -971,23 +971,23 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Data de Pagamento da Comissão</label>
+                                    <label className="block text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1.5 ml-1">Data de Pagamento da Comissão</label>
                                     <input
                                         type="date"
-                                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-slate-800 dark:text-slate-200"
+                                        className="w-full px-4 py-3 bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all font-medium text-xs text-surface-800 dark:text-surface-200"
                                         value={formData.commissionPaymentDate}
                                         onChange={e => setFormData({ ...formData, commissionPaymentDate: e.target.value })}
                                     />
                                 </div>
 
-                                <div className="pt-2 border-t border-indigo-100/50 dark:border-indigo-800/50">
-                                    <label className="block text-xs font-bold text-rose-500 uppercase mb-1.5 ml-1">Valor Pendente a Receber (R$)</label>
+                                <div className="pt-2 border-t border-brand-500/20 dark:border-brand-500/30">
+                                    <label className="block text-[10px] font-semibold text-danger-500 uppercase tracking-wider mb-1.5 ml-1">Valor Pendente a Receber (R$)</label>
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-400 font-bold">R$</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-danger-400 font-bold">R$</span>
                                         <input
                                             type="number"
                                             step="0.01"
-                                            className="w-full pl-11 pr-4 py-3 bg-rose-50/30 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-800/50 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-all font-mono font-bold text-rose-700 dark:text-rose-400"
+                                            className="w-full pl-11 pr-4 py-3 bg-danger-50/30 dark:bg-danger-500/10 border border-danger-500/20 dark:border-danger-500/30 rounded-lg focus:ring-2 focus:ring-danger-500 outline-none transition-all font-mono font-bold text-xs text-danger-600 dark:text-danger-500"
                                             value={formData.pendingAmount}
                                             onChange={e => {
                                                 const val = e.target.value;
@@ -1000,13 +1000,13 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             placeholder="0,00"
                                         />
                                     </div>
-                                    <p className="text-[10px] text-slate-400 mt-2 ml-1 italic">* Se houver valor pendente, o status mudará para "PAGTO PARCIAL" automaticamente.</p>
+                                    <p className="text-[10px] text-surface-400 mt-2 ml-1 italic">* Se houver valor pendente, o status mudará para "PAGTO PARCIAL" automaticamente.</p>
                                 </div>
                             </div>
                         </div>
 
                         <div className="pt-2">
-                            <button disabled={isSubmitting} type="submit" className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 disabled:opacity-70 transition-all transform active:scale-[0.98] flex justify-center items-center gap-2">
+                            <button disabled={isSubmitting} type="submit" className="w-full py-4 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-lg shadow-sm disabled:opacity-70 transition-all transform active:scale-[0.98] flex justify-center items-center gap-2 text-xs">
                                 {isSubmitting ? (
                                     <div className="flex items-center gap-2">
                                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

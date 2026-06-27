@@ -136,33 +136,33 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
     };
 
     const colorMap: Record<string, string> = {
-        indigo: 'from-indigo-500 to-indigo-600 shadow-indigo-500/20',
-        violet: 'from-violet-500 to-violet-600 shadow-violet-500/20',
-        rose: 'from-rose-500 to-rose-600 shadow-rose-500/20',
-        emerald: 'from-emerald-500 to-emerald-600 shadow-emerald-500/20',
-        amber: 'from-amber-500 to-amber-600 shadow-amber-500/20',
+        indigo: 'from-brand-500 to-brand-600 shadow-brand-500/20',
+        violet: 'from-brand-400 to-brand-600 shadow-brand-500/20',
+        rose: 'from-danger-500 to-danger-600 shadow-danger-500/20',
+        emerald: 'from-success-500 to-success-600 shadow-success-500/20',
+        amber: 'from-warning-500 to-warning-600 shadow-warning-500/20',
     };
 
     const colorBorderMap: Record<string, string> = {
-        indigo: 'border-indigo-200 dark:border-indigo-800/40 hover:border-indigo-400 dark:hover:border-indigo-600',
-        violet: 'border-violet-200 dark:border-violet-800/40 hover:border-violet-400 dark:hover:border-violet-600',
-        rose: 'border-rose-200 dark:border-rose-800/40 hover:border-rose-400 dark:hover:border-rose-600',
-        emerald: 'border-emerald-200 dark:border-emerald-800/40 hover:border-emerald-400 dark:hover:border-emerald-600',
-        amber: 'border-amber-200 dark:border-amber-800/40 hover:border-amber-400 dark:hover:border-amber-600',
+        indigo: 'border-brand-200 dark:border-brand-800/40 hover:border-brand-400 dark:hover:border-brand-600',
+        violet: 'border-brand-200 dark:border-brand-800/40 hover:border-brand-400 dark:hover:border-brand-600',
+        rose: 'border-danger-200 dark:border-danger-800/40 hover:border-danger-400 dark:hover:border-danger-600',
+        emerald: 'border-success-200 dark:border-success-800/40 hover:border-success-400 dark:hover:border-success-600',
+        amber: 'border-warning-200 dark:border-warning-800/40 hover:border-warning-400 dark:hover:border-warning-600',
     };
 
     return (
         <div className="space-y-6 animate-fade-in pb-8">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between md:items-end gap-4 border-b border-slate-200 dark:border-slate-700/40 pb-6">
+            <div className="flex flex-col md:flex-row justify-between md:items-end gap-4 border-b border-surface-200/60 dark:border-surface-700/40 pb-6">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                        <div className="p-2 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl shadow-lg shadow-indigo-500/20">
-                            <Sparkles className="h-6 w-6 text-white" />
+                    <h2 className="text-lg font-semibold text-surface-900 dark:text-white tracking-tight flex items-center gap-3">
+                        <div className="p-2 bg-brand-600 rounded-lg shadow-sm">
+                            <Sparkles className="h-5 w-5 text-white" />
                         </div>
                         Consultor Inteligente
                     </h2>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">
+                    <p className="text-surface-400 mt-0.5 text-xs font-medium">
                         CFO Virtual com acesso completo aos seus dados financeiros.
                     </p>
                 </div>
@@ -170,7 +170,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                     <button
                         onClick={handleRefreshInsights}
                         disabled={loadingInsights}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 rounded-lg text-xs font-semibold text-surface-600 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-700 transition-all shadow-sm disabled:opacity-50"
                     >
                         <RefreshCw className={`h-4 w-4 ${loadingInsights ? 'animate-spin' : ''}`} />
                         Atualizar Insights
@@ -180,37 +180,37 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
 
             {/* Quick Metrics Bar */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-surface-900/60 rounded-xl p-3.5 border border-surface-100/60 dark:border-surface-800/60 shadow-card">
                     <div className="flex items-center gap-2 mb-1">
-                        <DollarSign className="h-4 w-4 text-emerald-500" />
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lucro</span>
+                        <DollarSign className="h-4 w-4 text-success-500" />
+                        <span className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider">Lucro</span>
                     </div>
-                    <p className={`text-xl font-extrabold ${summary.netProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                    <p className={`text-lg font-bold ${summary.netProfit >= 0 ? 'text-success-600 dark:text-success-400' : 'text-danger-600 dark:text-danger-400'}`}>
                         {formatCurrency(summary.netProfit)}
                     </p>
                 </div>
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-surface-900/60 rounded-xl p-3.5 border border-surface-100/60 dark:border-surface-800/60 shadow-card">
                     <div className="flex items-center gap-2 mb-1">
-                        <BarChart3 className="h-4 w-4 text-indigo-500" />
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Margem</span>
+                        <BarChart3 className="h-4 w-4 text-brand-500" />
+                        <span className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider">Margem</span>
                     </div>
-                    <p className={`text-xl font-extrabold ${margin >= 20 ? 'text-emerald-600 dark:text-emerald-400' : margin >= 0 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                    <p className={`text-lg font-bold ${margin >= 20 ? 'text-success-600 dark:text-success-400' : margin >= 0 ? 'text-warning-600 dark:text-warning-400' : 'text-danger-600 dark:text-danger-400'}`}>
                         {margin.toFixed(1)}%
                     </p>
                 </div>
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-surface-900/60 rounded-xl p-3.5 border border-surface-100/60 dark:border-surface-800/60 shadow-card">
                     <div className="flex items-center gap-2 mb-1">
-                        <Zap className="h-4 w-4 text-violet-500" />
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Concluídos/Mês</span>
+                        <Zap className="h-4 w-4 text-brand-400" />
+                        <span className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider">Concluídos/Mês</span>
                     </div>
-                    <p className="text-xl font-extrabold text-slate-800 dark:text-white">{completedThisMonth}</p>
+                    <p className="text-lg font-bold text-surface-800 dark:text-white">{completedThisMonth}</p>
                 </div>
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-surface-900/60 rounded-xl p-3.5 border border-surface-100/60 dark:border-surface-800/60 shadow-card">
                     <div className="flex items-center gap-2 mb-1">
-                        <AlertTriangle className="h-4 w-4 text-amber-500" />
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pendentes</span>
+                        <AlertTriangle className="h-4 w-4 text-warning-500" />
+                        <span className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider">Pendentes</span>
                     </div>
-                    <p className={`text-xl font-extrabold ${pendingCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-800 dark:text-white'}`}>
+                    <p className={`text-lg font-bold ${pendingCount > 0 ? 'text-warning-600 dark:text-warning-400' : 'text-surface-800 dark:text-white'}`}>
                         {pendingCount}
                     </p>
                 </div>
@@ -218,7 +218,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
 
             {/* Quick Analysis Cards */}
             <div>
-                <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <h3 className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                     <Zap className="h-4 w-4" />
                     Análises Rápidas da IA
                 </h3>
@@ -228,13 +228,13 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                             key={action.id}
                             onClick={() => handleQuickAnalysis(action.id)}
                             disabled={loadingQuickAnalysis}
-                            className={`group relative text-left p-4 rounded-xl border transition-all duration-200 hover:shadow-md dark:hover:shadow-none hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-wait bg-white dark:bg-[#111a2e]/80 ${colorBorderMap[action.color]} ${activeQuickAnalysis === action.id ? 'ring-2 ring-indigo-500/50' : ''}`}
+                            className={`group relative text-left p-4 rounded-xl border transition-all duration-200 hover:shadow-md dark:hover:shadow-none hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-wait bg-white dark:bg-surface-900/60 ${colorBorderMap[action.color]} ${activeQuickAnalysis === action.id ? 'ring-2 ring-brand-500/50' : ''}`}
                         >
                             <div className={`inline-flex p-2 rounded-lg bg-gradient-to-br ${colorMap[action.color]} shadow-lg mb-3`}>
                                 <action.icon className="h-4 w-4 text-white" />
                             </div>
-                            <h4 className="text-sm font-bold text-slate-800 dark:text-white">{action.label}</h4>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{action.description}</p>
+                            <h4 className="text-sm font-bold text-surface-800 dark:text-white">{action.label}</h4>
+                            <p className="text-[11px] text-surface-400 mt-0.5">{action.description}</p>
                         </button>
                     ))}
                 </div>
@@ -242,8 +242,8 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
 
             {/* Quick Analysis Result Modal */}
             {activeQuickAnalysis && (
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-2xl border border-slate-200 dark:border-slate-700/40 shadow-lg dark:shadow-none overflow-hidden animate-fade-in">
-                    <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700/40 flex items-center justify-between bg-slate-50 dark:bg-[#0d1526]/60">
+                <div className="bg-white dark:bg-surface-900/60 rounded-xl border border-surface-200/60 dark:border-surface-800/60 shadow-elevated dark:shadow-none overflow-hidden animate-fade-in">
+                    <div className="px-6 py-4 border-b border-surface-100/60 dark:border-surface-800/60 flex items-center justify-between bg-surface-50/50 dark:bg-surface-800/30">
                         <div className="flex items-center gap-3">
                             <div className={`p-2 rounded-lg bg-gradient-to-br ${colorMap[quickActions.find(a => a.id === activeQuickAnalysis)?.color || 'indigo']} shadow-lg`}>
                                 {(() => {
@@ -253,15 +253,15 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                                 })()}
                             </div>
                             <div>
-                                <h3 className="font-bold text-slate-800 dark:text-white">
+                                <h3 className="font-bold text-surface-800 dark:text-white">
                                     {quickActions.find(a => a.id === activeQuickAnalysis)?.label}
                                 </h3>
-                                <p className="text-xs text-slate-400">Relatório gerado pela IA</p>
+                                <p className="text-xs text-surface-400">Relatório gerado pela IA</p>
                             </div>
                         </div>
                         <button
                             onClick={() => { setActiveQuickAnalysis(null); setQuickAnalysisResult(''); }}
-                            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                            className="p-2 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg transition-colors text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"
                         >
                             <X className="h-5 w-5" />
                         </button>
@@ -270,13 +270,13 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                         {loadingQuickAnalysis ? (
                             <div className="flex flex-col items-center justify-center py-16 gap-4">
                                 <div className="relative">
-                                    <div className="w-12 h-12 border-4 border-slate-200 dark:border-slate-700 rounded-full"></div>
-                                    <div className="w-12 h-12 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin absolute inset-0"></div>
+                                    <div className="w-12 h-12 border-4 border-surface-200 dark:border-surface-700 rounded-full"></div>
+                                    <div className="w-12 h-12 border-4 border-brand-600 rounded-full border-t-transparent animate-spin absolute inset-0"></div>
                                 </div>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 animate-pulse font-medium">Analisando dados financeiros...</p>
+                                <p className="text-sm text-surface-500 dark:text-surface-400 animate-pulse font-medium">Analisando dados financeiros...</p>
                             </div>
                         ) : (
-                            <div className="prose prose-sm dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                            <div className="prose prose-sm dark:prose-invert max-w-none text-surface-700 dark:text-surface-300 leading-relaxed whitespace-pre-wrap">
                                 {quickAnalysisResult}
                             </div>
                         )}
@@ -287,15 +287,15 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
             {/* Main Content: Insights + Chat */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[500px]">
                 {/* Strategic Insights Panel */}
-                <div className="lg:col-span-1 bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl shadow-xl text-white p-6 overflow-y-auto flex flex-col">
+                <div className="lg:col-span-1 bg-gradient-to-br from-brand-900 via-brand-950 to-surface-900 rounded-2xl shadow-xl text-white p-6 overflow-y-auto flex flex-col">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-indigo-500/20 rounded-lg">
-                                <Sparkles className="h-6 w-6 text-indigo-300" />
+                            <div className="p-2 bg-brand-500/20 rounded-lg">
+                                <Sparkles className="h-6 w-6 text-brand-300" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold">Inteligência Estratégica</h2>
-                                <p className="text-xs text-indigo-300/60 font-medium mt-0.5">Powered by {getActiveProviderName()}</p>
+                                <h2 className="text-sm font-semibold">Inteligência Estratégica</h2>
+                                <p className="text-xs text-brand-300/60 font-medium mt-0.5">Powered by {getActiveProviderName()}</p>
                             </div>
                         </div>
                     </div>
@@ -316,12 +316,12 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                     {/* Dynamic Tip based on data */}
                     <div className="mt-6 space-y-3">
                         {summary.pendingInvoices > 0 && (
-                            <div className="p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                            <div className="p-4 bg-warning-500/10 rounded-xl border border-warning-500/20">
                                 <div className="flex items-start gap-3">
-                                    <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+                                    <AlertTriangle className="h-5 w-5 text-warning-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <h4 className="font-semibold text-amber-200 text-sm">Faturas Pendentes</h4>
-                                        <p className="text-xs text-slate-300 mt-1">
+                                        <h4 className="font-semibold text-warning-200 text-sm">Faturas Pendentes</h4>
+                                        <p className="text-xs text-surface-300 mt-1">
                                             Você tem {formatCurrency(summary.pendingInvoices)} em faturas pendentes. Considere implementar um sistema de lembrete automático.
                                         </p>
                                     </div>
@@ -330,12 +330,12 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                         )}
 
                         {margin < 15 && margin >= 0 && (
-                            <div className="p-4 bg-rose-500/10 rounded-xl border border-rose-500/20">
+                            <div className="p-4 bg-danger-500/10 rounded-xl border border-danger-500/20">
                                 <div className="flex items-start gap-3">
-                                    <TrendingUp className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+                                    <TrendingUp className="h-5 w-5 text-danger-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <h4 className="font-semibold text-rose-200 text-sm">Margem Baixa</h4>
-                                        <p className="text-xs text-slate-300 mt-1">
+                                        <h4 className="font-semibold text-danger-200 text-sm">Margem Baixa</h4>
+                                        <p className="text-xs text-surface-300 mt-1">
                                             Sua margem de lucro está em {margin.toFixed(1)}%. O ideal para o setor é acima de 20%. Revise seus custos operacionais.
                                         </p>
                                     </div>
@@ -344,12 +344,12 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                         )}
 
                         {(summary.pendingCommissions || 0) > 0 && (
-                            <div className="p-4 bg-violet-500/10 rounded-xl border border-violet-500/20">
+                            <div className="p-4 bg-brand-500/10 rounded-xl border border-brand-500/20">
                                 <div className="flex items-start gap-3">
-                                    <Users className="h-5 w-5 text-violet-400 shrink-0 mt-0.5" />
+                                    <Users className="h-5 w-5 text-brand-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <h4 className="font-semibold text-violet-200 text-sm">Comissões a Pagar</h4>
-                                        <p className="text-xs text-slate-300 mt-1">
+                                        <h4 className="font-semibold text-brand-200 text-sm">Comissões a Pagar</h4>
+                                        <p className="text-xs text-surface-300 mt-1">
                                             {formatCurrency(summary.pendingCommissions || 0)} em comissões agendadas. Reserve esse valor no caixa.
                                         </p>
                                     </div>
@@ -360,23 +360,23 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                 </div>
 
                 {/* Chat Interface */}
-                <div className="lg:col-span-2 bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl rounded-2xl shadow-lg dark:shadow-none border border-slate-200 dark:border-slate-700/40 flex flex-col overflow-hidden">
-                    <div className="p-4 border-b border-slate-100 dark:border-slate-700/40 bg-slate-50 dark:bg-[#0d1526]/60 flex justify-between items-center">
-                        <h3 className="font-semibold text-slate-700 dark:text-white flex items-center gap-2">
-                            <Bot className="h-5 w-5 text-indigo-600" />
+                <div className="lg:col-span-2 bg-white dark:bg-surface-900/60 dark:backdrop-blur-xl rounded-xl shadow-card dark:shadow-none border border-surface-200/60 dark:border-surface-800/60 flex flex-col overflow-hidden">
+                    <div className="p-4 border-b border-surface-100/60 dark:border-surface-800/60 bg-surface-50/50 dark:bg-surface-800/30 flex justify-between items-center">
+                        <h3 className="font-semibold text-surface-700 dark:text-white flex items-center gap-2">
+                            <Bot className="h-5 w-5 text-brand-600" />
                             Chat com o Consultor
-                            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                            <span className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></span>
                         </h3>
                         <div className="flex items-center gap-2">
-                            <span className="text-xs px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-full font-medium" title={`Modelo: ${getActiveModelName()}`}>
+                            <span className="text-[10px] px-2 py-1 bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-300 rounded-full font-semibold" title={`Modelo: ${getActiveModelName()}`}>
                                 ⚡ {getActiveProviderName()}
                             </span>
-                            <span className="text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full font-medium">
+                            <span className="text-[10px] px-2 py-1 bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 rounded-full font-semibold">
                                 {messages.length - 1} msgs
                             </span>
                             <button
                                 onClick={handleClearChat}
-                                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-rose-500"
+                                className="p-1.5 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg transition-colors text-surface-400 hover:text-danger-500"
                                 title="Limpar chat"
                             >
                                 <Trash2 className="h-4 w-4" />
@@ -390,21 +390,21 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                                 <div className={`flex gap-3 max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                                     {/* Avatar */}
                                     <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${m.role === 'user'
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20'
+                                        ? 'bg-brand-600 text-white'
+                                        : 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20'
                                         }`}>
                                         {m.role === 'user' ? 'Eu' : '🤖'}
                                     </div>
 
                                     <div>
                                         <div className={`rounded-2xl px-4 py-3 text-sm shadow-sm ${m.role === 'user'
-                                            ? 'bg-indigo-600 text-white rounded-tr-sm'
-                                            : 'bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 rounded-tl-sm'
+                                            ? 'bg-brand-600 text-white rounded-tr-sm'
+                                            : 'bg-surface-100 dark:bg-surface-800/60 text-surface-800 dark:text-surface-200 rounded-tl-sm'
                                             }`}>
                                             <div className="whitespace-pre-wrap">{m.text}</div>
                                         </div>
                                         {m.timestamp && (
-                                            <p className={`text-[10px] text-slate-400 mt-1 ${m.role === 'user' ? 'text-right' : 'text-left'}`}>
+                                            <p className={`text-[10px] text-surface-400 mt-1 ${m.role === 'user' ? 'text-right' : 'text-left'}`}>
                                                 {m.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                                             </p>
                                         )}
@@ -416,13 +416,13 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                         {chatLoading && (
                             <div className="flex justify-start">
                                 <div className="flex gap-3">
-                                    <div className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20 text-xs">
+                                    <div className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20 text-xs">
                                         🤖
                                     </div>
-                                    <div className="bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 rounded-2xl rounded-tl-sm px-4 py-3 text-sm flex items-center gap-2">
-                                        <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></span>
-                                        <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
-                                        <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                                    <div className="bg-surface-100 dark:bg-surface-800/60 text-surface-500 dark:text-surface-400 rounded-2xl rounded-tl-sm px-4 py-3 text-sm flex items-center gap-2">
+                                        <span className="w-2 h-2 bg-brand-400 rounded-full animate-bounce"></span>
+                                        <span className="w-2 h-2 bg-brand-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
+                                        <span className="w-2 h-2 bg-brand-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
                                         <span className="text-xs font-medium ml-1">Analisando...</span>
                                     </div>
                                 </div>
@@ -435,7 +435,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                     {/* Suggested Questions */}
                     {showSuggestions && messages.length <= 2 && (
                         <div className="px-6 pb-2">
-                            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                            <p className="text-[10px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-2 flex items-center gap-1">
                                 <MessageSquare className="h-3 w-3" />
                                 Sugestões
                             </p>
@@ -444,7 +444,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                                     <button
                                         key={idx}
                                         onClick={() => handleSuggestedQuestion(q)}
-                                        className="text-xs px-3 py-1.5 bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 rounded-full hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors border border-slate-200 dark:border-slate-700/40 font-medium"
+                                        className="text-xs px-3 py-1.5 bg-surface-100 dark:bg-surface-800/60 text-surface-600 dark:text-surface-300 rounded-full hover:bg-brand-50 dark:hover:bg-brand-900/20 hover:text-brand-600 dark:hover:text-brand-400 transition-colors border border-surface-200 dark:border-surface-700/40 font-medium"
                                     >
                                         {q}
                                     </button>
@@ -454,10 +454,10 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                     )}
 
                     {/* Input */}
-                    <form onSubmit={handleSendMessage} className="p-4 bg-white dark:bg-[#0d1526]/50 border-t border-slate-100 dark:border-slate-700/40 flex gap-2">
+                    <form onSubmit={handleSendMessage} className="p-4 bg-white dark:bg-surface-900/40 border-t border-surface-100/60 dark:border-surface-800/60 flex gap-2">
                         <input
                             type="text"
-                            className="flex-1 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white dark:placeholder-slate-500 text-sm"
+                            className="flex-1 bg-surface-50 dark:bg-surface-900/50 border border-surface-200 dark:border-surface-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all dark:text-white dark:placeholder-surface-500 text-sm"
                             placeholder="Pergunte sobre lucros, funcionários, projeções, corte de custos..."
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
@@ -466,7 +466,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                         <button
                             type="submit"
                             disabled={chatLoading || !inputValue.trim()}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 active:scale-95"
+                            className="bg-brand-600 hover:bg-brand-500 text-white p-3 rounded-lg transition-all disabled:opacity-50 shadow-sm hover:shadow-brand-500/20 active:scale-95"
                         >
                             <Send className="h-5 w-5" />
                         </button>

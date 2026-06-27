@@ -35,7 +35,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ className = '' }) => {
     return (
         <button
             onClick={toggleTheme}
-            className={`group relative flex items-center w-[68px] h-[34px] rounded-full p-[3px] transition-all duration-500 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 ${className} ${
+            className={`group relative flex items-center w-[68px] h-[34px] rounded-full p-[3px] transition-all duration-500 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-surface-900 ${className} ${
                 isDark
                     ? 'bg-gradient-to-r from-indigo-600 to-violet-700 shadow-lg shadow-indigo-500/25'
                     : 'bg-gradient-to-r from-amber-400 to-orange-400 shadow-lg shadow-amber-400/25'

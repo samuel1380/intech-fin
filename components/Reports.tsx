@@ -185,13 +185,13 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
     const CustomTooltip = ({ active, payload }: any) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-white dark:bg-slate-800 px-4 py-3 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700">
-                    <p className="text-sm font-bold text-slate-800 dark:text-white">{payload[0].name || payload[0].payload.name}</p>
-                    <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 mt-1">
+                <div className="bg-white dark:bg-surface-800 px-4 py-3 rounded-xl shadow-xl border border-surface-200 dark:border-surface-700">
+                    <p className="text-sm font-semibold text-surface-800 dark:text-white">{payload[0].name || payload[0].payload.name}</p>
+                    <p className="text-sm font-semibold text-brand-600 dark:text-brand-400 mt-1">
                         {formatBRL(payload[0].value)}
                     </p>
                     {payload[0].payload.percentage && (
-                        <p className="text-xs text-slate-400 mt-0.5">{payload[0].payload.percentage}% do total</p>
+                        <p className="text-xs text-surface-400 mt-0.5">{payload[0].payload.percentage}% do total</p>
                     )}
                 </div>
             );
@@ -220,7 +220,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                 {payload.map((entry: any, index: number) => (
                     <div key={`legend-${index}`} className="flex items-center gap-1.5">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                        <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{entry.value}</span>
+                        <span className="text-xs font-medium text-surface-600 dark:text-surface-400">{entry.value}</span>
                     </div>
                 ))}
             </div>
@@ -408,31 +408,31 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
     return (
         <div className="space-y-8 w-full animate-fade-in pb-8">
             {/* Header & Filter */}
-            <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-6 border-b border-slate-200 dark:border-slate-700/40 pb-6">
+            <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-6 border-b border-surface-200 dark:border-surface-700/40 pb-6">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Relatórios & Auditoria</h2>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">Emissão de documentos e análise fiscal.</p>
+                    <h2 className="text-lg font-semibold text-surface-900 dark:text-white tracking-tight">Relatórios & Auditoria</h2>
+                    <p className="text-surface-400 mt-0.5 text-xs font-medium">Emissão de documentos e análise fiscal.</p>
                 </div>
 
                 {/* Filters */}
                 <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                    <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex w-max border border-slate-200 dark:border-slate-700">
-                        <button onClick={() => setViewMode('month')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Mensal</button>
-                        <button onClick={() => setViewMode('day')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'day' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Diário</button>
+                    <div className="bg-surface-100 dark:bg-surface-800 p-0.5 rounded-lg inline-flex w-max border border-surface-200/60 dark:border-surface-700/60">
+                        <button onClick={() => setViewMode('month')} className={`px-4 py-2 rounded-md text-xs font-semibold transition-all ${viewMode === 'month' ? 'bg-white dark:bg-surface-700 text-brand-600 dark:text-brand-400 shadow-sm' : 'text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200'}`}>Mensal</button>
+                        <button onClick={() => setViewMode('day')} className={`px-4 py-2 rounded-md text-xs font-semibold transition-all ${viewMode === 'day' ? 'bg-white dark:bg-surface-700 text-brand-600 dark:text-brand-400 shadow-sm' : 'text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200'}`}>Diário</button>
                     </div>
 
                     {viewMode === 'month' ? (
                         <div className="flex flex-wrap items-center gap-2">
                             {/* Mês Início */}
                             <div className="relative group min-w-[140px]">
-                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-2.5 shadow-sm group-hover:bg-surface-50 dark:group-hover:bg-surface-700/50 transition-colors cursor-pointer">
                                     <div className="flex items-center gap-1.5">
-                                        <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
-                                        <span className="text-slate-700 dark:text-slate-200 font-bold text-sm capitalize">
+                                        <Calendar className="h-4 w-4 text-brand-500 shrink-0" />
+                                        <span className="text-surface-700 dark:text-surface-200 font-semibold text-xs capitalize">
                                             {format(parseISO(`${startMonth}-01`), 'MMM yyyy', { locale: ptBR })}
                                         </span>
                                     </div>
-                                    <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                    <ChevronDown className="h-3.5 w-3.5 text-surface-400 shrink-0" />
                                 </div>
                                 <input
                                     type="month"
@@ -443,18 +443,18 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                                 />
                             </div>
 
-                            <span className="text-slate-400 dark:text-slate-500 font-bold text-sm">até</span>
+                            <span className="text-surface-400 dark:text-surface-500 font-semibold text-xs">até</span>
 
                             {/* Mês Fim */}
                             <div className="relative group min-w-[140px]">
-                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-2.5 shadow-sm group-hover:bg-surface-50 dark:group-hover:bg-surface-700/50 transition-colors cursor-pointer">
                                     <div className="flex items-center gap-1.5">
-                                        <CalendarRange className="h-4 w-4 text-violet-500 shrink-0" />
-                                        <span className="text-slate-700 dark:text-slate-200 font-bold text-sm capitalize">
+                                        <CalendarRange className="h-4 w-4 text-brand-500 shrink-0" />
+                                        <span className="text-surface-700 dark:text-surface-200 font-semibold text-xs capitalize">
                                             {format(parseISO(`${endMonth}-01`), 'MMM yyyy', { locale: ptBR })}
                                         </span>
                                     </div>
-                                    <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                    <ChevronDown className="h-3.5 w-3.5 text-surface-400 shrink-0" />
                                 </div>
                                 <input
                                     type="month"
@@ -470,17 +470,17 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                             type="date"
                             value={selectedDate}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 shadow-sm font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700 dark:text-slate-200"
+                            className="bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-4 py-2.5 shadow-sm font-semibold text-xs outline-none focus:ring-2 focus:ring-brand-500 text-surface-700 dark:text-surface-200"
                         />
                     )}
 
                     <button
                         onClick={handleDownloadPDF}
                         disabled={!hasData}
-                        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl transition-all w-full sm:w-auto justify-center font-bold text-sm
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-all w-full sm:w-auto justify-center font-semibold text-xs
                             ${hasData
-                                ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800 shadow-lg shadow-indigo-500/20 active:scale-[0.98]'
-                                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                                ? 'bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-500/20 active:scale-[0.98]'
+                                : 'bg-surface-200 dark:bg-surface-800 text-surface-400 dark:text-surface-600 cursor-not-allowed'
                             }`}
                     >
                         <FileText className="h-4 w-4" />
@@ -491,101 +491,101 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-surface-900/60 rounded-xl p-4 border border-surface-100/60 dark:border-surface-800/60 shadow-card">
                     <div className="flex items-center gap-2 mb-2">
-                        <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
-                            <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <div className="p-1.5 bg-success-50 dark:bg-success-100/20 rounded-lg">
+                            <TrendingUp className="h-4 w-4 text-success-600 dark:text-success-500" />
                         </div>
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Receita</span>
+                        <span className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider">Receita</span>
                     </div>
-                    <p className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">{formatCompact(totalIncome)}</p>
+                    <p className="text-lg font-bold text-success-600 dark:text-success-500">{formatCompact(totalIncome)}</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-surface-900/60 rounded-xl p-4 border border-surface-100/60 dark:border-surface-800/60 shadow-card">
                     <div className="flex items-center gap-2 mb-2">
-                        <div className="p-1.5 bg-rose-50 dark:bg-rose-900/30 rounded-lg">
-                            <TrendingDown className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                        <div className="p-1.5 bg-danger-50 dark:bg-danger-100/20 rounded-lg">
+                            <TrendingDown className="h-4 w-4 text-danger-600 dark:text-danger-500" />
                         </div>
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Despesa</span>
+                        <span className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider">Despesa</span>
                     </div>
-                    <p className="text-lg font-extrabold text-rose-600 dark:text-rose-400">{formatCompact(totalExpense)}</p>
+                    <p className="text-lg font-bold text-danger-600 dark:text-danger-500">{formatCompact(totalExpense)}</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-surface-900/60 rounded-xl p-4 border border-surface-100/60 dark:border-surface-800/60 shadow-card">
                     <div className="flex items-center gap-2 mb-2">
-                        <div className="p-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
-                            <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        <div className="p-1.5 bg-warning-50 dark:bg-warning-100/20 rounded-lg">
+                            <Users className="h-4 w-4 text-warning-600 dark:text-warning-500" />
                         </div>
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Comissões</span>
+                        <span className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider">Comissões</span>
                     </div>
-                    <p className="text-lg font-extrabold text-amber-600 dark:text-amber-400">{formatCompact(totalCommissions)}</p>
+                    <p className="text-lg font-bold text-warning-600 dark:text-warning-500">{formatCompact(totalCommissions)}</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-surface-900/60 rounded-xl p-4 border border-surface-100/60 dark:border-surface-800/60 shadow-card">
                     <div className="flex items-center gap-2 mb-2">
-                        <div className="p-1.5 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
-                            <Receipt className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                        <div className="p-1.5 bg-warning-50 dark:bg-warning-100/20 rounded-lg">
+                            <Receipt className="h-4 w-4 text-warning-600 dark:text-warning-500" />
                         </div>
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Impostos</span>
+                        <span className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider">Impostos</span>
                     </div>
-                    <p className="text-lg font-extrabold text-yellow-600 dark:text-yellow-400">{formatCompact(estimatedTax)}</p>
-                    <p className="text-[10px] text-slate-400 font-medium">{(totalTaxRate * 100).toFixed(1)}% sobre receita</p>
+                    <p className="text-lg font-bold text-warning-600 dark:text-warning-500">{formatCompact(estimatedTax)}</p>
+                    <p className="text-[10px] text-surface-400 font-medium">{(totalTaxRate * 100).toFixed(1)}% sobre receita</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-surface-900/60 rounded-xl p-4 border border-surface-100/60 dark:border-surface-800/60 shadow-card">
                     <div className="flex items-center gap-2 mb-2">
-                        <div className="p-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-                            <DollarSign className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                        <div className="p-1.5 bg-brand-50 dark:bg-brand-100/20 rounded-lg">
+                            <DollarSign className="h-4 w-4 text-brand-600 dark:text-brand-400" />
                         </div>
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Líquido</span>
+                        <span className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider">Líquido</span>
                     </div>
-                    <p className={`text-lg font-extrabold ${netAfterTax >= 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                    <p className={`text-lg font-bold ${netAfterTax >= 0 ? 'text-brand-600 dark:text-brand-400' : 'text-danger-600 dark:text-danger-500'}`}>
                         {formatCompact(netAfterTax)}
                     </p>
                 </div>
 
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-surface-900/60 rounded-xl p-4 border border-surface-100/60 dark:border-surface-800/60 shadow-card">
                     <div className="flex items-center gap-2 mb-2">
-                        <div className="p-1.5 bg-violet-50 dark:bg-violet-900/30 rounded-lg">
-                            <Percent className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                        <div className="p-1.5 bg-brand-50 dark:bg-brand-100/20 rounded-lg">
+                            <Percent className="h-4 w-4 text-brand-600 dark:text-brand-400" />
                         </div>
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Margem</span>
+                        <span className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider">Margem</span>
                     </div>
-                    <p className={`text-lg font-extrabold ${profitMargin >= 20 ? 'text-emerald-600 dark:text-emerald-400' : profitMargin >= 0 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                    <p className={`text-lg font-bold ${profitMargin >= 20 ? 'text-success-600 dark:text-success-500' : profitMargin >= 0 ? 'text-warning-600 dark:text-warning-500' : 'text-danger-600 dark:text-danger-500'}`}>
                         {profitMargin.toFixed(1)}%
                     </p>
-                    <p className="text-[10px] text-slate-400 font-medium">{profitMargin >= 20 ? 'Saudável' : profitMargin >= 10 ? 'Aceitável' : profitMargin >= 0 ? 'Baixa' : 'Negativa'}</p>
+                    <p className="text-[10px] text-surface-400 font-medium">{profitMargin >= 20 ? 'Saudável' : profitMargin >= 10 ? 'Aceitável' : profitMargin >= 0 ? 'Baixa' : 'Negativa'}</p>
                 </div>
             </div>
 
             {/* ===== FUNCIONÁRIOS & COMISSÕES ===== */}
             {employees.length > 0 && (
-                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 dark:border-slate-700/40">
+                <div className="bg-white dark:bg-surface-900/60 dark:backdrop-blur-xl rounded-xl shadow-card dark:shadow-card border border-surface-100/60 dark:border-surface-800/60 overflow-hidden">
+                    <div className="p-6 border-b border-surface-100/60 dark:border-surface-800/60">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-xl">
-                                    <Users className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                                <div className="p-2 bg-warning-50 dark:bg-warning-100/20 rounded-xl">
+                                    <Users className="h-5 w-5 text-warning-600 dark:text-warning-500" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Funcionários & Comissões</h3>
-                                    <p className="text-xs text-slate-400 mt-0.5">Clique em um funcionário para ver o relatório completo</p>
+                                    <h3 className="text-sm font-semibold text-surface-800 dark:text-white">Funcionários & Comissões</h3>
+                                    <p className="text-xs text-surface-400 mt-0.5">Clique em um funcionário para ver o relatório completo</p>
                                 </div>
                             </div>
-                            <span className="text-xs font-bold px-2.5 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full">
+                            <span className="text-xs font-semibold px-2.5 py-1 bg-warning-50 dark:bg-warning-100/20 text-warning-600 dark:text-warning-500 rounded-full">
                                 {employees.length} {employees.length === 1 ? 'funcionário' : 'funcionários'}
                             </span>
                         </div>
                     </div>
 
                     {/* Employee List */}
-                    <div className="divide-y divide-slate-100 dark:divide-slate-700/30">
+                    <div className="divide-y divide-surface-100/60 dark:divide-surface-800/60">
                         {employees.map((emp, idx) => (
                             <button
                                 key={emp.name}
                                 onClick={() => setSelectedEmployee(selectedEmployee === emp.name ? null : emp.name)}
-                                className={`w-full p-4 md:p-5 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all text-left group
-                                    ${selectedEmployee === emp.name ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}
+                                className={`w-full p-4 md:p-5 flex items-center gap-4 hover:bg-surface-50 dark:hover:bg-surface-800/20 transition-all text-left group
+                                    ${selectedEmployee === emp.name ? 'bg-brand-50/50 dark:bg-brand-100/10' : ''}`}
                             >
                                 {/* Avatar */}
                                 <div
@@ -597,8 +597,8 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
                                 {/* Info */}
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-slate-800 dark:text-white truncate">{emp.name}</p>
-                                    <p className="text-xs text-slate-400 mt-0.5">
+                                    <p className="font-semibold text-surface-800 dark:text-white truncate">{emp.name}</p>
+                                    <p className="text-xs text-surface-400 mt-0.5">
                                         {emp.jobCount} {emp.jobCount === 1 ? 'serviço' : 'serviços'} • Média {formatBRL(emp.avgPerJob)}/serviço
                                     </p>
                                 </div>
@@ -606,22 +606,22 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                                 {/* Stats */}
                                 <div className="hidden md:flex items-center gap-6">
                                     <div className="text-right">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase">Receita</p>
-                                        <p className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">{formatCompact(emp.totalRevenue)}</p>
+                                        <p className="text-[10px] font-semibold text-surface-400 uppercase">Receita</p>
+                                        <p className="text-sm font-bold text-success-600 dark:text-success-500">{formatCompact(emp.totalRevenue)}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase">Comissão</p>
-                                        <p className="text-sm font-extrabold text-amber-600 dark:text-amber-400">{formatCompact(emp.totalCommission)}</p>
+                                        <p className="text-[10px] font-semibold text-surface-400 uppercase">Comissão</p>
+                                        <p className="text-sm font-bold text-warning-600 dark:text-warning-500">{formatCompact(emp.totalCommission)}</p>
                                     </div>
                                     {emp.pendingCommission > 0 && (
                                         <div className="text-right">
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase">Pendente</p>
-                                            <p className="text-sm font-extrabold text-rose-500">{formatCompact(emp.pendingCommission)}</p>
+                                            <p className="text-[10px] font-semibold text-surface-400 uppercase">Pendente</p>
+                                            <p className="text-sm font-bold text-danger-500">{formatCompact(emp.pendingCommission)}</p>
                                         </div>
                                     )}
                                 </div>
 
-                                <ChevronRight className={`h-5 w-5 text-slate-300 dark:text-slate-600 transition-transform ${selectedEmployee === emp.name ? 'rotate-90' : 'group-hover:translate-x-0.5'}`} />
+                                <ChevronRight className={`h-5 w-5 text-surface-300 dark:text-surface-600 transition-transform ${selectedEmployee === emp.name ? 'rotate-90' : 'group-hover:translate-x-0.5'}`} />
                             </button>
                         ))}
                     </div>
@@ -630,10 +630,10 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
             {/* ===== MODAL: RELATÓRIO DO FUNCIONÁRIO ===== */}
             {selectedEmp && (
-                <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 flex items-start justify-center p-4 pt-[5vh] overflow-y-auto" onClick={() => setSelectedEmployee(null)}>
-                    <div className="bg-white dark:bg-[#0d1526] rounded-2xl shadow-2xl dark:shadow-none border border-slate-200 dark:border-slate-700/40 w-full max-w-3xl max-h-[85vh] overflow-y-auto animate-fade-in" onClick={e => e.stopPropagation()}>
+                <div className="fixed inset-0 bg-surface-950/40 backdrop-blur-xl z-50 flex items-start justify-center p-4 pt-[5vh] overflow-y-auto" onClick={() => setSelectedEmployee(null)}>
+                    <div className="bg-white dark:bg-surface-900 rounded-xl shadow-2xl dark:shadow-none border border-surface-200/60 dark:border-surface-800/60 w-full max-w-3xl max-h-[85vh] overflow-y-auto animate-fade-in" onClick={e => e.stopPropagation()}>
                         {/* Header */}
-                        <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-indigo-700 p-6 rounded-t-2xl text-white z-10">
+                        <div className="sticky top-0 bg-gradient-to-r from-brand-600 to-brand-500 p-6 rounded-t-xl text-white z-10">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold text-lg">
@@ -641,7 +641,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                                     </div>
                                     <div>
                                         <h3 className="text-xl font-bold">{selectedEmp.name}</h3>
-                                        <p className="text-indigo-200 text-sm">Relatório Individual Completo</p>
+                                        <p className="text-brand-200 text-sm">Relatório Individual Completo</p>
                                     </div>
                                 </div>
                                 <button onClick={() => setSelectedEmployee(null)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
@@ -653,42 +653,42 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                         {/* Stats Cards */}
                         <div className="p-6 space-y-6">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+                                <div className="bg-success-50 dark:bg-success-100/10 p-4 rounded-xl border border-success-100 dark:border-success-500/20">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <ArrowUpRight className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">Receita Gerada</span>
+                                        <ArrowUpRight className="h-4 w-4 text-success-600 dark:text-success-500" />
+                                        <span className="text-[10px] font-semibold text-success-600 dark:text-success-500 uppercase">Receita Gerada</span>
                                     </div>
-                                    <p className="text-xl font-extrabold text-emerald-700 dark:text-emerald-300">{formatBRL(selectedEmp.totalRevenue)}</p>
+                                    <p className="text-xl font-bold text-success-700 dark:text-success-400">{formatBRL(selectedEmp.totalRevenue)}</p>
                                 </div>
-                                <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-100 dark:border-amber-800/30">
+                                <div className="bg-warning-50 dark:bg-warning-100/10 p-4 rounded-xl border border-warning-100 dark:border-warning-500/20">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <DollarSign className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase">Comissão Total</span>
+                                        <DollarSign className="h-4 w-4 text-warning-600 dark:text-warning-500" />
+                                        <span className="text-[10px] font-semibold text-warning-600 dark:text-warning-500 uppercase">Comissão Total</span>
                                     </div>
-                                    <p className="text-xl font-extrabold text-amber-700 dark:text-amber-300">{formatBRL(selectedEmp.totalCommission)}</p>
+                                    <p className="text-xl font-bold text-warning-700 dark:text-warning-400">{formatBRL(selectedEmp.totalCommission)}</p>
                                     {selectedEmp.commissionRate > 0 && (
-                                        <p className="text-[10px] text-amber-500 font-medium mt-0.5">Taxa: {selectedEmp.commissionRate}%</p>
+                                        <p className="text-[10px] text-warning-500 font-medium mt-0.5">Taxa: {selectedEmp.commissionRate}%</p>
                                     )}
                                 </div>
-                                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+                                <div className="bg-brand-50 dark:bg-brand-100/10 p-4 rounded-xl border border-brand-100 dark:border-brand-500/20">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <Briefcase className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                                        <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase">Serviços</span>
+                                        <Briefcase className="h-4 w-4 text-brand-600 dark:text-brand-400" />
+                                        <span className="text-[10px] font-semibold text-brand-600 dark:text-brand-400 uppercase">Serviços</span>
                                     </div>
-                                    <p className="text-xl font-extrabold text-indigo-700 dark:text-indigo-300">{selectedEmp.jobCount}</p>
-                                    <p className="text-[10px] text-indigo-400 font-medium mt-0.5">Média: {formatBRL(selectedEmp.avgPerJob)}</p>
+                                    <p className="text-xl font-bold text-brand-700 dark:text-brand-300">{selectedEmp.jobCount}</p>
+                                    <p className="text-[10px] text-brand-400 font-medium mt-0.5">Média: {formatBRL(selectedEmp.avgPerJob)}</p>
                                 </div>
                                 <div className={`p-4 rounded-xl border ${selectedEmp.totalVales > 0
-                                        ? 'bg-rose-50 dark:bg-rose-900/20 border-rose-100 dark:border-rose-800/30'
-                                        : 'bg-slate-50 dark:bg-slate-800/30 border-slate-100 dark:border-slate-700/30'
+                                        ? 'bg-danger-50 dark:bg-danger-100/10 border-danger-100 dark:border-danger-500/20'
+                                        : 'bg-surface-50 dark:bg-surface-800/30 border-surface-100 dark:border-surface-700/30'
                                     }`}>
                                     <div className="flex items-center gap-2 mb-1">
-                                        <TrendingDown className="h-4 w-4 text-rose-600 dark:text-rose-400" />
-                                        <span className={`text-[10px] font-bold uppercase ${selectedEmp.totalVales > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400'}`}>
+                                        <TrendingDown className="h-4 w-4 text-danger-600 dark:text-danger-500" />
+                                        <span className={`text-[10px] font-semibold uppercase ${selectedEmp.totalVales > 0 ? 'text-danger-600 dark:text-danger-500' : 'text-surface-400'}`}>
                                             Vales / Despesas
                                         </span>
                                     </div>
-                                    <p className={`text-xl font-extrabold ${selectedEmp.totalVales > 0 ? 'text-rose-700 dark:text-rose-300' : 'text-slate-300 dark:text-slate-600'}`}>
+                                    <p className={`text-xl font-bold ${selectedEmp.totalVales > 0 ? 'text-danger-700 dark:text-danger-400' : 'text-surface-300 dark:text-surface-600'}`}>
                                         {formatBRL(selectedEmp.totalVales)}
                                     </p>
                                 </div>
@@ -696,62 +696,62 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
                             {/* Transaction Table */}
                             <div>
-                                <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
-                                    <Receipt className="h-4 w-4 text-indigo-500" />
+                                <h4 className="text-sm font-semibold text-surface-800 dark:text-white mb-3 flex items-center gap-2">
+                                    <Receipt className="h-4 w-4 text-brand-500" />
                                     Todas as Transações de {selectedEmp.name}
-                                    <span className="text-xs font-medium text-slate-400 ml-auto">{selectedEmp.transactions.length} registros</span>
+                                    <span className="text-xs font-medium text-surface-400 ml-auto">{selectedEmp.transactions.length} registros</span>
                                 </h4>
-                                <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700/40">
+                                <div className="overflow-x-auto rounded-xl border border-surface-200 dark:border-surface-700/40">
                                     <table className="w-full text-sm">
                                         <thead>
-                                            <tr className="bg-slate-50 dark:bg-slate-800/50 text-left">
-                                                <th className="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase">Data</th>
-                                                <th className="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase">Descrição</th>
-                                                <th className="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase">Tipo</th>
-                                                <th className="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase text-right">Valor</th>
-                                                <th className="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase text-right">Comissão</th>
-                                                <th className="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase">Status</th>
-                                                <th className="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase">Pgto Comis.</th>
+                                            <tr className="bg-surface-50 dark:bg-surface-800/50 text-left">
+                                                <th className="px-4 py-3 text-[10px] font-semibold text-surface-400 uppercase">Data</th>
+                                                <th className="px-4 py-3 text-[10px] font-semibold text-surface-400 uppercase">Descrição</th>
+                                                <th className="px-4 py-3 text-[10px] font-semibold text-surface-400 uppercase">Tipo</th>
+                                                <th className="px-4 py-3 text-[10px] font-semibold text-surface-400 uppercase text-right">Valor</th>
+                                                <th className="px-4 py-3 text-[10px] font-semibold text-surface-400 uppercase text-right">Comissão</th>
+                                                <th className="px-4 py-3 text-[10px] font-semibold text-surface-400 uppercase">Status</th>
+                                                <th className="px-4 py-3 text-[10px] font-semibold text-surface-400 uppercase">Pgto Comis.</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700/30">
+                                        <tbody className="divide-y divide-surface-100/60 dark:divide-surface-800/60">
                                             {selectedEmp.transactions
                                                 .sort((a, b) => b.date.localeCompare(a.date))
                                                 .map((t, i) => (
-                                                    <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
-                                                        <td className="px-4 py-3 text-slate-600 dark:text-slate-300 font-medium whitespace-nowrap">{formatDate(t.date)}</td>
-                                                        <td className="px-4 py-3 text-slate-800 dark:text-white font-medium max-w-[200px] truncate">{t.description}</td>
+                                                    <tr key={i} className="hover:bg-surface-50 dark:hover:bg-surface-800/20 transition-colors">
+                                                        <td className="px-4 py-3 text-surface-600 dark:text-surface-300 font-medium whitespace-nowrap">{formatDate(t.date)}</td>
+                                                        <td className="px-4 py-3 text-surface-800 dark:text-white font-medium max-w-[200px] truncate">{t.description}</td>
                                                         <td className="px-4 py-3">
-                                                            <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full
+                                                            <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full
                                                                 ${t.type === TransactionType.INCOME
-                                                                    ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                                                                    : 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400'
+                                                                    ? 'bg-success-50 dark:bg-success-100/20 text-success-600 dark:text-success-500'
+                                                                    : 'bg-danger-50 dark:bg-danger-100/20 text-danger-600 dark:text-danger-500'
                                                                 }`}>
                                                                 {t.type === TransactionType.INCOME ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                                                                 {t.type}
                                                             </span>
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-bold text-slate-800 dark:text-white whitespace-nowrap">
+                                                        <td className="px-4 py-3 text-right font-semibold text-surface-800 dark:text-white whitespace-nowrap">
                                                             {formatBRL(t.amount)}
                                                             {t.pendingAmount ? (
-                                                                <span className="block text-[10px] text-rose-500 font-medium">Pend: {formatBRL(t.pendingAmount)}</span>
+                                                                <span className="block text-[10px] text-danger-500 font-medium">Pend: {formatBRL(t.pendingAmount)}</span>
                                                             ) : null}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">
+                                                        <td className="px-4 py-3 text-right font-semibold text-warning-600 dark:text-warning-500 whitespace-nowrap">
                                                             {t.commissionAmount ? formatBRL(t.commissionAmount) : '-'}
-                                                            {t.commissionRate ? <span className="block text-[10px] text-slate-400">({t.commissionRate}%)</span> : null}
+                                                            {t.commissionRate ? <span className="block text-[10px] text-surface-400">({t.commissionRate}%)</span> : null}
                                                         </td>
                                                         <td className="px-4 py-3">
-                                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full
-                                                                ${t.status === TransactionStatus.COMPLETED ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                                                                    : t.status === TransactionStatus.PENDING ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                                                                        : t.status === TransactionStatus.PARTIAL ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                                                                            : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                                                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full
+                                                                ${t.status === TransactionStatus.COMPLETED ? 'bg-success-50 dark:bg-success-100/20 text-success-600 dark:text-success-500'
+                                                                    : t.status === TransactionStatus.PENDING ? 'bg-warning-50 dark:bg-warning-100/20 text-warning-600 dark:text-warning-500'
+                                                                        : t.status === TransactionStatus.PARTIAL ? 'bg-brand-50 dark:bg-brand-100/20 text-brand-600 dark:text-brand-500'
+                                                                            : 'bg-danger-50 dark:bg-danger-100/20 text-danger-600 dark:text-danger-500'
                                                                 }`}>
                                                                 {t.status}
                                                             </span>
                                                         </td>
-                                                        <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                                        <td className="px-4 py-3 text-xs text-surface-500 dark:text-surface-400 whitespace-nowrap">
                                                             {t.commissionPaymentDate ? formatDate(t.commissionPaymentDate) : '-'}
                                                         </td>
                                                     </tr>
@@ -768,14 +768,14 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Gráfico de Pizza */}
-                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 flex flex-col min-h-[420px]">
+                <div className="bg-white dark:bg-surface-900/60 dark:backdrop-blur-xl p-6 rounded-xl shadow-card dark:shadow-card border border-surface-100/60 dark:border-surface-800/60 flex flex-col min-h-[420px]">
                     <div className="flex items-center justify-between mb-4">
                         <div>
-                            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Distribuição de Despesas</h3>
-                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Por categoria de gasto</p>
+                            <h3 className="text-sm font-semibold text-surface-800 dark:text-white">Distribuição de Despesas</h3>
+                            <p className="text-xs text-surface-400 dark:text-surface-500 mt-0.5 font-medium">Por categoria de gasto</p>
                         </div>
                         {pieData.length > 0 && (
-                            <span className="text-xs font-bold px-2.5 py-1 bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 rounded-full">
+                            <span className="text-xs font-semibold px-2.5 py-1 bg-surface-100 dark:bg-surface-800/60 text-surface-500 dark:text-surface-400 rounded-full">
                                 {pieData.length} categorias
                             </span>
                         )}
@@ -795,10 +795,10 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                             </ResponsiveContainer>
                         ) : (
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                                <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-full mb-3">
-                                    <PieIcon className="h-6 w-6 text-slate-300 dark:text-slate-600" />
+                                <div className="p-4 bg-surface-50 dark:bg-surface-800/40 rounded-full mb-3">
+                                    <PieIcon className="h-6 w-6 text-surface-300 dark:text-surface-600" />
                                 </div>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Adicione despesas para gerar a análise gráfica.</p>
+                                <p className="text-surface-400 dark:text-surface-400 text-sm font-medium">Adicione despesas para gerar a análise gráfica.</p>
                             </div>
                         )}
                     </div>
@@ -807,39 +807,39 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                 {/* Coluna Direita */}
                 <div className="space-y-6">
                     {/* Auditoria Fiscal */}
-                    <div className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 p-8 rounded-2xl shadow-xl text-white relative overflow-hidden">
+                    <div className="bg-gradient-to-br from-brand-900 via-brand-950 to-surface-900 p-8 rounded-xl shadow-xl text-white relative overflow-hidden">
                         <div className="relative z-10">
-                            <h3 className="text-xl font-bold mb-1">Auditoria Automática</h3>
-                            <p className="text-indigo-200/70 text-sm mb-6">Análise fiscal ref. ao período selecionado ({filteredTransactions.length} registros).</p>
+                            <h3 className="text-lg font-semibold mb-1">Auditoria Automática</h3>
+                            <p className="text-brand-200/70 text-sm mb-6">Análise fiscal ref. ao período selecionado ({filteredTransactions.length} registros).</p>
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
-                                    <span className="text-[11px] text-indigo-300/80 uppercase tracking-wider font-bold">Lucro Bruto</span>
-                                    <div className={`text-xl font-extrabold mt-1 ${grossProfit >= 0 ? 'text-white' : 'text-rose-400'}`}>{formatBRL(grossProfit)}</div>
+                                    <span className="text-[10px] text-brand-300/80 uppercase tracking-wider font-semibold">Lucro Bruto</span>
+                                    <div className={`text-xl font-bold mt-1 ${grossProfit >= 0 ? 'text-white' : 'text-danger-400'}`}>{formatBRL(grossProfit)}</div>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
-                                    <span className="text-[11px] text-amber-300/80 uppercase tracking-wider font-bold">Impostos ({(totalTaxRate * 100).toFixed(1)}%)</span>
-                                    <div className="text-xl font-extrabold mt-1 text-amber-400">{formatBRL(estimatedTax)}</div>
+                                    <span className="text-[10px] text-warning-300/80 uppercase tracking-wider font-semibold">Impostos ({(totalTaxRate * 100).toFixed(1)}%)</span>
+                                    <div className="text-xl font-bold mt-1 text-warning-400">{formatBRL(estimatedTax)}</div>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
-                                    <span className="text-[11px] text-emerald-300/80 uppercase tracking-wider font-bold">Resultado Líquido</span>
-                                    <div className={`text-xl font-extrabold mt-1 ${netAfterTax >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{formatBRL(netAfterTax)}</div>
+                                    <span className="text-[10px] text-success-300/80 uppercase tracking-wider font-semibold">Resultado Líquido</span>
+                                    <div className={`text-xl font-bold mt-1 ${netAfterTax >= 0 ? 'text-success-400' : 'text-danger-400'}`}>{formatBRL(netAfterTax)}</div>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
-                                    <span className="text-[11px] text-violet-300/80 uppercase tracking-wider font-bold">Pendências</span>
-                                    <div className={`text-xl font-extrabold mt-1 ${pendingTotal > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>{formatBRL(pendingTotal)}</div>
+                                    <span className="text-[10px] text-brand-300/80 uppercase tracking-wider font-semibold">Pendências</span>
+                                    <div className={`text-xl font-bold mt-1 ${pendingTotal > 0 ? 'text-warning-400' : 'text-success-400'}`}>{formatBRL(pendingTotal)}</div>
                                 </div>
                             </div>
                         </div>
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600 rounded-full blur-3xl opacity-20 -mr-16 -mt-16"></div>
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-600 rounded-full blur-3xl opacity-20 -mr-16 -mt-16"></div>
                         <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-600 rounded-full blur-2xl opacity-20 -ml-10 -mb-10"></div>
                     </div>
 
                     {/* Gráfico de Barras */}
-                    <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40">
+                    <div className="bg-white dark:bg-surface-900/60 dark:backdrop-blur-xl p-6 rounded-xl shadow-card dark:shadow-card border border-surface-100/60 dark:border-surface-800/60">
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h3 className="text-lg font-bold text-slate-800 dark:text-white">Balanço Geral</h3>
-                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Comparativo financeiro completo</p>
+                                <h3 className="text-sm font-semibold text-surface-800 dark:text-white">Balanço Geral</h3>
+                                <p className="text-xs text-surface-400 dark:text-surface-500 mt-0.5 font-medium">Comparativo financeiro completo</p>
                             </div>
                         </div>
                         <div className="h-[200px]">

@@ -27,8 +27,8 @@
   <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png" />
 
   <!-- Theme & Color -->
-  <meta name="theme-color" content="#4f46e5" />
-  <meta name="msapplication-TileColor" content="#4f46e5" />
+  <meta name="theme-color" content="#4F46E5" />
+  <meta name="msapplication-TileColor" content="#4F46E5" />
   <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
 
   <!-- Open Graph -->
@@ -37,7 +37,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:image" content="/icons/icon-512x512.png" />
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts - Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -50,29 +50,75 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+            mono: ['SF Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
           },
           colors: {
-            primary: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              900: '#312e81',
+            brand: {
+              50: '#EEF2FF',
+              100: '#E0E7FF',
+              200: '#C7D2FE',
+              300: '#A5B4FC',
+              400: '#818CF8',
+              500: '#6366F1',
+              600: '#4F46E5',
+              700: '#4338CA',
+              800: '#3730A3',
+              900: '#312E81',
+              950: '#1E1B4B',
             },
-            slate: {
-              850: '#1e293b',
-              900: '#0f172a',
+            surface: {
+              0: '#FFFFFF',
+              50: '#F8FAFC',
+              100: '#F1F5F9',
+              200: '#E2E8F0',
+              300: '#CBD5E1',
+              400: '#94A3B8',
+              500: '#64748B',
+              600: '#475569',
+              700: '#334155',
+              800: '#1E293B',
+              900: '#0F172A',
               950: '#020617',
-            }
+            },
+            success: {
+              50: '#ECFDF5',
+              100: '#D1FAE5',
+              500: '#10B981',
+              600: '#059669',
+              700: '#047857',
+            },
+            danger: {
+              50: '#FEF2F2',
+              100: '#FEE2E2',
+              500: '#EF4444',
+              600: '#DC2626',
+              700: '#B91C1C',
+            },
+            warning: {
+              50: '#FFFBEB',
+              100: '#FEF3C7',
+              500: '#F59E0B',
+              600: '#D97706',
+              700: '#B45309',
+            },
+          },
+          borderRadius: {
+            'xl': '0.75rem',
+            '2xl': '1rem',
+            '3xl': '1.25rem',
+          },
+          boxShadow: {
+            'card': '0 1px 3px 0 rgb(0 0 0 / 0.02), 0 1px 2px -1px rgb(0 0 0 / 0.02)',
+            'card-hover': '0 4px 12px -2px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04)',
+            'elevated': '0 8px 25px -5px rgb(0 0 0 / 0.06), 0 4px 10px -4px rgb(0 0 0 / 0.04)',
+            'premium': '0 0 0 1px rgb(0 0 0 / 0.03), 0 2px 4px rgb(0 0 0 / 0.02), 0 12px 24px rgb(0 0 0 / 0.03)',
           },
           animation: {
-            'fade-in': 'fadeIn 0.5s ease-out',
-            'fade-in-up': 'fadeInUp 0.6s ease-out',
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'slide-in-bottom': 'slideInBottom 0.3s ease-out',
+            'fade-in': 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            'fade-in-up': 'fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+            'slide-in': 'slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            'scale-in': 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
           },
           keyframes: {
             fadeIn: {
@@ -80,64 +126,84 @@
               '100%': { opacity: '1' },
             },
             fadeInUp: {
-              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '0%': { opacity: '0', transform: 'translateY(8px)' },
               '100%': { opacity: '1', transform: 'translateY(0)' },
             },
-            slideInBottom: {
-              '0%': { opacity: '0', transform: 'translateX(-50%) translateY(20px)' },
-              '100%': { opacity: '1', transform: 'translateX(-50%) translateY(0)' },
-            }
-          }
+            slideIn: {
+              '0%': { opacity: '0', transform: 'translateX(-8px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' },
+            },
+            scaleIn: {
+              '0%': { opacity: '0', transform: 'scale(0.96)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
+            },
+          },
         }
       }
     }
   </script>
 
   <style>
-    /* Modern Scrollbar - Light */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    /* Premium Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 100px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
     .dark ::-webkit-scrollbar-thumb { background: #334155; }
     .dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-    /* Glassmorphism */
+    /* Smooth Selection */
+    ::selection {
+      background: rgba(79, 70, 229, 0.15);
+      color: #312E81;
+    }
+    .dark ::selection {
+      background: rgba(99, 102, 241, 0.25);
+      color: #C7D2FE;
+    }
+
+    /* Glassmorphism Panels */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+    .dark .glass-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
     .glass-panel {
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(226,232,240,0.6);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(0, 0, 0, 0.03);
     }
     .dark .glass-panel {
-      background: rgba(15,23,42,0.75);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .glass-card-dark {
-      background: rgba(15,23,42,0.6);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    /* Table */
-    .table-row-hover:hover td { transition: background-color 0.2s; }
+    /* Table Row Hover */
+    .table-row-hover { transition: background-color 0.15s ease; }
+    .table-row-hover:hover { background-color: rgba(248, 250, 252, 0.8); }
+    .dark .table-row-hover:hover { background-color: rgba(30, 41, 59, 0.4); }
 
-    /* iOS & Android Safe Areas Setup */
+    /* iOS & Android Safe Areas */
     :root {
       --sat: env(safe-area-inset-top, 0px);
       --sab: env(safe-area-inset-bottom, 0px);
     }
 
-    .safe-padding-bottom { 
-      padding-bottom: max(var(--sab), 1rem) !important; 
-    }
-    
-    .safe-padding-top { 
-      padding-top: max(var(--sat), 1rem) !important; 
+    .safe-padding-bottom {
+      padding-bottom: max(var(--sab), 1rem) !important;
     }
 
-    /* Fix for Android/iOS PWA where status bar overlaps the viewport-fit=cover but env() evaluates to 0 */
+    .safe-padding-top {
+      padding-top: max(var(--sat), 1rem) !important;
+    }
+
     @media all and (display-mode: standalone) and (max-width: 768px) {
       .safe-padding-top {
         padding-top: max(var(--sat), 45px) !important;
@@ -147,10 +213,36 @@
       }
     }
 
-    /* Theme transition */
-    html { transition: background-color 0.3s ease; }
-    .dark body { background-color: #0c1222; }
-    .dark ::selection { background: rgba(99,102,241,0.3); color: #e0e7ff; }
+    /* Transitions */
+    html {
+      transition: background-color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .dark body { background-color: #0B1120; }
+
+    /* Focus Ring */
+    *:focus-visible {
+      outline: 2px solid #6366F1;
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+
+    /* Subtle animation for interactive elements */
+    .btn-premium {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-premium:active {
+      transform: scale(0.98);
+    }
+
+    /* Input focus states */
+    input:focus, select:focus, textarea:focus {
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    .dark input:focus, .dark select:focus, .dark textarea:focus {
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
   </style>
 
   <!-- Service Worker Registration -->
@@ -169,7 +261,7 @@
   </script>
 </head>
 
-<body class="text-slate-900 dark:text-slate-100 dark:bg-[#0c1222] antialiased overflow-hidden selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300">
+<body class="text-surface-900 dark:text-surface-100 dark:bg-[#0B1120] antialiased overflow-hidden transition-colors duration-300">
   <div id="root"></div>
 
   <script type="module" src="/index.tsx"></script>
