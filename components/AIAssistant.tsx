@@ -154,9 +154,9 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
     return (
         <div className="space-y-6 animate-fade-in pb-8">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between md:items-end gap-4 border-b border-slate-200 dark:border-slate-700/40 pb-6">
+            <div className="flex flex-col md:flex-row justify-between md:items-end gap-4 border-b border-[#EEF2F7] dark:border-slate-700/40 pb-6">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+                    <h2 className="text-3xl font-semibold text-[#0F172A] dark:text-white tracking-tight flex items-center gap-3">
                         <div className="p-2 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl shadow-lg shadow-indigo-500/20">
                             <Sparkles className="h-6 w-6 text-white" />
                         </div>
@@ -170,7 +170,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                     <button
                         onClick={handleRefreshInsights}
                         disabled={loadingInsights}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#0F172A]/80 border border-[#EEF2F7] dark:border-slate-700/40 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm disabled:opacity-50"
                     >
                         <RefreshCw className={`h-4 w-4 ${loadingInsights ? 'animate-spin' : ''}`} />
                         Atualizar Insights
@@ -180,7 +180,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
 
             {/* Quick Metrics Bar */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-[#0F172A]/80 rounded-[16px] p-5 border border-[#EEF2F7] dark:border-slate-700/40 shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-2 mb-1">
                         <DollarSign className="h-4 w-4 text-emerald-500" />
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lucro</span>
@@ -189,7 +189,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                         {formatCurrency(summary.netProfit)}
                     </p>
                 </div>
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-[#0F172A]/80 rounded-[16px] p-5 border border-[#EEF2F7] dark:border-slate-700/40 shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-2 mb-1">
                         <BarChart3 className="h-4 w-4 text-indigo-500" />
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Margem</span>
@@ -198,14 +198,14 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                         {margin.toFixed(1)}%
                     </p>
                 </div>
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-[#0F172A]/80 rounded-[16px] p-5 border border-[#EEF2F7] dark:border-slate-700/40 shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-2 mb-1">
                         <Zap className="h-4 w-4 text-violet-500" />
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Concluídos/Mês</span>
                     </div>
                     <p className="text-xl font-extrabold text-slate-800 dark:text-white">{completedThisMonth}</p>
                 </div>
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-[#0F172A]/80 rounded-[16px] p-5 border border-[#EEF2F7] dark:border-slate-700/40 shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-2 mb-1">
                         <AlertTriangle className="h-4 w-4 text-amber-500" />
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pendentes</span>
@@ -228,12 +228,12 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                             key={action.id}
                             onClick={() => handleQuickAnalysis(action.id)}
                             disabled={loadingQuickAnalysis}
-                            className={`group relative text-left p-4 rounded-xl border transition-all duration-200 hover:shadow-md dark:hover:shadow-none hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-wait bg-white dark:bg-[#111a2e]/80 ${colorBorderMap[action.color]} ${activeQuickAnalysis === action.id ? 'ring-2 ring-indigo-500/50' : ''}`}
+                            className={`group relative text-left p-4 rounded-xl border transition-all duration-200 hover:shadow-md dark:hover:shadow-none hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-wait bg-white dark:bg-[#0F172A]/80 ${colorBorderMap[action.color]} ${activeQuickAnalysis === action.id ? 'ring-2 ring-indigo-500/50' : ''}`}
                         >
                             <div className={`inline-flex p-2 rounded-lg bg-gradient-to-br ${colorMap[action.color]} shadow-lg mb-3`}>
                                 <action.icon className="h-4 w-4 text-white" />
                             </div>
-                            <h4 className="text-sm font-bold text-slate-800 dark:text-white">{action.label}</h4>
+                            <h4 className="text-sm font-semibold text-[#0F172A] dark:text-white">{action.label}</h4>
                             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{action.description}</p>
                         </button>
                     ))}
@@ -242,7 +242,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
 
             {/* Quick Analysis Result Modal */}
             {activeQuickAnalysis && (
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-2xl border border-slate-200 dark:border-slate-700/40 shadow-lg dark:shadow-none overflow-hidden animate-fade-in">
+                <div className="bg-white dark:bg-[#0F172A]/80 rounded-2xl border border-[#EEF2F7] dark:border-slate-700/40 shadow-lg dark:shadow-none overflow-hidden animate-fade-in">
                     <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700/40 flex items-center justify-between bg-slate-50 dark:bg-[#0d1526]/60">
                         <div className="flex items-center gap-3">
                             <div className={`p-2 rounded-lg bg-gradient-to-br ${colorMap[quickActions.find(a => a.id === activeQuickAnalysis)?.color || 'indigo']} shadow-lg`}>
@@ -253,7 +253,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                                 })()}
                             </div>
                             <div>
-                                <h3 className="font-bold text-slate-800 dark:text-white">
+                                <h3 className="font-semibold text-[#0F172A] dark:text-white">
                                     {quickActions.find(a => a.id === activeQuickAnalysis)?.label}
                                 </h3>
                                 <p className="text-xs text-slate-400">Relatório gerado pela IA</p>
@@ -270,10 +270,10 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                         {loadingQuickAnalysis ? (
                             <div className="flex flex-col items-center justify-center py-16 gap-4">
                                 <div className="relative">
-                                    <div className="w-12 h-12 border-4 border-slate-200 dark:border-slate-700 rounded-full"></div>
+                                    <div className="w-12 h-12 border-4 border-[#EEF2F7] dark:border-slate-700 rounded-full"></div>
                                     <div className="w-12 h-12 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin absolute inset-0"></div>
                                 </div>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 animate-pulse font-medium">Analisando dados financeiros...</p>
+                                <p className="text-[13px] text-[#64748B] dark:text-slate-400 animate-pulse font-medium">Analisando dados financeiros...</p>
                             </div>
                         ) : (
                             <div className="prose prose-sm dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
@@ -360,7 +360,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                 </div>
 
                 {/* Chat Interface */}
-                <div className="lg:col-span-2 bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl rounded-2xl shadow-lg dark:shadow-none border border-slate-200 dark:border-slate-700/40 flex flex-col overflow-hidden">
+                <div className="lg:col-span-2 bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-slate-700/40 flex flex-col overflow-hidden">
                     <div className="p-4 border-b border-slate-100 dark:border-slate-700/40 bg-slate-50 dark:bg-[#0d1526]/60 flex justify-between items-center">
                         <h3 className="font-semibold text-slate-700 dark:text-white flex items-center gap-2">
                             <Bot className="h-5 w-5 text-indigo-600" />
@@ -444,7 +444,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                                     <button
                                         key={idx}
                                         onClick={() => handleSuggestedQuestion(q)}
-                                        className="text-xs px-3 py-1.5 bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 rounded-full hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors border border-slate-200 dark:border-slate-700/40 font-medium"
+                                        className="text-xs px-3 py-1.5 bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 rounded-full hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors border border-[#EEF2F7] dark:border-slate-700/40 font-medium"
                                     >
                                         {q}
                                     </button>
@@ -457,7 +457,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                     <form onSubmit={handleSendMessage} className="p-4 bg-white dark:bg-[#0d1526]/50 border-t border-slate-100 dark:border-slate-700/40 flex gap-2">
                         <input
                             type="text"
-                            className="flex-1 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white dark:placeholder-slate-500 text-sm"
+                            className="flex-1 bg-slate-50 dark:bg-white/[0.04] border border-[#EEF2F7] dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white dark:placeholder-slate-500 text-sm"
                             placeholder="Pergunte sobre lucros, funcionários, projeções, corte de custos..."
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}

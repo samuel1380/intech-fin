@@ -273,24 +273,24 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         return t.type === TransactionType.EXPENSE && t.status !== TransactionStatus.COMPLETED;
     };
 
-    return (<div className="space-y-6 animate-fade-in w-full pb-8">
+    return (<div className="space-y-5 animate-fade-in w-full pb-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-200 dark:border-slate-700/40 pb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 border-b border-[#EEF2F7] dark:border-white/[0.06] pb-5">
             <div>
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Transações</h2>
-                <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">Controle de caixa e histórico financeiro.</p>
+                <h2 className="text-[22px] font-semibold text-[#0F172A] dark:text-white tracking-[-0.01em]">Transações</h2>
+                <p className="text-[#64748B] dark:text-slate-400 mt-1 font-medium text-[13px]">Controle de caixa e histórico financeiro.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
                 <button
                     onClick={handleExportCSV}
-                    className="flex items-center justify-center px-4 py-2.5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm font-semibold text-sm hover:border-slate-300 w-full sm:w-auto"
+                    className="flex items-center justify-center px-4 py-2.5 bg-white dark:bg-slate-800/60 border border-[#EEF2F7] dark:border-slate-700/40 text-[#0F172A] dark:text-slate-200 rounded-[12px] hover:bg-[#F8F9FC] dark:hover:bg-slate-800 transition-all duration-200 shadow-sm font-medium text-[13px] hover:shadow-md w-full sm:w-auto"
                 >
-                    <Download className="h-4 w-4 mr-2 text-slate-500" />
+                    <Download className="h-4 w-4 mr-2 text-[#64748B]" />
                     Exportar CSV
                 </button>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="flex items-center justify-center px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 hover:shadow-indigo-300 font-bold text-sm transform active:scale-95 w-full sm:w-auto"
+                    className="flex items-center justify-center px-5 py-2.5 bg-indigo-600 text-white rounded-[12px] hover:bg-indigo-700 transition-all duration-200 shadow-md shadow-indigo-500/15 hover:shadow-lg hover:shadow-indigo-500/20 font-semibold text-[13px] active:scale-[0.98] w-full sm:w-auto"
                 >
                     <Plus className="h-4 w-4 mr-2" />
                     Novo Lançamento
@@ -299,19 +299,19 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         </div>
 
         {/* Toolbar */}
-        <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-1.5 rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-700/40 flex flex-col lg:flex-row gap-4 items-center justify-between">
+        <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-1.5 rounded-[16px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] flex flex-col lg:flex-row gap-4 items-center justify-between">
             <div className="relative w-full lg:w-96">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94A3B8]" />
                 <input
                     type="text"
                     placeholder="Buscar por descrição..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-transparent rounded-xl text-sm focus:outline-none focus:bg-slate-50 dark:focus:bg-slate-900/50 transition-all placeholder:text-slate-400 font-medium text-slate-700 dark:text-slate-200"
+                    className="w-full pl-10 pr-4 py-2.5 bg-transparent rounded-[12px] text-[13px] focus:outline-none focus:bg-[#F8F9FC] dark:focus:bg-slate-800/40 transition-all duration-200 placeholder:text-[#94A3B8] font-medium text-[#0F172A] dark:text-slate-200"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />
             </div>
 
-            <div className="flex bg-slate-100/50 dark:bg-slate-900/50 p-1 rounded-xl w-full lg:w-auto border border-slate-100 dark:border-slate-800">
+            <div className="flex bg-[#F8F9FC] dark:bg-slate-800/40 p-1 rounded-[14px] w-full lg:w-auto border border-[#EEF2F7] dark:border-slate-700/30">
                 {[
                     { label: 'Todos', value: 'ALL' },
                     { label: 'Receitas', value: TransactionType.INCOME },
@@ -320,9 +320,9 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                     <button
                         key={opt.value}
                         onClick={() => setFilter(opt.value)}
-                        className={`flex-1 px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${filter === opt.value
-                            ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/5'
-                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
+                        className={`flex-1 px-5 py-2 rounded-[10px] text-[13px] font-semibold transition-all duration-200 whitespace-nowrap ${filter === opt.value
+                            ? 'bg-white dark:bg-slate-700 text-[#0F172A] dark:text-white shadow-sm'
+                            : 'text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200'
                             }`}
                     >
                         {opt.label}
@@ -332,58 +332,58 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         </div>
 
         {/* Main Table Card */}
-        <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-700/40 overflow-hidden w-full flex flex-col h-[600px]">
+        <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] overflow-hidden w-full flex flex-col h-[600px]">
             <div className="overflow-auto custom-scrollbar flex-1 relative">
                 <table className="hidden md:table w-full text-left border-collapse min-w-[900px]">
-                    <thead className="bg-slate-50/90 dark:bg-[#0d1526]/90 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700/40 sticky top-0 z-10">
+                    <thead className="bg-[#F8F9FC] dark:bg-[#0B1120]/80 backdrop-blur-sm border-b border-[#EEF2F7] dark:border-white/[0.06] sticky top-0 z-10">
                         <tr>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[120px]">Data</th>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Descrição</th>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[150px]">Categoria</th>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[150px]">Valor</th>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[140px]">Status</th>
-                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[140px]">Ações</th>
+                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em] w-[120px]">Data</th>
+                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em]">Descrição</th>
+                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em] w-[150px]">Categoria</th>
+                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em] text-right w-[150px]">Valor</th>
+                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em] text-center w-[140px]">Status</th>
+                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em] text-center w-[140px]">Ações</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody className="divide-y divide-[#EEF2F7] dark:divide-white/[0.04]">
                         {paginatedTransactions.map((t) => {
                             const [year, month, day] = t.date.split('-');
                             const isPending = canMarkAsPaid(t);
                             return (
-                                <tr key={t.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group table-row-hover">
-                                    <td className="px-6 py-4 text-slate-500 font-medium tabular-nums text-sm">{day}/{month}/{year}</td>
-                                    <td className="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200 text-sm">
+                                <tr key={t.id} className="hover:bg-[#F8F9FC]/60 dark:hover:bg-white/[0.02] transition-colors duration-150 group table-row-hover">
+                                    <td className="px-6 py-4 text-[#64748B] font-medium tabular-nums text-[13px]">{day}/{month}/{year}</td>
+                                    <td className="px-6 py-4 font-medium text-[#0F172A] dark:text-slate-200 text-[13px]">
                                         <div className="flex items-center gap-2">
                                             {t.description}
                                             {t.isRecurring && (
-                                                <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-md border border-purple-200 dark:border-purple-800/50">
+                                                <span className="inline-flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full border border-purple-100 dark:border-purple-800/40">
                                                     <RefreshCw className="h-2.5 w-2.5" />
                                                     {t.recurringIntervalMonths === 1 ? 'Mensal' : `${t.recurringIntervalMonths}m`}
                                                 </span>
                                             )}
                                         </div>
                                         {t.employeeName && (
-                                            <div className="text-[10px] text-indigo-500 font-bold uppercase mt-1 flex flex-col">
+                                            <div className="text-[10px] text-indigo-500 font-medium uppercase mt-1 flex flex-col">
                                                 <span>Técnico: {t.employeeName}</span>
                                                 {t.commissionPaymentDate && (
-                                                    <span className="text-slate-400 normal-case font-medium">
+                                                    <span className="text-[#94A3B8] normal-case font-medium">
                                                         Pagto Comissão: {format(new Date(t.commissionPaymentDate + 'T12:00:00'), 'dd/MM/yyyy')}
                                                     </span>
                                                 )}
                                             </div>
                                         )}
                                         {t.pendingAmount && t.pendingAmount > 0 && (
-                                            <div className="text-[10px] text-rose-500 font-bold uppercase mt-0.5">
+                                            <div className="text-[10px] text-rose-500 font-semibold uppercase mt-0.5">
                                                 Pendente: {t.pendingAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                                             </div>
                                         )}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600/50 whitespace-nowrap">
+                                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F8F9FC] dark:bg-slate-800/40 text-[#64748B] dark:text-slate-300 border border-[#EEF2F7] dark:border-slate-700/30 whitespace-nowrap">
                                             {t.category}
                                         </span>
                                     </td>
-                                    <td className={`px-6 py-4 text-right font-bold font-mono text-sm ${t.type === TransactionType.INCOME ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                    <td className={`px-6 py-4 text-right font-semibold font-mono text-[13px] ${t.type === TransactionType.INCOME ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
                                         {t.type === TransactionType.INCOME ? '+' : '-'}{formatBRL(t.amount)}
                                     </td>
                                     <td className="px-6 py-4 text-center">
@@ -394,9 +394,9 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                         TransactionStatus.COMPLETED;
                                                 onUpdateStatus(t.id, nextStatus);
                                             }}
-                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold transition-all border shadow-sm cursor-pointer whitespace-nowrap ${t.status === TransactionStatus.COMPLETED ? 'bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200' :
-                                                    t.status === TransactionStatus.PARTIAL ? 'bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200' :
-                                                        'bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200'
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold transition-all duration-200 border cursor-pointer whitespace-nowrap ${t.status === TransactionStatus.COMPLETED ? 'bg-emerald-50 text-emerald-600 border-emerald-200/60 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' :
+                                                    t.status === TransactionStatus.PARTIAL ? 'bg-amber-50 text-amber-600 border-amber-200/60 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20' :
+                                                        'bg-rose-50 text-rose-600 border-rose-200/60 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20'
                                                 }`}
                                         >
                                             {t.status === TransactionStatus.COMPLETED ? <CheckCircle className="w-3 h-3" /> :
@@ -412,7 +412,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                 <button
                                                     onClick={() => handleMarkAsPaid(t)}
                                                     disabled={markingPaidId === t.id}
-                                                    className="p-2 text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-all disabled:opacity-50"
+                                                    className="p-2 text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-[10px] transition-all duration-200 disabled:opacity-50"
                                                     title="Marcar como Pago"
                                                 >
                                                     {markingPaidId === t.id ? (
@@ -424,14 +424,14 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                             )}
                                             <button
                                                 onClick={() => handleEdit(t)}
-                                                className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-all lg:opacity-0 group-hover:opacity-100"
+                                                className="p-2 text-[#94A3B8] hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-[10px] transition-all duration-200 lg:opacity-0 group-hover:opacity-100"
                                                 title="Editar Registro"
                                             >
                                                 <Edit2 className="h-4 w-4" />
                                             </button>
                                             <button
                                                 onClick={() => onDeleteTransaction(t.id)}
-                                                className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-all lg:opacity-0 group-hover:opacity-100"
+                                                className="p-2 text-[#94A3B8] hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-[10px] transition-all duration-200 lg:opacity-0 group-hover:opacity-100"
                                                 title="Excluir Registro"
                                             >
                                                 <Trash2 className="h-4 w-4" />
@@ -537,65 +537,65 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
 
             {/* Pagination */}
             {filtered.length > 0 ? (
-                <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700/40 flex items-center justify-between bg-slate-50/50 dark:bg-[#0d1526]/50 shrink-0">
-                    <span className="text-xs font-medium text-slate-500">
-                        Mostrando <span className="text-slate-800 dark:text-slate-200">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> - <span className="text-slate-800 dark:text-slate-200">{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)}</span> de <span className="text-slate-800 dark:text-slate-200">{filtered.length}</span>
+                <div className="px-6 py-4 border-t border-[#EEF2F7] dark:border-white/[0.06] flex items-center justify-between bg-[#F8F9FC]/50 dark:bg-[#0B1120]/50 shrink-0">
+                    <span className="text-[11px] font-medium text-[#94A3B8]">
+                        Mostrando <span className="text-[#0F172A] dark:text-slate-200">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> - <span className="text-[#0F172A] dark:text-slate-200">{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)}</span> de <span className="text-[#0F172A] dark:text-slate-200">{filtered.length}</span>
                     </span>
                     <div className="flex gap-2">
                         <button
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
-                            className="p-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 shadow-sm transition-all"
+                            className="p-2 rounded-[10px] border border-[#EEF2F7] dark:border-slate-700/40 bg-white dark:bg-slate-800/60 hover:bg-[#F8F9FC] dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-[#64748B] dark:text-slate-300 shadow-sm transition-all duration-200 hover:shadow-md"
                         >
                             <ChevronLeft className="h-4 w-4" />
                         </button>
                         <button
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                             disabled={currentPage === totalPages}
-                            className="p-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 shadow-sm transition-all"
+                            className="p-2 rounded-[10px] border border-[#EEF2F7] dark:border-slate-700/40 bg-white dark:bg-slate-800/60 hover:bg-[#F8F9FC] dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-[#64748B] dark:text-slate-300 shadow-sm transition-all duration-200 hover:shadow-md"
                         >
                             <ChevronRight className="h-4 w-4" />
                         </button>
                     </div>
                 </div>
             ) : (
-                <div className="p-16 text-center text-slate-400 flex flex-col items-center justify-center flex-1">
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-full mb-4">
-                        <Search className="h-8 w-8 text-slate-300 dark:text-slate-600" />
+                <div className="p-16 text-center text-[#94A3B8] flex flex-col items-center justify-center flex-1">
+                    <div className="p-4 bg-[#F8F9FC] dark:bg-slate-800/30 rounded-full mb-4">
+                        <Search className="h-6 w-6 text-[#CBD5E1] dark:text-slate-600" />
                     </div>
-                    <h3 className="text-slate-900 dark:text-slate-200 font-semibold mb-1">Nenhum resultado</h3>
-                    <p className="text-sm">Tente ajustar seus filtros ou busca.</p>
+                    <h3 className="text-[#0F172A] dark:text-slate-200 font-semibold mb-1 text-[15px]">Nenhum resultado</h3>
+                    <p className="text-[13px] font-medium">Tente ajustar seus filtros ou busca.</p>
                 </div>
             )}
         </div>
 
         {/* Add/Edit Modal */}
         {showModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4 animate-fade-in">
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up ring-1 ring-slate-900/5 max-h-[90vh] overflow-y-auto">
-                    <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 sticky top-0 z-10">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md p-4 animate-fade-in">
+                <div className="bg-white dark:bg-[#0F172A] border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up max-h-[90vh] overflow-y-auto">
+                    <div className="px-6 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex justify-between items-center bg-white dark:bg-[#0F172A] sticky top-0 z-10">
                         <div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                            <h3 className="text-lg font-semibold text-[#0F172A] dark:text-white">
                                 {isEditing ? 'Editar Lançamento' : 'Novo Lançamento'}
                             </h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            <p className="text-[11px] text-[#94A3B8] dark:text-slate-400 mt-0.5 font-medium">
                                 {isEditing ? 'Atualize os detalhes da transação.' : 'Preencha os detalhes da transação.'}
                             </p>
                         </div>
-                        <button onClick={() => { setShowModal(false); setIsEditing(false); setEditingId(null); resetForm(); }} className="p-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition-colors shadow-sm">
+                        <button onClick={() => { setShowModal(false); setIsEditing(false); setEditingId(null); resetForm(); }} className="p-2 bg-[#F8F9FC] dark:bg-slate-800 hover:bg-[#EEF2F7] dark:hover:bg-slate-700 rounded-full text-[#64748B] dark:text-slate-400 transition-colors duration-200">
                             <X className="h-4 w-4" />
                         </button>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                    <form onSubmit={handleSubmit} className="p-6 space-y-5">
                         {/* Transaction Type Toggle */}
-                        <div className="p-1 bg-slate-100 dark:bg-slate-800 rounded-xl grid grid-cols-2 gap-1 shadow-inner dark:shadow-none">
+                        <div className="p-1 bg-[#F8F9FC] dark:bg-slate-800/60 rounded-[14px] grid grid-cols-2 gap-1">
                             <button
                                 type="button"
                                 onClick={() => setFormData({ ...formData, type: TransactionType.INCOME })}
-                                className={`py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${formData.type === TransactionType.INCOME
-                                    ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm ring-1 ring-black/5 dark:ring-white/5'
-                                    : 'text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'
+                                className={`py-2.5 rounded-[10px] text-[13px] font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${formData.type === TransactionType.INCOME
+                                    ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                                    : 'text-[#64748B] dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'
                                     }`}
                             >
                                 <span className={`w-2 h-2 rounded-full ${formData.type === TransactionType.INCOME ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>

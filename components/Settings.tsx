@@ -345,7 +345,7 @@ const Settings: React.FC<SettingsProps> = ({
       )}
 
       {/* ===== SEÇÃO: NOTIFICAÇÕES ===== */}
-      <div className="bg-white/60 dark:bg-[#111a2e]/60 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 p-6 md:p-8 rounded-3xl shadow-xl dark:shadow-none transition-all duration-300">
+      <div className="bg-white dark:bg-[#0F172A]/60 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none transition-all duration-300">
         {/* Header da seção */}
         <div className="flex items-start justify-between mb-8 gap-4">
           <div className="flex items-center gap-4">
@@ -353,7 +353,7 @@ const Settings: React.FC<SettingsProps> = ({
               <Bell className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">
+              <h2 className="text-xl font-semibold text-[#0F172A] dark:text-white tracking-tight">
                 Notificações Inteligentes
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -421,7 +421,7 @@ const Settings: React.FC<SettingsProps> = ({
               }
             </div>
             <div>
-              <p className="font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+              <p className="font-semibold text-[#0F172A] dark:text-slate-100 tracking-tight">
                 {prefs.enabled ? 'Notificações Ativadas' : 'Notificações Desativadas'}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -598,7 +598,7 @@ const Settings: React.FC<SettingsProps> = ({
                   <RefreshCw className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm md:text-base">
+                  <h4 className="font-semibold text-[#0F172A] dark:text-slate-100 text-sm md:text-base">
                     Frequência de Verificação
                   </h4>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-snug font-medium">
@@ -653,13 +653,13 @@ const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* ===== SEÇÃO: IMPOSTOS ===== */}
-      <div className="bg-white/60 dark:bg-[#111a2e]/60 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 p-6 md:p-8 rounded-3xl shadow-xl dark:shadow-none transition-all duration-300">
+      <div className="bg-white dark:bg-[#0F172A]/60 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none transition-all duration-300">
         <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
             <Percent className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">
+            <h2 className="text-xl font-semibold text-[#0F172A] dark:text-white tracking-tight">
               Configuração de Impostos
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -676,7 +676,7 @@ const Settings: React.FC<SettingsProps> = ({
                   %
                 </div>
                 <div>
-                  <h5 className="font-bold text-slate-800 dark:text-slate-100 text-sm md:text-base tracking-tight">{tax.name}</h5>
+                  <h5 className="font-semibold text-[#0F172A] dark:text-slate-100 text-sm md:text-base tracking-tight">{tax.name}</h5>
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">{tax.percentage}% incidente sobre o lucro</p>
                 </div>
               </div>
@@ -729,13 +729,13 @@ const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* ===== SEÇÃO: ANTI-INATIVIDADE DO BANCO DE DADOS (SUPABASE KEEPALIVE) ===== */}
-      <div className="bg-white/60 dark:bg-[#111a2e]/60 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 p-6 md:p-8 rounded-3xl shadow-xl dark:shadow-none transition-all duration-300">
+      <div className="bg-white dark:bg-[#0F172A]/60 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none transition-all duration-300">
         <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
             <Database className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">
+            <h2 className="text-xl font-semibold text-[#0F172A] dark:text-white tracking-tight">
               Anti-Inatividade do Supabase (Keep-Alive)
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -757,7 +757,7 @@ const Settings: React.FC<SettingsProps> = ({
               <Database className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+              <p className="font-semibold text-[#0F172A] dark:text-slate-100 tracking-tight">
                 {keepAliveConfig.enabled ? 'Anti-Inatividade Ativo' : 'Anti-Inatividade Inativo'}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -781,7 +781,7 @@ const Settings: React.FC<SettingsProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between p-5 bg-white/40 dark:bg-slate-900/10 border border-slate-200/50 dark:border-slate-800/40 rounded-2xl">
                 <div>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100">Frequência do Ping</p>
+                  <p className="text-sm font-semibold text-[#0F172A] dark:text-slate-100">Frequência do Ping</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Padrão recomendado: 4 dias</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -799,7 +799,7 @@ const Settings: React.FC<SettingsProps> = ({
               {/* Botão de teste manual */}
               <div className="p-5 bg-white/40 dark:bg-slate-900/10 border border-slate-200/50 dark:border-slate-800/40 rounded-2xl flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100">Testar Conexão</p>
+                  <p className="text-sm font-semibold text-[#0F172A] dark:text-slate-100">Testar Conexão</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Disparar um ping manual ao banco agora</p>
                 </div>
                 <button

@@ -50,29 +50,68 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['SF Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
           },
           colors: {
             primary: {
               50: '#eef2ff',
               100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
               500: '#6366f1',
               600: '#4f46e5',
               700: '#4338ca',
+              800: '#3730a3',
               900: '#312e81',
             },
+            surface: {
+              50: '#FAFBFE',
+              100: '#F8F9FC',
+              200: '#EEF2F7',
+              300: '#E2E8F0',
+            },
+            ink: {
+              900: '#0F172A',
+              700: '#334155',
+              500: '#64748B',
+              400: '#94A3B8',
+              300: '#CBD5E1',
+            },
+            success: { 500: '#10B981', 50: '#ECFDF5' },
+            danger: { 500: '#EF4444', 50: '#FEF2F2' },
+            warning: { 500: '#F59E0B', 50: '#FFFBEB' },
             slate: {
               850: '#1e293b',
               900: '#0f172a',
               950: '#020617',
             }
           },
+          borderRadius: {
+            'card': '20px',
+            'card-sm': '16px',
+            'card-lg': '24px',
+            'btn': '12px',
+            'input': '12px',
+            'pill': '9999px',
+          },
+          boxShadow: {
+            'premium': '0 1px 2px rgba(0,0,0,0.03), 0 4px 16px rgba(0,0,0,0.04)',
+            'premium-hover': '0 2px 8px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.06)',
+            'premium-lg': '0 4px 12px rgba(0,0,0,0.03), 0 12px 48px rgba(0,0,0,0.06)',
+            'glow-indigo': '0 8px 32px -8px rgba(79,70,229,0.2)',
+            'glow-emerald': '0 8px 32px -8px rgba(16,185,129,0.2)',
+            'glow-rose': '0 8px 32px -8px rgba(239,68,68,0.15)',
+            'glow-amber': '0 8px 32px -8px rgba(245,158,11,0.2)',
+            'inner-soft': 'inset 0 1px 2px rgba(0,0,0,0.04)',
+          },
           animation: {
-            'fade-in': 'fadeIn 0.5s ease-out',
-            'fade-in-up': 'fadeInUp 0.6s ease-out',
+            'fade-in': 'fadeIn 0.4s cubic-bezier(0.16,1,0.3,1)',
+            'fade-in-up': 'fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1)',
             'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'slide-in-bottom': 'slideInBottom 0.3s ease-out',
+            'slide-in-bottom': 'slideInBottom 0.3s cubic-bezier(0.16,1,0.3,1)',
+            'scale-in': 'scaleIn 0.2s cubic-bezier(0.16,1,0.3,1)',
           },
           keyframes: {
             fadeIn: {
@@ -80,12 +119,16 @@
               '100%': { opacity: '1' },
             },
             fadeInUp: {
-              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '0%': { opacity: '0', transform: 'translateY(8px)' },
               '100%': { opacity: '1', transform: 'translateY(0)' },
             },
             slideInBottom: {
-              '0%': { opacity: '0', transform: 'translateX(-50%) translateY(20px)' },
+              '0%': { opacity: '0', transform: 'translateX(-50%) translateY(12px)' },
               '100%': { opacity: '1', transform: 'translateX(-50%) translateY(0)' },
+            },
+            scaleIn: {
+              '0%': { opacity: '0', transform: 'scale(0.95)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
             }
           }
         }
@@ -94,36 +137,38 @@
   </script>
 
   <style>
-    /* Modern Scrollbar - Light */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    /* ===== PREMIUM SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    .dark ::-webkit-scrollbar-thumb { background: #334155; }
-    .dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 100px; }
+    ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+    .dark ::-webkit-scrollbar-thumb { background: #1E293B; }
+    .dark ::-webkit-scrollbar-thumb:hover { background: #334155; }
 
-    /* Glassmorphism */
+    /* ===== GLASSMORPHISM ===== */
     .glass-panel {
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(226,232,240,0.6);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(238,242,247,0.8);
     }
     .dark .glass-panel {
-      background: rgba(15,23,42,0.75);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(15,23,42,0.80);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.06);
     }
     .glass-card-dark {
-      background: rgba(15,23,42,0.6);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(15,23,42,0.65);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.08);
     }
 
-    /* Table */
-    .table-row-hover:hover td { transition: background-color 0.2s; }
+    /* ===== TABLE ===== */
+    .table-row-hover:hover td { transition: background-color 0.15s ease; }
 
-    /* iOS & Android Safe Areas Setup */
+    /* ===== SAFE AREAS (iOS/Android) ===== */
     :root {
       --sat: env(safe-area-inset-top, 0px);
       --sab: env(safe-area-inset-bottom, 0px);
@@ -137,7 +182,6 @@
       padding-top: max(var(--sat), 1rem) !important; 
     }
 
-    /* Fix for Android/iOS PWA where status bar overlaps the viewport-fit=cover but env() evaluates to 0 */
     @media all and (display-mode: standalone) and (max-width: 768px) {
       .safe-padding-top {
         padding-top: max(var(--sat), 45px) !important;
@@ -147,10 +191,28 @@
       }
     }
 
-    /* Theme transition */
+    /* ===== THEME TRANSITIONS ===== */
     html { transition: background-color 0.3s ease; }
-    .dark body { background-color: #0c1222; }
-    .dark ::selection { background: rgba(99,102,241,0.3); color: #e0e7ff; }
+    body { 
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    .dark body { background-color: #0B1120; }
+    .dark ::selection { background: rgba(99,102,241,0.25); color: #e0e7ff; }
+    ::selection { background: rgba(79,70,229,0.12); color: #312e81; }
+
+    /* ===== PREMIUM FOCUS RINGS ===== */
+    *:focus-visible {
+      outline: 2px solid rgba(79,70,229,0.5);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+
+    /* ===== SMOOTH ALL TRANSITIONS ===== */
+    button, a, input, select, textarea {
+      transition-timing-function: cubic-bezier(0.16,1,0.3,1);
+    }
   </style>
 
   <!-- Service Worker Registration -->
@@ -169,7 +231,7 @@
   </script>
 </head>
 
-<body class="text-slate-900 dark:text-slate-100 dark:bg-[#0c1222] antialiased overflow-hidden selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300">
+<body class="text-slate-900 dark:text-slate-100 bg-[#F8F9FC] dark:bg-[#0B1120] antialiased overflow-hidden selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300">
   <div id="root"></div>
 
   <script type="module" src="/index.tsx"></script>

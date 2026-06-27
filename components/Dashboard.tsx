@@ -305,15 +305,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-md p-4 border border-slate-100 dark:border-slate-700 shadow-xl rounded-xl min-w-[180px]">
-                    <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-2 uppercase tracking-wider">Dia {label}</p>
+                <div className="bg-white dark:bg-[#1E293B] backdrop-blur-xl p-4 border border-[#EEF2F7] dark:border-slate-700/60 shadow-premium-lg rounded-[14px] min-w-[180px]">
+                    <p className="text-[#64748B] dark:text-slate-400 text-[11px] font-medium mb-2.5 uppercase tracking-[0.08em]">Dia {label}</p>
                     {payload.map((entry: any, index: number) => (
                         <div key={index} className="flex items-center justify-between gap-4 mb-1 last:mb-0">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                                <span className="text-sm font-medium text-slate-600 dark:text-slate-300 capitalize">{entry.name}</span>
+                                <span className="text-[13px] font-medium text-[#64748B] dark:text-slate-300 capitalize">{entry.name}</span>
                             </div>
-                            <span className="text-sm font-bold text-slate-800 dark:text-white font-mono">
+                            <span className="text-[13px] font-semibold text-[#0F172A] dark:text-white font-mono">
                                 {formatCurrency(entry.value)}
                             </span>
                         </div>
@@ -325,11 +325,11 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
     };
 
     return (
-        <div className="space-y-8 animate-fade-in w-full min-w-0 pb-8">
+        <div className="space-y-7 animate-fade-in w-full min-w-0 pb-8">
             {/* Header & Filter */}
-            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 pb-6">
-                <div className="flex items-center text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                    <Calendar className="w-4 h-4 mr-2" />
+            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 pb-4">
+                <div className="flex items-center text-[13px] font-medium text-[#64748B] dark:text-slate-400">
+                    <Calendar className="w-4 h-4 mr-2 text-[#94A3B8]" />
                     {viewMode === 'month'
                         ? (isSingleMonth
                             ? `Resumo de ${format(startDate, 'MMMM yyyy', { locale: ptBR })}`
@@ -340,16 +340,16 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
 
                 <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                     {/* View Toggle */}
-                    <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex w-max border border-slate-200 dark:border-slate-700">
+                    <div className="bg-[#EEF2F7] dark:bg-slate-800/60 p-1 rounded-[14px] inline-flex w-max border border-[#EEF2F7] dark:border-slate-700/40">
                         <button
                             onClick={() => setViewMode('month')}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                            className={`px-4 py-2 rounded-[10px] text-[13px] font-semibold transition-all duration-200 ${viewMode === 'month' ? 'bg-white dark:bg-slate-700 text-[#0F172A] dark:text-white shadow-sm' : 'text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200'}`}
                         >
                             Mensal
                         </button>
                         <button
                             onClick={() => setViewMode('day')}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'day' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                            className={`px-4 py-2 rounded-[10px] text-[13px] font-semibold transition-all duration-200 ${viewMode === 'day' ? 'bg-white dark:bg-slate-700 text-[#0F172A] dark:text-white shadow-sm' : 'text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200'}`}
                         >
                             Diário
                         </button>
@@ -360,10 +360,10 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                         <div className="flex flex-wrap items-center gap-2">
                             {/* Mês Início */}
                             <div className="relative group min-w-[140px]">
-                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800/60 border border-[#EEF2F7] dark:border-slate-700/40 rounded-[12px] px-3.5 py-2.5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
                                     <div className="flex items-center gap-1.5">
                                         <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
-                                        <span className="text-slate-700 dark:text-slate-200 font-bold text-sm capitalize">
+                                        <span className="text-[#0F172A] dark:text-slate-200 font-semibold text-[13px] capitalize">
                                             {format(startDate, 'MMM yyyy', { locale: ptBR })}
                                         </span>
                                     </div>
@@ -378,14 +378,14 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                 />
                             </div>
 
-                            <span className="text-slate-400 dark:text-slate-500 font-bold text-sm">até</span>
+                            <span className="text-[#94A3B8] dark:text-slate-500 font-medium text-[13px]">até</span>
 
                             {/* Mês Fim */}
                             <div className="relative group min-w-[140px]">
-                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800/60 border border-[#EEF2F7] dark:border-slate-700/40 rounded-[12px] px-3.5 py-2.5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
                                     <div className="flex items-center gap-1.5">
                                         <CalendarRange className="h-4 w-4 text-violet-500 shrink-0" />
-                                        <span className="text-slate-700 dark:text-slate-200 font-bold text-sm capitalize">
+                                        <span className="text-[#0F172A] dark:text-slate-200 font-semibold text-[13px] capitalize">
                                             {format(endDate, 'MMM yyyy', { locale: ptBR })}
                                         </span>
                                     </div>
@@ -402,10 +402,10 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                         </div>
                     ) : (
                         <div className="relative min-w-[200px] group">
-                            <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 shadow-sm group-hover:bg-slate-50 dark:group-hover:bg-slate-700/50 transition-colors cursor-pointer">
+                            <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-800/60 border border-[#EEF2F7] dark:border-slate-700/40 rounded-[12px] px-4 py-2.5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
                                 <div className="flex items-center gap-2">
-                                    <Calendar className="h-5 w-5 text-indigo-500 shrink-0 group-hover:scale-110 transition-transform" />
-                                    <span className="text-slate-700 dark:text-slate-200 font-bold text-sm">
+                                    <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
+                                    <span className="text-[#0F172A] dark:text-slate-200 font-semibold text-[13px]">
                                         {format(selectedDate, 'dd/MM/yyyy')}
                                     </span>
                                 </div>
@@ -526,7 +526,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             })()}
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
                 <KPICard
                     title={viewMode === 'month' ? (isSingleMonth ? "Receita Total" : "Receita Período") : "Receita do Dia"}
                     value={currentSummary.income}
@@ -576,17 +576,17 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             </div>
 
             {/* Commissions & Pending Payments Lists */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Próximas Comissões */}
-                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40">
+                <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-6 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06]">
                     <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
-                            <div className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
+                        <div className="flex items-center gap-2.5">
+                            <div className="p-2.5 bg-amber-50 dark:bg-amber-900/20 rounded-[12px]">
                                 <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                             </div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Próximas Comissões</h3>
+                            <h3 className="text-[15px] font-semibold text-[#0F172A] dark:text-white">Próximas Comissões</h3>
                         </div>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Próximos Pagamentos</span>
+                        <span className="text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.08em]">Próximos Pagamentos</span>
                     </div>
 
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
@@ -609,29 +609,29 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                 }
 
                                 return (
-                                    <div key={t.id} className="flex flex-col p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 group hover:border-amber-200 dark:hover:border-amber-800/50 transition-all">
+                                    <div key={t.id} className="flex flex-col p-4 bg-[#F8F9FC] dark:bg-slate-800/30 rounded-[14px] border border-[#EEF2F7] dark:border-slate-700/30 group hover:border-amber-200/60 dark:hover:border-amber-800/40 transition-all duration-200">
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-slate-100 dark:border-slate-600">
-                                                    <User className="h-5 w-5 text-slate-400" />
+                                                <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-[#EEF2F7] dark:border-slate-600">
+                                                    <User className="h-4 w-4 text-[#94A3B8]" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-slate-900 dark:text-white">{t.employeeName || 'Funcionário'}</p>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                                    <p className="text-[13px] font-semibold text-[#0F172A] dark:text-white">{t.employeeName || 'Funcionário'}</p>
+                                                    <p className="text-[11px] text-[#64748B] dark:text-slate-400 flex items-center gap-1">
                                                         <Calendar className="h-3 w-3" />
                                                         Recebe em {format(parseDateLocal(t.commissionPaymentDate!), 'dd/MM/yyyy')}
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-sm font-bold text-amber-600 dark:text-amber-400">{formatCurrency(dueAmount)}</p>
+                                                <p className="text-[13px] font-semibold text-amber-600 dark:text-amber-400">{formatCurrency(dueAmount)}</p>
                                                 {isPartial && (
                                                     <p className="text-[10px] text-rose-500 font-bold uppercase">Proporcional</p>
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="flex items-center justify-between pt-2 border-t border-slate-200/50 dark:border-slate-700/50">
-                                            <p className="text-[10px] text-slate-400 uppercase font-bold truncate max-w-[200px]">{t.description}</p>
+                                        <div className="flex items-center justify-between pt-2.5 border-t border-[#EEF2F7] dark:border-slate-700/30">
+                                            <p className="text-[10px] text-[#94A3B8] uppercase font-medium tracking-wide truncate max-w-[200px]">{t.description}</p>
                                             {isPartial && remainingAmount > 0 && (
                                                 <p className="text-[10px] text-slate-400 italic">
                                                     Pendente: {formatCurrency(remainingAmount)}
@@ -650,15 +650,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 </div>
 
                 {/* Pendências de Clientes */}
-                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40">
+                <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-6 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06]">
                     <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
-                            <div className="p-2 bg-rose-50 dark:bg-rose-900/30 rounded-lg">
+                        <div className="flex items-center gap-2.5">
+                            <div className="p-2.5 bg-rose-50 dark:bg-rose-900/20 rounded-[12px]">
                                 <AlertCircle className="h-5 w-5 text-rose-600 dark:text-rose-400" />
                             </div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Pagamentos Pendentes</h3>
+                            <h3 className="text-[15px] font-semibold text-[#0F172A] dark:text-white">Pagamentos Pendentes</h3>
                         </div>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">A Receber</span>
+                        <span className="text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.08em]">A Receber</span>
                     </div>
 
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
@@ -666,22 +666,22 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                             .filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount && t.pendingAmount > 0)
                             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                             .map(t => (
-                                <div key={t.id} className="flex items-center justify-between p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 group hover:border-rose-200 dark:hover:border-rose-800/50 transition-all gap-2">
+                                <div key={t.id} className="flex items-center justify-between p-3.5 sm:p-4 bg-[#F8F9FC] dark:bg-slate-800/30 rounded-[14px] border border-[#EEF2F7] dark:border-slate-700/30 group hover:border-rose-200/60 dark:hover:border-rose-800/40 transition-all duration-200 gap-2">
                                     <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                                        <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-slate-100 dark:border-slate-600">
-                                            <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-rose-400" />
+                                        <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-[#EEF2F7] dark:border-slate-600">
+                                            <DollarSign className="h-4 w-4 text-rose-400" />
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{t.description}</p>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 truncate">
+                                            <p className="text-[13px] font-semibold text-[#0F172A] dark:text-white truncate">{t.description}</p>
+                                            <p className="text-[11px] text-[#64748B] dark:text-slate-400 flex items-center gap-1 truncate">
                                                 <Calendar className="h-3 w-3 shrink-0" />
                                                 <span className="truncate">Serviço em {format(parseDateLocal(t.date), 'dd/MM')}</span>
                                             </p>
                                         </div>
                                     </div>
                                     <div className="text-right shrink-0">
-                                        <p className="text-sm font-bold text-rose-600 dark:text-rose-400">{formatCurrency(t.pendingAmount || 0)}</p>
-                                        <p className="text-[10px] text-slate-400 uppercase font-bold">Total: {formatCurrency(t.amount)}</p>
+                                        <p className="text-[13px] font-semibold text-rose-500 dark:text-rose-400">{formatCurrency(t.pendingAmount || 0)}</p>
+                                        <p className="text-[10px] text-[#94A3B8] uppercase font-medium">Total: {formatCurrency(t.amount)}</p>
                                     </div>
                                 </div>
                             ))}
@@ -695,17 +695,17 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             </div>
 
             {/* Charts Section */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
                 {/* Main Flow Chart */}
-                <div className="xl:col-span-2 bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 flex flex-col min-h-[350px]">
+                <div className="xl:col-span-2 bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] flex flex-col min-h-[350px]">
                     <div className="flex justify-between items-start mb-8">
                         <div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                            <h3 className="text-[15px] font-semibold text-[#0F172A] dark:text-white">
                                 {viewMode === 'month'
                                     ? (isSingleMonth ? 'Fluxo de Caixa Mensal' : 'Fluxo de Caixa do Período')
                                     : 'Contexto Mensal do Fluxo'}
                             </h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                            <p className="text-[13px] text-[#64748B] dark:text-slate-400 mt-0.5">
                                 {viewMode === 'month'
                                     ? (isSingleMonth
                                         ? 'Evolução diária do saldo durante o mês.'
@@ -714,7 +714,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                             </p>
                         </div>
                         <div className="flex gap-2">
-                            <span className="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-100 dark:border-indigo-800/50 uppercase tracking-wide">
+                            <span className="px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 text-[11px] font-medium border border-indigo-100 dark:border-indigo-800/40 capitalize">
                                 {viewMode === 'month'
                                     ? (isSingleMonth
                                         ? format(startDate, 'MMMM yyyy', { locale: ptBR })
@@ -733,23 +733,23 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                             <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EEF2F7" />
                                     <XAxis
                                         dataKey="date"
-                                        stroke="#94a3b8"
-                                        fontSize={9}
+                                        stroke="#94A3B8"
+                                        fontSize={10}
                                         tickLine={false}
                                         axisLine={false}
                                         tickMargin={10}
                                     />
                                     <YAxis
-                                        stroke="#94a3b8"
-                                        fontSize={9}
+                                        stroke="#94A3B8"
+                                        fontSize={10}
                                         tickLine={false}
                                         axisLine={false}
                                         tickFormatter={(val) => `R$${val / 1000}k`}
                                     />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#4F46E5', strokeWidth: 1, strokeDasharray: '4 4' }} />
 
                                     {/* Reference line for the specific day when in day view */}
                                     {viewMode === 'day' && (
@@ -760,11 +760,11 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                         type="monotone"
                                         name="Saldo"
                                         dataKey="saldo"
-                                        stroke="#6366f1"
-                                        strokeWidth={3}
+                                        stroke="#4F46E5"
+                                        strokeWidth={2.5}
                                         fillOpacity={1}
                                         fill="url(#colorSaldo)"
-                                        activeDot={{ r: 6, strokeWidth: 0, fill: '#4338ca' }}
+                                        activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff', fill: '#4F46E5' }}
                                     />
                                 </AreaChart>
                             </ResponsiveContainer>
@@ -775,20 +775,20 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 </div>
 
                 {/* Breakdown Bar Chart */}
-                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 flex flex-col min-h-[350px]">
+                <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] flex flex-col min-h-[350px]">
                     <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Entradas vs Saídas</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Comparativo de volume {viewMode === 'month' ? 'diário' : 'no mês'}.</p>
+                        <h3 className="text-[15px] font-semibold text-[#0F172A] dark:text-white">Entradas vs Saídas</h3>
+                        <p className="text-[13px] text-[#64748B] dark:text-slate-400 mb-6 mt-0.5">Comparativo de volume {viewMode === 'month' ? 'diário' : 'no mês'}.</p>
                     </div>
                     <div className="flex-1 w-full relative">
                         {hasData ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={chartData.filter(d => d.receita > 0 || d.despesa > 0)} barGap={4}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="date" stroke="#94a3b8" fontSize={8} tickLine={false} axisLine={false} tickMargin={10} />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EEF2F7" />
+                                    <XAxis dataKey="date" stroke="#94A3B8" fontSize={10} tickLine={false} axisLine={false} tickMargin={10} />
                                     <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
-                                    <Bar name="Receita" dataKey="receita" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                                    <Bar name="Despesa" dataKey="despesa" fill="#f43f5e" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                    <Bar name="Receita" dataKey="receita" fill="#10B981" radius={[6, 6, 0, 0]} maxBarSize={36} />
+                                    <Bar name="Despesa" dataKey="despesa" fill="#EF4444" radius={[6, 6, 0, 0]} maxBarSize={36} />
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (
@@ -799,15 +799,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             </div>
 
             {/* Recent Transactions Preview */}
-            <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-700/40 overflow-hidden w-full">
-                <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-700/40 flex justify-between items-center bg-white dark:bg-transparent">
+            <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] overflow-hidden w-full">
+                <div className="px-6 md:px-8 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex justify-between items-center bg-white dark:bg-transparent">
                     <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                        <h3 className="text-[15px] font-semibold text-[#0F172A] dark:text-white">
                             {viewMode === 'month'
                                 ? (isSingleMonth ? 'Transações Recentes' : `Transações do Período (${monthsInRange.length} meses)`)
                                 : `Transações de ${format(selectedDate, 'dd/MM')}`}
                         </h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-[13px] text-[#64748B] dark:text-slate-400 mt-0.5">
                             {viewMode === 'month'
                                 ? (isSingleMonth ? 'Histórico de atividades do mês.' : `De ${format(startDate, 'MMM/yy', { locale: ptBR })} até ${format(endDate, 'MMM/yy', { locale: ptBR })}.`)
                                 : 'Detalhamento do dia selecionado.'}
@@ -815,7 +815,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     </div>
                     <button
                         onClick={onNavigateToTransactions}
-                        className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold flex items-center group transition-colors px-4 py-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg"
+                        className="text-[13px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium flex items-center group transition-colors duration-200 px-4 py-2 hover:bg-indigo-50/80 dark:hover:bg-indigo-900/15 rounded-[10px]"
                     >
                         Ver Extrato Completo
                         <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -823,36 +823,36 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 </div>
                 <div className="overflow-x-auto custom-scrollbar w-full">
                     {hasFilteredData ? (
-                        <table className="w-full text-sm text-left min-w-[500px]">
-                            <thead className="text-xs text-slate-400 dark:text-slate-500 uppercase bg-slate-50/50 dark:bg-[#0d1526]/60 border-b border-slate-100 dark:border-slate-700/40">
+                        <table className="w-full text-[13px] text-left min-w-[500px]">
+                            <thead className="text-[11px] text-[#94A3B8] dark:text-slate-500 uppercase bg-[#F8F9FC] dark:bg-[#0B1120]/60 border-b border-[#EEF2F7] dark:border-white/[0.06]">
                                 <tr>
-                                    <th className="px-4 py-4 sm:px-8 font-semibold tracking-wider">Descrição</th>
-                                    <th className="px-4 py-4 sm:px-8 font-semibold tracking-wider">Data</th>
-                                    <th className="px-4 py-4 sm:px-8 font-semibold tracking-wider">Categoria</th>
-                                    <th className="px-4 py-4 sm:px-8 font-semibold tracking-wider text-right">Valor</th>
+                                    <th className="px-5 py-3.5 sm:px-7 font-medium tracking-[0.06em]">Descrição</th>
+                                    <th className="px-5 py-3.5 sm:px-7 font-medium tracking-[0.06em]">Data</th>
+                                    <th className="px-5 py-3.5 sm:px-7 font-medium tracking-[0.06em]">Categoria</th>
+                                    <th className="px-5 py-3.5 sm:px-7 font-medium tracking-[0.06em] text-right">Valor</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                            <tbody className="divide-y divide-[#EEF2F7] dark:divide-white/[0.04]">
                                 {filteredTransactions.slice(0, 5).map((t) => {
                                     const [year, month, day] = t.date.split('-');
                                     return (
-                                        <tr key={t.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors group">
-                                            <td className="px-4 py-4 sm:px-8 sm:py-5">
+                                        <tr key={t.id} className="hover:bg-[#F8F9FC]/60 dark:hover:bg-white/[0.02] transition-colors duration-150 group">
+                                            <td className="px-5 py-4 sm:px-7 sm:py-5">
                                                 <div className="flex flex-col">
-                                                    <span className="font-semibold text-slate-900 dark:text-slate-200 text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{t.description}</span>
+                                                    <span className="font-medium text-[#0F172A] dark:text-slate-200 text-[13px] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200">{t.description}</span>
                                                     <div className="flex items-center gap-2 mt-1">
-                                                        <span className={`w-2 h-2 rounded-full ${t.status === 'CONCLUÍDO' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-                                                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{t.status}</span>
+                                                        <span className={`w-[6px] h-[6px] rounded-full ${t.status === 'CONCLUÍDO' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                                                        <span className="text-[11px] text-[#64748B] dark:text-slate-400 font-medium">{t.status}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-4 sm:px-8 sm:py-5 text-slate-500 dark:text-slate-400 font-medium tabular-nums">{day}/{month}/{year}</td>
-                                            <td className="px-4 py-4 sm:px-8 sm:py-5">
-                                                <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md text-[10px] sm:text-xs font-bold border border-slate-200 dark:border-slate-600">
+                                            <td className="px-5 py-4 sm:px-7 sm:py-5 text-[#64748B] dark:text-slate-400 font-medium tabular-nums text-[13px]">{day}/{month}/{year}</td>
+                                            <td className="px-5 py-4 sm:px-7 sm:py-5">
+                                                <span className="px-2.5 py-1 bg-[#F8F9FC] dark:bg-slate-800/60 text-[#64748B] dark:text-slate-300 rounded-full text-[11px] font-medium border border-[#EEF2F7] dark:border-slate-700/40">
                                                     {t.category}
                                                 </span>
                                             </td>
-                                            <td className={`px-4 py-4 sm:px-8 sm:py-5 text-right font-bold text-sm sm:text-base font-mono ${t.type === 'RECEITA' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                            <td className={`px-5 py-4 sm:px-7 sm:py-5 text-right font-semibold text-[13px] sm:text-[14px] font-mono ${t.type === 'RECEITA' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
                                                 {t.type === 'RECEITA' ? '+' : '-'}{formatCurrency(t.amount)}
                                             </td>
                                         </tr>
@@ -861,11 +861,11 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                             </tbody>
                         </table>
                     ) : (
-                        <div className="p-16 text-center text-slate-400 flex flex-col items-center">
-                            <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-full mb-3">
-                                <Clock className="h-6 w-6 text-slate-300" />
+                        <div className="p-16 text-center text-[#94A3B8] flex flex-col items-center">
+                            <div className="p-4 bg-[#F8F9FC] dark:bg-slate-800/30 rounded-full mb-3">
+                                <Clock className="h-5 w-5 text-[#CBD5E1]" />
                             </div>
-                            <p>Nenhuma transação encontrada para este período.</p>
+                            <p className="text-[13px] font-medium">Nenhuma transação encontrada para este período.</p>
                         </div>
                     )}
                 </div>
@@ -895,31 +895,31 @@ const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, in
     const colorStyles: Record<string, any> = {
         indigo: { 
             text: 'text-indigo-600 dark:text-indigo-400',
-            bg: 'bg-indigo-100 dark:bg-indigo-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(99,102,241,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(99,102,241,0.15)] group-hover:border-indigo-200 dark:group-hover:border-indigo-500/30',
-            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-indigo-600 dark:from-white dark:to-indigo-300',
-            symbolColor: 'text-indigo-700/60 dark:text-indigo-300/60'
+            bg: 'bg-indigo-50 dark:bg-indigo-500/10',
+            glow: 'hover:shadow-premium-hover hover:border-indigo-200/60 dark:hover:border-indigo-500/20',
+            valueColor: 'text-[#0F172A] dark:text-white',
+            symbolColor: 'text-[#64748B] dark:text-slate-400'
         },
         rose: { 
-            text: 'text-rose-600 dark:text-rose-400',
-            bg: 'bg-rose-100 dark:bg-rose-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(244,63,94,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(244,63,94,0.15)] group-hover:border-rose-200 dark:group-hover:border-rose-500/30',
-            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-rose-600 dark:from-white dark:to-rose-300',
-            symbolColor: 'text-rose-700/60 dark:text-rose-300/60'
+            text: 'text-rose-500 dark:text-rose-400',
+            bg: 'bg-rose-50 dark:bg-rose-500/10',
+            glow: 'hover:shadow-premium-hover hover:border-rose-200/60 dark:hover:border-rose-500/20',
+            valueColor: 'text-[#0F172A] dark:text-white',
+            symbolColor: 'text-[#64748B] dark:text-slate-400'
         },
         emerald: { 
             text: 'text-emerald-600 dark:text-emerald-400',
-            bg: 'bg-emerald-100 dark:bg-emerald-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.15)] group-hover:border-emerald-200 dark:group-hover:border-emerald-500/30',
-            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-emerald-600 dark:from-white dark:to-emerald-300',
-            symbolColor: 'text-emerald-700/60 dark:text-emerald-300/60'
+            bg: 'bg-emerald-50 dark:bg-emerald-500/10',
+            glow: 'hover:shadow-premium-hover hover:border-emerald-200/60 dark:hover:border-emerald-500/20',
+            valueColor: 'text-[#0F172A] dark:text-white',
+            symbolColor: 'text-[#64748B] dark:text-slate-400'
         },
         amber: { 
             text: 'text-amber-600 dark:text-amber-400',
-            bg: 'bg-amber-100 dark:bg-amber-500/20',
-            glow: 'group-hover:shadow-[0_8px_30px_-5px_rgba(245,158,11,0.2)] dark:group-hover:shadow-[0_8px_30px_-5px_rgba(245,158,11,0.15)] group-hover:border-amber-200 dark:group-hover:border-amber-500/30',
-            valueGradient: 'text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-amber-600 dark:from-white dark:to-amber-300',
-            symbolColor: 'text-amber-700/60 dark:text-amber-300/60'
+            bg: 'bg-amber-50 dark:bg-amber-500/10',
+            glow: 'hover:shadow-premium-hover hover:border-amber-200/60 dark:hover:border-amber-500/20',
+            valueColor: 'text-[#0F172A] dark:text-white',
+            symbolColor: 'text-[#64748B] dark:text-slate-400'
         },
     };
 
@@ -931,51 +931,51 @@ const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, in
     const valueStr = cleanFormatted.replace("R$", "").trim();
 
     return (
-        <div className={`relative flex flex-col justify-between p-6 md:p-7 h-full bg-white dark:bg-[#0f1524] rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800/80 transition-all duration-300 ${style.glow} group overflow-hidden`}>
+        <div className={`relative flex flex-col justify-between p-6 h-full bg-white dark:bg-[#0F172A] rounded-[20px] shadow-premium border border-[#EEF2F7] dark:border-white/[0.06] transition-all duration-300 ${style.glow} group overflow-hidden hover:-translate-y-0.5`}>
             
             {/* Top row with distinct Icon box and Badge */}
-            <div className="flex justify-between items-start mb-8 relative z-10">
-                <div className={`p-3.5 rounded-2xl ${style.bg} ${style.text} transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3`}>
-                    <Icon className="w-6 h-6" strokeWidth={2.2} />
+            <div className="flex justify-between items-start mb-6 relative z-10">
+                <div className={`p-3 rounded-[14px] ${style.bg} ${style.text} transition-transform duration-300 group-hover:scale-105`}>
+                    <Icon className="w-5 h-5" strokeWidth={1.75} />
                 </div>
                 
-                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${trendBadge}`}>
-                    {!isNeutral && <IconTrend className="w-4 h-4" strokeWidth={2.5} />}
+                <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${trendBadge}`}>
+                    {!isNeutral && <IconTrend className="w-3.5 h-3.5" strokeWidth={2} />}
                     <span>{trend}</span>
                 </div>
             </div>
 
             {/* Value Section */}
             <div className="relative z-10">
-                <h3 className="text-sm font-semibold tracking-wide text-slate-500 dark:text-slate-400 mb-2">{title}</h3>
-                <div className="flex items-baseline gap-1.5">
-                    <span className={`text-lg font-bold ${style.symbolColor}`}>{symbol}</span>
-                    <span className={`text-3xl lg:text-4xl font-extrabold tracking-tight ${style.valueGradient}`}>
+                <h3 className="text-[13px] font-medium text-[#64748B] dark:text-slate-400 mb-2">{title}</h3>
+                <div className="flex items-baseline gap-1">
+                    <span className={`text-[15px] font-semibold ${style.symbolColor}`}>{symbol}</span>
+                    <span className={`text-[26px] lg:text-[28px] font-bold tracking-[-0.02em] ${style.valueColor}`}>
                         {valueStr}
                     </span>
                 </div>
             </div>
 
             {/* Subtitle Footer */}
-            <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800/80 relative z-10 flex items-center justify-between">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-current ${style.text} transition-colors duration-300`} />
+            <div className="mt-5 pt-4 border-t border-[#EEF2F7] dark:border-white/[0.04] relative z-10 flex items-center justify-between">
+                <p className="text-[11px] font-medium text-[#94A3B8] dark:text-slate-500 flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full bg-[#E2E8F0] dark:bg-slate-700 group-hover:bg-current ${style.text} transition-colors duration-300`} />
                     {subtitle}
                 </p>
             </div>
             
             {/* Atmospheric Glow on Hover */}
-            <div className={`absolute -right-10 -top-10 w-40 h-40 ${style.bg} rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none blur-2xl`} />
+            <div className={`absolute -right-10 -top-10 w-32 h-32 ${style.bg} rounded-full opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none blur-2xl`} />
         </div>
     );
 }
 
 const EmptyState = ({ message }: { message: string }) => (
     <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-        <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-full mb-3 shadow-sm">
-            <TrendingUp className="h-6 w-6 text-slate-300 dark:text-slate-600" />
+        <div className="p-4 bg-[#F8F9FC] dark:bg-slate-800/30 rounded-full mb-3">
+            <TrendingUp className="h-5 w-5 text-[#CBD5E1] dark:text-slate-600" />
         </div>
-        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{message}</p>
+        <p className="text-[#64748B] dark:text-slate-400 text-[13px] font-medium">{message}</p>
     </div>
 );
 

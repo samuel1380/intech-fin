@@ -212,8 +212,8 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
     return (
         <div className="space-y-6 animate-fade-in w-full pb-8">
             {/* Header */}
-            <div className="border-b border-slate-200 dark:border-slate-700/40 pb-6">
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Contas</h2>
+            <div className="border-b border-[#EEF2F7] dark:border-slate-700/40 pb-6">
+                <h2 className="text-3xl font-semibold text-[#0F172A] dark:text-white tracking-tight">Contas</h2>
                 <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">Contas a pagar, receber e alertas de vencimento.</p>
             </div>
 
@@ -223,7 +223,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                 <div className={`p-5 rounded-2xl border shadow-sm transition-all cursor-pointer ${
                     activeTab === 'alerts' 
                         ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700/50 ring-2 ring-amber-300 dark:ring-amber-700'
-                        : 'bg-white dark:bg-[#111a2e]/80 border-slate-200 dark:border-slate-700/40 hover:border-amber-200'
+                        : 'bg-white dark:bg-[#0F172A]/80 border-[#EEF2F7] dark:border-slate-700/40 hover:border-amber-200'
                 }`} onClick={() => setActiveTab('alerts')}>
                     <div className="flex items-center gap-3 mb-3">
                         <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30">
@@ -231,7 +231,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                         </div>
                         <span className="text-xs font-bold text-slate-500 uppercase">Alertas</span>
                     </div>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white">{alerts.length}</div>
+                    <div className="text-2xl font-semibold text-[#0F172A] dark:text-white">{alerts.length}</div>
                     <div className="flex gap-2 mt-1.5 flex-wrap">
                         {overdueCount > 0 && (
                             <span className="text-[10px] font-bold text-red-600 dark:text-red-400">{overdueCount} vencida{overdueCount > 1 ? 's' : ''}</span>
@@ -252,7 +252,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                 <div className={`p-5 rounded-2xl border shadow-sm transition-all cursor-pointer ${
                     activeTab === 'receivable' 
                         ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700/50 ring-2 ring-emerald-300 dark:ring-emerald-700'
-                        : 'bg-white dark:bg-[#111a2e]/80 border-slate-200 dark:border-slate-700/40 hover:border-emerald-200'
+                        : 'bg-white dark:bg-[#0F172A]/80 border-[#EEF2F7] dark:border-slate-700/40 hover:border-emerald-200'
                 }`} onClick={() => setActiveTab('receivable')}>
                     <div className="flex items-center gap-3 mb-3">
                         <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
@@ -268,7 +268,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                 <div className={`p-5 rounded-2xl border shadow-sm transition-all cursor-pointer ${
                     activeTab === 'payable' 
                         ? 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-700/50 ring-2 ring-rose-300 dark:ring-rose-700'
-                        : 'bg-white dark:bg-[#111a2e]/80 border-slate-200 dark:border-slate-700/40 hover:border-rose-200'
+                        : 'bg-white dark:bg-[#0F172A]/80 border-[#EEF2F7] dark:border-slate-700/40 hover:border-rose-200'
                 }`} onClick={() => setActiveTab('payable')}>
                     <div className="flex items-center gap-3 mb-3">
                         <div className="p-2 rounded-lg bg-rose-100 dark:bg-rose-900/30">
@@ -281,7 +281,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                 </div>
 
                 {/* Saldo Contas */}
-                <div className="p-5 rounded-2xl bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 shadow-sm">
+                <div className="p-5 rounded-[20px] bg-white dark:bg-[#0F172A]/80 border border-[#EEF2F7] dark:border-slate-700/40 shadow-sm">
                     <div className="flex items-center gap-3 mb-3">
                         <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
                             <DollarSign className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
@@ -296,7 +296,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
             </div>
 
             {/* Search */}
-            <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-1.5 rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-700/40">
+            <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-1.5 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-slate-700/40">
                 <div className="relative">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <input
@@ -346,9 +346,9 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                                 {filterBySearch(alerts).map(renderTransactionRow)}
                             </div>
                         ) : (
-                            <div className="p-12 text-center bg-white dark:bg-[#111a2e]/80 rounded-2xl border border-slate-200 dark:border-slate-700/40">
+                            <div className="p-12 text-center bg-white dark:bg-[#0F172A]/80 rounded-2xl border border-[#EEF2F7] dark:border-slate-700/40">
                                 <CheckCircle className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
-                                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Tudo em dia!</h3>
+                                <h3 className="font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Tudo em dia!</h3>
                                 <p className="text-sm text-slate-400">Nenhuma conta com vencimento próximo (7 dias). 🎉</p>
                             </div>
                         )}
@@ -366,9 +366,9 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                                 {filterBySearch(receivables).map(renderTransactionRow)}
                             </div>
                         ) : (
-                            <div className="p-12 text-center bg-white dark:bg-[#111a2e]/80 rounded-2xl border border-slate-200 dark:border-slate-700/40">
+                            <div className="p-12 text-center bg-white dark:bg-[#0F172A]/80 rounded-2xl border border-[#EEF2F7] dark:border-slate-700/40">
                                 <CheckCircle className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
-                                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Nenhuma conta a receber</h3>
+                                <h3 className="font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Nenhuma conta a receber</h3>
                                 <p className="text-sm text-slate-400">Todas as receitas foram recebidas. 💰</p>
                             </div>
                         )}
@@ -386,9 +386,9 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                                 {filterBySearch(payables).map(renderTransactionRow)}
                             </div>
                         ) : (
-                            <div className="p-12 text-center bg-white dark:bg-[#111a2e]/80 rounded-2xl border border-slate-200 dark:border-slate-700/40">
+                            <div className="p-12 text-center bg-white dark:bg-[#0F172A]/80 rounded-2xl border border-[#EEF2F7] dark:border-slate-700/40">
                                 <CheckCircle className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
-                                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Nenhuma conta a pagar</h3>
+                                <h3 className="font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Nenhuma conta a pagar</h3>
                                 <p className="text-sm text-slate-400">Todas as despesas foram pagas. ✅</p>
                             </div>
                         )}

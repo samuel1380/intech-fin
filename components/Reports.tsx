@@ -410,7 +410,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             {/* Header & Filter */}
             <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-6 border-b border-slate-200 dark:border-slate-700/40 pb-6">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Relatórios & Auditoria</h2>
+                    <h2 className="text-3xl font-semibold text-[#0F172A] dark:text-white tracking-tight">Relatórios & Auditoria</h2>
                     <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">Emissão de documentos e análise fiscal.</p>
                 </div>
 
@@ -491,7 +491,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-2 mb-2">
                         <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
                             <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -501,7 +501,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                     <p className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">{formatCompact(totalIncome)}</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-2 mb-2">
                         <div className="p-1.5 bg-rose-50 dark:bg-rose-900/30 rounded-lg">
                             <TrendingDown className="h-4 w-4 text-rose-600 dark:text-rose-400" />
@@ -511,7 +511,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                     <p className="text-lg font-extrabold text-rose-600 dark:text-rose-400">{formatCompact(totalExpense)}</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-2 mb-2">
                         <div className="p-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
                             <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -521,7 +521,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                     <p className="text-lg font-extrabold text-amber-600 dark:text-amber-400">{formatCompact(totalCommissions)}</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-2 mb-2">
                         <div className="p-1.5 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
                             <Receipt className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
@@ -532,7 +532,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                     <p className="text-[10px] text-slate-400 font-medium">{(totalTaxRate * 100).toFixed(1)}% sobre receita</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-2 mb-2">
                         <div className="p-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
                             <DollarSign className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
@@ -544,7 +544,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                     </p>
                 </div>
 
-                <div className="bg-white dark:bg-[#111a2e]/80 rounded-xl p-4 border border-slate-100 dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-2 mb-2">
                         <div className="p-1.5 bg-violet-50 dark:bg-violet-900/30 rounded-lg">
                             <Percent className="h-4 w-4 text-violet-600 dark:text-violet-400" />
@@ -560,8 +560,8 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
             {/* ===== FUNCIONÁRIOS & COMISSÕES ===== */}
             {employees.length > 0 && (
-                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 dark:border-slate-700/40">
+                <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] overflow-hidden">
+                    <div className="p-6 border-b border-[#EEF2F7] dark:border-white/[0.06]">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-xl">
@@ -579,7 +579,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                     </div>
 
                     {/* Employee List */}
-                    <div className="divide-y divide-slate-100 dark:divide-slate-700/30">
+                    <div className="divide-y divide-[#EEF2F7] dark:divide-white/[0.04]/30">
                         {employees.map((emp, idx) => (
                             <button
                                 key={emp.name}
@@ -714,7 +714,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                                                 <th className="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase">Pgto Comis.</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700/30">
+                                        <tbody className="divide-y divide-[#EEF2F7] dark:divide-white/[0.04]/30">
                                             {selectedEmp.transactions
                                                 .sort((a, b) => b.date.localeCompare(a.date))
                                                 .map((t, i) => (
@@ -768,7 +768,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Gráfico de Pizza */}
-                <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40 flex flex-col min-h-[420px]">
+                <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-6 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] flex flex-col min-h-[420px]">
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h3 className="text-lg font-bold text-slate-800 dark:text-white">Distribuição de Despesas</h3>
@@ -835,7 +835,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                     </div>
 
                     {/* Gráfico de Barras */}
-                    <div className="bg-white dark:bg-[#111a2e]/80 dark:backdrop-blur-xl p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/40">
+                    <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-6 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06]">
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">Balanço Geral</h3>

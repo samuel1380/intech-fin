@@ -14,8 +14,8 @@ const DatabaseManager: React.FC<DatabaseManagerProps> = ({ onResetDatabase }) =>
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
       {/* ===== SEÇÃO: DADOS ===== */}
-      <div className="bg-white dark:bg-[#111a2e]/80 border border-slate-200 dark:border-slate-700/40 p-6 md:p-8 rounded-2xl shadow-xl dark:shadow-none">
-        <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
+      <div className="bg-white dark:bg-[#0F172A]/80 border border-[#EEF2F7] dark:border-slate-700/40 p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none">
+        <h2 className="text-xl font-semibold text-[#0F172A] dark:text-white mb-6 flex items-center gap-2">
           <Database className="h-6 w-6 text-indigo-600" />
           Gerenciamento de Dados
         </h2>
@@ -72,7 +72,7 @@ const DatabaseManager: React.FC<DatabaseManagerProps> = ({ onResetDatabase }) =>
             <div className="w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center mb-5 border border-rose-200 dark:border-rose-800/50">
               <AlertTriangle className="h-6 w-6 text-rose-600 dark:text-rose-400 animate-pulse" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+            <h3 className="text-xl font-semibold text-[#0F172A] dark:text-white mb-2">
               {resetStep === 1 ? 'Você tem certeza?' : 'Você tem certeza mesmo?'}
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 font-medium">
