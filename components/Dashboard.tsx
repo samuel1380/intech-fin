@@ -231,6 +231,34 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
         profitIsUp: currentSummary.profit >= previousSummary.profit
     };
 
+    // Top Technicians calculation
+    const topTechnicians = useMemo(() => {
+        const techCommissions: Record<string, number> = {};
+        filteredTransactions.forEach(t => {
+            if (t.employeeName && t.commissionAmount) {
+                let val = t.commissionAmount;
+                if (t.status === TransactionStatus.PARTIAL && t.pendingAmount && t.amount > t.pendingAmount) {
+                     val = (t.commissionAmount * ((t.amount - t.pendingAmount) / t.amount));
+                } else if (t.status === TransactionStatus.PENDENTE) {
+                     val = 0;
+                }
+                if (val > 0) {
+                    techCommissions[t.employeeName] = (techCommissions[t.employeeName] || 0) + val;
+                }
+            }
+        });
+        const list = Object.entries(techCommissions)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3)
+            .map(([name, total]) => ({ name, total }));
+            
+        // Fill empty slots if less than 3
+        while (list.length < 3) {
+            list.push({ name: '---', total: 0 });
+        }
+        return list;
+    }, [filteredTransactions]);
+
     // --- CHART DATA PREPARATION ---
 
     const chartData = useMemo(() => {
@@ -326,11 +354,62 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
       };
       return (
         <div className="space-y-8 animate-fade-in w-full min-w-0 pb-8 text-slate-800 dark:text-slate-100">
-            {/* Saudação Finexy */}
-            <div className="flex justify-between items-center">
+            {/* Saudação Finexy e Filtros */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-[28px] font-bold tracking-tight text-slate-900 dark:text-white">Bom dia, {userName}</h1>
                     <p className="text-xs font-semibold text-slate-400 mt-1">Acompanhe seus serviços, métricas financeiras e status da desentupidora.</p>
+                </div>
+                
+                {/* Painel de Filtro de Datas */}
+                <div className="flex items-center gap-3 bg-white dark:bg-slate-800 p-2.5 rounded-[18px] border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm">
+                    <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-1 flex items-center">
+                        <button 
+                            onClick={() => setViewMode('month')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'month' ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                        >
+                            Mensal
+                        </button>
+                        <button 
+                            onClick={() => setViewMode('day')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'day' ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                        >
+                            Diário
+                        </button>
+                    </div>
+
+                    <div className="h-6 w-[1px] bg-slate-200 dark:bg-slate-700"></div>
+
+                    {viewMode === 'month' ? (
+                        <div className="flex items-center gap-2">
+                            <div className="relative">
+                                <input 
+                                    type="month" 
+                                    value={format(startDate, 'yyyy-MM')} 
+                                    onChange={handleStartMonthChange}
+                                    className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-50"
+                                />
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-400">até</span>
+                            <div className="relative">
+                                <input 
+                                    type="month" 
+                                    value={format(endDate, 'yyyy-MM')} 
+                                    onChange={handleEndMonthChange}
+                                    className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-50"
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex items-center">
+                            <input 
+                                type="date" 
+                                value={format(selectedDate, 'yyyy-MM-dd')} 
+                                onChange={handleDateChange}
+                                className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-50"
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -371,99 +450,76 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                             </button>
                         </div>
 
-                        {/* Wallets */}
+                        {/* Top Técnicos */}
                         <div className="pt-4 border-t border-[#EEF2F7] dark:border-white/[0.04]">
                             <div className="flex justify-between items-center mb-3">
-                                <span className="text-[11px] font-bold text-slate-400">Contas Bancárias | <span className="text-slate-600 dark:text-slate-300">Total 3 contas</span></span>
+                                <span className="text-[11px] font-bold text-slate-400">Top Técnicos | <span className="text-slate-600 dark:text-slate-300">Comissões</span></span>
                             </div>
                             <div className="grid grid-cols-3 gap-2">
-                                <div className="p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-[10px] font-bold">Nubank</span>
-                                        <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+                                {topTechnicians.map((tech, idx) => (
+                                    <div key={idx} className="p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-[10px] font-bold truncate max-w-[70%]">{tech.name.split(' ')[0]}</span>
+                                            <div className={`w-1 h-1 rounded-full ${idx === 0 ? 'bg-finexyOrange' : 'bg-slate-300'}`}></div>
+                                        </div>
+                                        <p className="text-[11px] font-bold mt-1.5">{formatCurrency(tech.total)}</p>
+                                        <span className={`text-[9px] font-bold mt-1 block ${idx === 0 ? 'text-finexyOrange' : 'text-slate-400'}`}>
+                                            {idx === 0 ? '1º Lugar' : `${idx + 1}º Lugar`}
+                                        </span>
                                     </div>
-                                    <p className="text-[11px] font-bold mt-1.5">{formatCurrency(currentSummary.profit * 0.6)}</p>
-                                    <span className="text-[9px] font-bold text-emerald-500 mt-1 block">Principal</span>
-                                </div>
-                                <div className="p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-[10px] font-bold">Itaú</span>
-                                        <div className="w-1 h-1 rounded-full bg-slate-300"></div>
-                                    </div>
-                                    <p className="text-[11px] font-bold mt-1.5">{formatCurrency(currentSummary.profit * 0.3)}</p>
-                                    <span className="text-[9px] font-bold text-emerald-500 mt-1 block">Reserva</span>
-                                </div>
-                                <div className="p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-[10px] font-bold">Caixa</span>
-                                        <div className="w-1 h-1 rounded-full bg-slate-300"></div>
-                                    </div>
-                                    <p className="text-[11px] font-bold mt-1.5">{formatCurrency(currentSummary.profit * 0.1)}</p>
-                                    <span className="text-[9px] font-bold text-slate-400 mt-1 block">Inativa</span>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </div>
 
-                    {/* Monthly Spending Limit */}
+                    {/* Saúde Financeira */}
                     <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-5 shadow-premium">
                         <div className="flex justify-between items-center mb-2.5">
-                            <span className="text-xs font-bold text-slate-400">Limite Mensal de Despesas</span>
+                            <span className="text-xs font-bold text-slate-400">Saúde Financeira (Despesas x Receitas)</span>
                         </div>
                         <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden mb-2">
-                            <div className="bg-finexyOrange h-full rounded-full" style={{ width: `${Math.min((currentSummary.expense / 15000) * 100, 100)}%` }}></div>
+                            <div className={`h-full rounded-full ${currentSummary.income > 0 && (currentSummary.expense / currentSummary.income) > 0.7 ? 'bg-rose-500' : 'bg-finexyOrange'}`} style={{ width: `${Math.min(currentSummary.income > 0 ? (currentSummary.expense / currentSummary.income) * 100 : 0, 100)}%` }}></div>
                         </div>
                         <div className="flex justify-between items-center text-[10px] font-bold text-slate-400">
-                            <span><span className="text-slate-800 dark:text-white font-extrabold">{formatCurrency(currentSummary.expense)}</span> gastos de</span>
-                            <span className="text-slate-800 dark:text-white font-extrabold">{formatCurrency(15000)}</span>
+                            <span><span className="text-slate-800 dark:text-white font-extrabold">{formatCurrency(currentSummary.expense)}</span> consumidos de</span>
+                            <span className="text-slate-800 dark:text-white font-extrabold">{formatCurrency(currentSummary.income)}</span>
                         </div>
                     </div>
 
-                    {/* My Cards Widget */}
+                    {/* Status Financeiro Widget */}
                     <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-5 shadow-premium">
                         <div className="flex justify-between items-center mb-4">
-                            <span className="text-xs font-bold text-slate-400">Meus Cartões</span>
-                            <button className="text-[10px] font-bold text-slate-800 dark:text-white px-3 py-1.5 bg-[#F3F4F6] dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full transition-colors">+ Adicionar</button>
+                            <span className="text-xs font-bold text-slate-400">Status Financeiro (Faturamento)</span>
                         </div>
                         <div className="flex gap-4 overflow-x-auto pb-1 custom-scrollbar">
-                            {/* Card 1: Black */}
+                            {/* Card 1: Em Caixa (Black) */}
                             <div className="min-w-[200px] flex-1 bg-finexyBlack text-white p-4 rounded-[18px] flex flex-col justify-between h-[115px] relative overflow-hidden shadow-md">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-1.5">
                                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                                        <span className="text-[9px] font-extrabold tracking-wider uppercase opacity-80">Ativo</span>
+                                        <span className="text-[9px] font-extrabold tracking-wider uppercase opacity-80">Em Caixa</span>
                                     </div>
                                     <div className="w-6 h-4 opacity-70">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full"><path d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8Z"/></svg>
+                                        <svg className="w-full h-full" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.879.518.518 3.518-3.518M12 6.25l7.5 7.5-7.5-7.5"></path></svg>
                                     </div>
                                 </div>
                                 <div className="mt-4">
-                                    <p className="text-[10px] font-mono tracking-widest">Card Number</p>
-                                    <p className="text-xs font-mono font-bold tracking-widest mt-0.5">•••• •••• 6782</p>
-                                </div>
-                                <div className="flex justify-between items-center mt-3 pt-2 border-t border-white/10 text-[9px] opacity-70 font-mono">
-                                    <div>
-                                        <span className="block text-[8px] opacity-50">EXP</span>
-                                        <span>09/29</span>
-                                    </div>
-                                    <div>
-                                        <span className="block text-[8px] opacity-50">CVV</span>
-                                        <span>611</span>
-                                    </div>
+                                    <p className="text-[10px] font-mono tracking-widest text-slate-300">Recebido</p>
+                                    <p className="text-[15px] font-mono font-bold tracking-widest mt-0.5 text-white">{formatCurrency(currentSummary.income - currentSummary.totalPendingFromClients)}</p>
                                 </div>
                             </div>
                             
-                            {/* Card 2: Orange */}
+                            {/* Card 2: A Receber (Orange) */}
                             <div className="min-w-[140px] bg-finexyOrange text-white p-4 rounded-[18px] flex flex-col justify-between h-[115px] relative overflow-hidden shadow-md">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-1.5">
                                         <span className="w-2.5 h-2.5 rounded-full bg-white"></span>
-                                        <span className="text-[9px] font-extrabold tracking-wider uppercase opacity-90">Ativo</span>
+                                        <span className="text-[9px] font-extrabold tracking-wider uppercase opacity-90">A Receber</span>
                                     </div>
                                 </div>
                                 <div className="mt-4">
-                                    <p className="text-[9px] font-mono tracking-widest opacity-80">Card Number</p>
-                                    <p className="text-xs font-mono font-bold tracking-widest mt-0.5">•••• 4356</p>
+                                    <p className="text-[10px] font-mono tracking-widest opacity-80 text-white">Inadimplência</p>
+                                    <p className="text-[15px] font-mono font-bold tracking-widest mt-0.5 text-white">{formatCurrency(currentSummary.totalPendingFromClients)}</p>
                                 </div>
                             </div>
                         </div>
