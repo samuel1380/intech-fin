@@ -496,6 +496,7 @@ function App() {
                     transactions={transactions}
                     summary={summary}
                     taxSettings={taxSettings}
+                    userName={profile.name}
                     onNavigateToTransactions={() => setActiveTab('transactions')}
                   />
                 )}

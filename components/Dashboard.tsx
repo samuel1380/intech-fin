@@ -13,6 +13,7 @@ interface DashboardProps {
     summary?: FinancialSummary;
     onNavigateToTransactions: () => void;
     taxSettings?: TaxSetting[];
+    userName?: string;
 }
 
 type ViewMode = 'month' | 'day';
@@ -30,7 +31,7 @@ const subDays = (date: Date, amount: number) => {
     return newDate;
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransactions, taxSettings = [] }) => {
+const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransactions, taxSettings = [], userName = 'Administrador' }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
@@ -328,8 +329,8 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             {/* Saudação Finexy */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-[28px] font-bold tracking-tight text-slate-900 dark:text-white">Good morning, Sajibur</h1>
-                    <p className="text-xs font-semibold text-slate-400 mt-1">Stay on top of your tasks, monitor progress, and track status.</p>
+                    <h1 className="text-[28px] font-bold tracking-tight text-slate-900 dark:text-white">Bom dia, {userName}</h1>
+                    <p className="text-xs font-semibold text-slate-400 mt-1">Acompanhe seus serviços, métricas financeiras e status da desentupidora.</p>
                 </div>
             </div>
 
@@ -343,18 +344,18 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-6 shadow-premium relative flex-1 flex flex-col justify-between">
                         <div>
                             <div className="flex justify-between items-center mb-1">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Balance</span>
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Saldo Total (Lucro)</span>
                                 <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-700 rounded-full cursor-pointer hover:bg-slate-200 transition-colors">
-                                    <span className="text-[10px] font-extrabold text-slate-600 dark:text-slate-300">🇺🇸 USD</span>
+                                    <span className="text-[10px] font-extrabold text-slate-600 dark:text-slate-300">🇧🇷 BRL</span>
                                     <ChevronDown className="h-3 w-3 text-slate-400" />
                                 </div>
                             </div>
                             <div className="flex items-baseline gap-1.5 mt-2">
-                                <span className="text-2xl font-bold tracking-tight text-slate-800 dark:text-white">$689,372.00</span>
+                                <span className="text-2xl font-bold tracking-tight text-slate-800 dark:text-white">{formatCurrency(currentSummary.profit)}</span>
                             </div>
                             <div className="flex items-center gap-1 mt-1 text-[11px] font-bold text-emerald-500">
-                                <ArrowUpRight className="h-3 w-3" />
-                                <span>5% than last month</span>
+                                {trends.profitIsUp ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3 text-rose-500" />}
+                                <span className={trends.profitIsUp ? 'text-emerald-500' : 'text-rose-500'}>{trends.profit} em relação ao mês anterior</span>
                             </div>
                         </div>
 
@@ -362,43 +363,43 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                         <div className="grid grid-cols-2 gap-3 my-5">
                             <button className="flex items-center justify-center gap-2 bg-finexyBlack hover:bg-black text-white py-3 rounded-full text-xs font-bold transition-all shadow-sm">
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                                Transfer
+                                Novo Serviço
                             </button>
                             <button className="flex items-center justify-center gap-2 bg-[#F3F4F6] hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-3 rounded-full text-xs font-bold transition-all">
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path></svg>
-                                Request
+                                Nova Despesa
                             </button>
                         </div>
 
                         {/* Wallets */}
                         <div className="pt-4 border-t border-[#EEF2F7] dark:border-white/[0.04]">
                             <div className="flex justify-between items-center mb-3">
-                                <span className="text-[11px] font-bold text-slate-400">Wallets | <span className="text-slate-600 dark:text-slate-300">Total 6 wallets</span></span>
+                                <span className="text-[11px] font-bold text-slate-400">Contas Bancárias | <span className="text-slate-600 dark:text-slate-300">Total 3 contas</span></span>
                             </div>
                             <div className="grid grid-cols-3 gap-2">
                                 <div className="p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-800">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[10px] font-bold">🇺🇸 USD</span>
+                                        <span className="text-[10px] font-bold">Nubank</span>
                                         <div className="w-1 h-1 rounded-full bg-slate-300"></div>
                                     </div>
-                                    <p className="text-[11px] font-bold mt-1.5">$22,678.00</p>
-                                    <span className="text-[9px] font-bold text-emerald-500 mt-1 block">Active</span>
+                                    <p className="text-[11px] font-bold mt-1.5">{formatCurrency(currentSummary.profit * 0.6)}</p>
+                                    <span className="text-[9px] font-bold text-emerald-500 mt-1 block">Principal</span>
                                 </div>
                                 <div className="p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-800">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[10px] font-bold">🇪🇺 EUR</span>
+                                        <span className="text-[10px] font-bold">Itaú</span>
                                         <div className="w-1 h-1 rounded-full bg-slate-300"></div>
                                     </div>
-                                    <p className="text-[11px] font-bold mt-1.5">€18,345.00</p>
-                                    <span className="text-[9px] font-bold text-emerald-500 mt-1 block">Active</span>
+                                    <p className="text-[11px] font-bold mt-1.5">{formatCurrency(currentSummary.profit * 0.3)}</p>
+                                    <span className="text-[9px] font-bold text-emerald-500 mt-1 block">Reserva</span>
                                 </div>
                                 <div className="p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-800">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[10px] font-bold">🇬🇧 GBP</span>
+                                        <span className="text-[10px] font-bold">Caixa</span>
                                         <div className="w-1 h-1 rounded-full bg-slate-300"></div>
                                     </div>
-                                    <p className="text-[11px] font-bold mt-1.5">£15,000.00</p>
-                                    <span className="text-[9px] font-bold text-slate-400 mt-1 block">Inactive</span>
+                                    <p className="text-[11px] font-bold mt-1.5">{formatCurrency(currentSummary.profit * 0.1)}</p>
+                                    <span className="text-[9px] font-bold text-slate-400 mt-1 block">Inativa</span>
                                 </div>
                             </div>
                         </div>
@@ -407,22 +408,22 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     {/* Monthly Spending Limit */}
                     <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-5 shadow-premium">
                         <div className="flex justify-between items-center mb-2.5">
-                            <span className="text-xs font-bold text-slate-400">Monthly Spending Limit</span>
+                            <span className="text-xs font-bold text-slate-400">Limite Mensal de Despesas</span>
                         </div>
                         <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden mb-2">
-                            <div className="bg-finexyOrange h-full rounded-full" style={{ width: '38%' }}></div>
+                            <div className="bg-finexyOrange h-full rounded-full" style={{ width: `${Math.min((currentSummary.expense / 15000) * 100, 100)}%` }}></div>
                         </div>
                         <div className="flex justify-between items-center text-[10px] font-bold text-slate-400">
-                            <span><span className="text-slate-800 dark:text-white font-extrabold">$1,400.00</span> spent out of</span>
-                            <span className="text-slate-800 dark:text-white font-extrabold">$5,500.00</span>
+                            <span><span className="text-slate-800 dark:text-white font-extrabold">{formatCurrency(currentSummary.expense)}</span> gastos de</span>
+                            <span className="text-slate-800 dark:text-white font-extrabold">{formatCurrency(15000)}</span>
                         </div>
                     </div>
 
                     {/* My Cards Widget */}
                     <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-5 shadow-premium">
                         <div className="flex justify-between items-center mb-4">
-                            <span className="text-xs font-bold text-slate-400">My Cards</span>
-                            <button className="text-[10px] font-bold text-slate-800 dark:text-white px-3 py-1.5 bg-[#F3F4F6] dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full transition-colors">+ Add new</button>
+                            <span className="text-xs font-bold text-slate-400">Meus Cartões</span>
+                            <button className="text-[10px] font-bold text-slate-800 dark:text-white px-3 py-1.5 bg-[#F3F4F6] dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full transition-colors">+ Adicionar</button>
                         </div>
                         <div className="flex gap-4 overflow-x-auto pb-1 custom-scrollbar">
                             {/* Card 1: Black */}
@@ -430,7 +431,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-1.5">
                                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                                        <span className="text-[9px] font-extrabold tracking-wider uppercase opacity-80">Active</span>
+                                        <span className="text-[9px] font-extrabold tracking-wider uppercase opacity-80">Ativo</span>
                                     </div>
                                     <div className="w-6 h-4 opacity-70">
                                         <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full"><path d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8Z"/></svg>
@@ -457,7 +458,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-1.5">
                                         <span className="w-2.5 h-2.5 rounded-full bg-white"></span>
-                                        <span className="text-[9px] font-extrabold tracking-wider uppercase opacity-90">Active</span>
+                                        <span className="text-[9px] font-extrabold tracking-wider uppercase opacity-90">Ativo</span>
                                     </div>
                                 </div>
                                 <div className="mt-4">
@@ -475,15 +476,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     {/* Metric 1: Earnings (Laranja) */}
                     <div className="bg-finexyOrange text-white rounded-[24px] p-6 flex flex-col justify-between h-full shadow-premium-hover min-h-[170px] relative overflow-hidden group">
                         <div className="flex justify-between items-start">
-                            <span className="text-xs font-bold opacity-80">Total Earnings</span>
+                            <span className="text-xs font-bold opacity-80">Total de Receitas</span>
                             <div className="p-2 bg-white/10 rounded-xl">
                                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.879.518.518 3.518-3.518M12 6.25l7.5 7.5-7.5-7.5"></path></svg>
                             </div>
                         </div>
                         <div>
-                            <span className="text-3xl font-extrabold tracking-tight block mt-6">$950</span>
+                            <span className="text-3xl font-extrabold tracking-tight block mt-6">{formatCurrency(currentSummary.income)}</span>
                             <span className="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 mt-2">
-                                <ArrowUpRight className="h-3 w-3" strokeWidth={3} /> 7% This month
+                                {trends.incomeIsUp ? <ArrowUpRight className="h-3 w-3" strokeWidth={3} /> : <ArrowDownRight className="h-3 w-3" strokeWidth={3} />} {trends.income}
                             </span>
                         </div>
                     </div>
@@ -491,47 +492,47 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     {/* Metric 2: Spending */}
                     <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-6 flex flex-col justify-between h-full shadow-premium min-h-[170px] relative overflow-hidden group">
                         <div className="flex justify-between items-start">
-                            <span className="text-xs font-bold text-slate-400">Total Spending</span>
+                            <span className="text-xs font-bold text-slate-400">Total de Despesas</span>
                             <div className="p-2 bg-slate-50 dark:bg-slate-700 rounded-xl">
                                 <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"></path></svg>
                             </div>
                         </div>
                         <div>
-                            <span className="text-3xl font-extrabold tracking-tight block mt-6 text-slate-800 dark:text-white">$700</span>
-                            <span className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-950/20 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 mt-2">
-                                <ArrowDownRight className="h-3 w-3" strokeWidth={3} /> 5% This month
+                            <span className="text-3xl font-extrabold tracking-tight block mt-6 text-slate-800 dark:text-white">{formatCurrency(currentSummary.expense)}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 mt-2 ${trends.expenseIsGood ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20' : 'text-rose-500 bg-rose-50 dark:bg-rose-950/20'}`}>
+                                {trends.expenseIsGood ? <ArrowDownRight className="h-3 w-3" strokeWidth={3} /> : <ArrowUpRight className="h-3 w-3" strokeWidth={3} />} {trends.expense}
                             </span>
                         </div>
                     </div>
 
-                    {/* Metric 3: Income */}
+                    {/* Metric 3: Profit */}
                     <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-6 flex flex-col justify-between h-full shadow-premium min-h-[170px] relative overflow-hidden group">
                         <div className="flex justify-between items-start">
-                            <span className="text-xs font-bold text-slate-400">Total Income</span>
+                            <span className="text-xs font-bold text-slate-400">Lucro Líquido</span>
                             <div className="p-2 bg-slate-50 dark:bg-slate-700 rounded-xl">
                                 <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
                             </div>
                         </div>
                         <div>
-                            <span className="text-3xl font-extrabold tracking-tight block mt-6 text-slate-800 dark:text-white">$1,050</span>
-                            <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 mt-2">
-                                <ArrowUpRight className="h-3 w-3" strokeWidth={3} /> 8% This month
+                            <span className="text-3xl font-extrabold tracking-tight block mt-6 text-slate-800 dark:text-white">{formatCurrency(currentSummary.profit)}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 mt-2 ${trends.profitIsUp ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20' : 'text-rose-500 bg-rose-50 dark:bg-rose-950/20'}`}>
+                                {trends.profitIsUp ? <ArrowUpRight className="h-3 w-3" strokeWidth={3} /> : <ArrowDownRight className="h-3 w-3" strokeWidth={3} />} {trends.profit}
                             </span>
                         </div>
                     </div>
 
-                    {/* Metric 4: Revenue */}
+                    {/* Metric 4: Commissions */}
                     <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-6 flex flex-col justify-between h-full shadow-premium min-h-[170px] relative overflow-hidden group">
                         <div className="flex justify-between items-start">
-                            <span className="text-xs font-bold text-slate-400">Total Revenue</span>
+                            <span className="text-xs font-bold text-slate-400">Comissões (Técnicos)</span>
                             <div className="p-2 bg-slate-50 dark:bg-slate-700 rounded-xl">
                                 <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.905 0-5.64-.53-8.157-1.499"></path></svg>
                             </div>
                         </div>
                         <div>
-                            <span className="text-3xl font-extrabold tracking-tight block mt-6 text-slate-800 dark:text-white">$850</span>
+                            <span className="text-3xl font-extrabold tracking-tight block mt-6 text-slate-800 dark:text-white">{formatCurrency(currentSummary.commissions)}</span>
                             <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 mt-2">
-                                <ArrowUpRight className="h-3 w-3" strokeWidth={3} /> 4% This month
+                                <ArrowUpRight className="h-3 w-3" strokeWidth={3} /> -
                             </span>
                         </div>
                     </div>
@@ -542,22 +543,22 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                     <div>
                         <div className="flex justify-between items-start">
                             <div>
-                                <h3 className="text-xs font-bold text-slate-400">Total Income</h3>
-                                <p className="text-[10px] font-semibold text-slate-400/80 mt-0.5">View your income in a certain period of time</p>
+                                <h3 className="text-xs font-bold text-slate-400">Resumo Financeiro</h3>
+                                <p className="text-[10px] font-semibold text-slate-400/80 mt-0.5">Visão do seu faturamento no período</p>
                             </div>
                         </div>
                         
                         {/* Legenda e título secundário */}
                         <div className="flex justify-between items-center mt-5 mb-4">
-                            <span className="text-xs font-bold text-slate-800 dark:text-white">Profit and Loss</span>
+                            <span className="text-xs font-bold text-slate-800 dark:text-white">Receitas e Despesas</span>
                             <div className="flex items-center gap-3 text-[10px] font-bold">
                                 <div className="flex items-center gap-1.5">
                                     <div className="w-2.5 h-2.5 rounded-md bg-finexyOrange"></div>
-                                    <span className="text-slate-400">Profit</span>
+                                    <span className="text-slate-400">Receitas</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <div className="w-2.5 h-2.5 rounded-md bg-finexyBlack dark:bg-slate-600"></div>
-                                    <span className="text-slate-400">Loss</span>
+                                    <span className="text-slate-400">Despesas</span>
                                 </div>
                             </div>
                         </div>
@@ -599,7 +600,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 {/* Cabeçalho da tabela */}
                 <div className="px-6 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-transparent">
                     <div>
-                        <h3 className="text-sm font-bold text-slate-800 dark:text-white">Recent Activities</h3>
+                        <h3 className="text-sm font-bold text-slate-800 dark:text-white">Atividades Recentes</h3>
                     </div>
                     {/* Barra de Filtros e Busca */}
                     <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -607,13 +608,13 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                             <input 
                                 type="text"
-                                placeholder="Search"
+                                placeholder="Pesquisar serviços..."
                                 className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-700/60 border border-slate-200/50 dark:border-slate-700/30 rounded-full text-xs outline-none focus:ring-1 focus:ring-finexyOrange w-full sm:w-48 font-semibold text-slate-600 dark:text-slate-300"
                             />
                         </div>
                         <button className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 dark:bg-slate-700/60 border border-slate-200/50 dark:border-slate-700/30 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.477 8 1.4V14a8 8 0 01-16 0V4.4C6.545 3.477 9.245 3 12 3z"></path></svg>
-                            Filter
+                            Filtrar
                         </button>
                     </div>
                 </div>
@@ -627,11 +628,11 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                     <th className="px-6 py-3.5 w-12 text-center">
                                         <input type="checkbox" className="rounded border-slate-300 text-finexyOrange focus:ring-finexyOrange" />
                                     </th>
-                                    <th className="px-6 py-3.5 font-bold tracking-wider">Order ID</th>
-                                    <th className="px-6 py-3.5 font-bold tracking-wider">Activity</th>
-                                    <th className="px-6 py-3.5 font-bold tracking-wider">Price</th>
+                                    <th className="px-6 py-3.5 font-bold tracking-wider">ID do Serviço</th>
+                                    <th className="px-6 py-3.5 font-bold tracking-wider">Atividade</th>
+                                    <th className="px-6 py-3.5 font-bold tracking-wider">Valor</th>
                                     <th className="px-6 py-3.5 font-bold tracking-wider">Status</th>
-                                    <th className="px-6 py-3.5 font-bold tracking-wider">Date</th>
+                                    <th className="px-6 py-3.5 font-bold tracking-wider">Data</th>
                                     <th className="px-6 py-3.5 w-12"></th>
                                 </tr>
                             </thead>
@@ -639,15 +640,15 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                 {filteredTransactions.slice(0, 6).map((t, idx) => {
                                     const [year, month, day] = t.date.split('-');
                                     
-                                    // Determinar estilos das tags de status de acordo com o print
+                                    // Determinar estilos das tags de status
                                     let statusStyle = 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20';
-                                    let statusText = 'Completed';
+                                    let statusText = 'Concluído';
                                     if (t.status === 'PENDENTE') {
                                         statusStyle = 'text-rose-600 bg-rose-50 dark:bg-rose-950/20';
-                                        statusText = 'Pending';
+                                        statusText = 'Pendente';
                                     } else if (t.status === 'PARCIAL') {
                                         statusStyle = 'text-amber-600 bg-amber-50 dark:bg-amber-950/20';
-                                        statusText = 'In Progress';
+                                        statusText = 'Em Andamento';
                                     }
 
                                     return (
@@ -656,7 +657,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                                 <input type="checkbox" className="rounded border-slate-300 text-finexyOrange focus:ring-finexyOrange" />
                                             </td>
                                             <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">
-                                                INV_00007{6 - idx}
+                                                OS_{t.id.slice(0,6).toUpperCase()}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3.5">
