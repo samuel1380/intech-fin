@@ -235,6 +235,19 @@ const Settings: React.FC<SettingsProps> = ({
   });
   const [isPingInProgress, setIsPingInProgress] = useState(false);
 
+  // AI API Keys state
+  const [groqKey, setGroqKey] = useState(localStorage.getItem('finnexus_groq_key') || '');
+  const [openaiKey, setOpenaiKey] = useState(localStorage.getItem('finnexus_openai_key') || '');
+  const [mistralKey, setMistralKey] = useState(localStorage.getItem('finnexus_mistral_key') || '');
+
+  const handleSaveApiKeys = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem('finnexus_groq_key', groqKey);
+    localStorage.setItem('finnexus_openai_key', openaiKey);
+    localStorage.setItem('finnexus_mistral_key', mistralKey);
+    showToast('Chaves de API da IA salvas localmente e em segurança!', 'success');
+  };
+
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
   }, []);
@@ -878,6 +891,67 @@ const Settings: React.FC<SettingsProps> = ({
             <Plus className="h-4 w-4" />
             <span>Adicionar</span>
           </button>
+        </form>
+      </div>
+
+      {/* ===== SEÇÃO: CHAVES DE API DE INTELIGÊNCIA ARTIFICIAL ===== */}
+      <div className="bg-white dark:bg-slate-800 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[32px] shadow-premium transition-all duration-300">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <Cpu className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-[#0F172A] dark:text-white tracking-tight">
+              Configurações da Inteligência Artificial
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              Suas chaves são guardadas com segurança no próprio dispositivo. Nenhum servidor tem acesso.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSaveApiKeys} className="space-y-5">
+          <div className="grid grid-cols-1 gap-5">
+            <div>
+              <label className="block text-xs font-bold text-[#0F172A] dark:text-slate-300 mb-1.5 ml-1">Chave da OpenAI (ChatGPT)</label>
+              <input
+                type="password"
+                placeholder="sk-proj-..."
+                value={openaiKey}
+                onChange={(e) => setOpenaiKey(e.target.value)}
+                className="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm font-semibold dark:text-white placeholder-slate-400"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#0F172A] dark:text-slate-300 mb-1.5 ml-1">Chave da Groq (Llama 3, super rápida)</label>
+              <input
+                type="password"
+                placeholder="gsk_..."
+                value={groqKey}
+                onChange={(e) => setGroqKey(e.target.value)}
+                className="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm font-semibold dark:text-white placeholder-slate-400"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#0F172A] dark:text-slate-300 mb-1.5 ml-1">Chave da Mistral</label>
+              <input
+                type="password"
+                placeholder="Chave Mistral API"
+                value={mistralKey}
+                onChange={(e) => setMistralKey(e.target.value)}
+                className="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm font-semibold dark:text-white placeholder-slate-400"
+              />
+            </div>
+          </div>
+          <div className="pt-2">
+            <button
+              type="submit"
+              className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+              <ShieldAlert className="h-4 w-4" />
+              <span>Salvar Chaves Seguras</span>
+            </button>
+          </div>
         </form>
       </div>
 

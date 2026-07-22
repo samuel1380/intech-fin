@@ -16,47 +16,48 @@ interface ProviderConfig {
 
 const PROVIDER: AIProvider = (process.env.AI_PROVIDER as AIProvider) || 'groq';
 
-const PROVIDER_CONFIGS: Record<AIProvider, ProviderConfig> = {
+const getProviderConfigs = (): Record<AIProvider, ProviderConfig> => ({
   groq: {
     baseUrl: 'https://api.groq.com/openai/v1',
-    apiKey: process.env.GROQ_API_KEY,
-    model: process.env.AI_MODEL || 'llama-3.1-8b-instant',
+    apiKey: localStorage.getItem('finnexus_groq_key') || '',
+    model: 'llama-3.1-8b-instant',
     name: 'Groq',
     extraHeaders: {},
   },
   mistral: {
     baseUrl: 'https://api.mistral.ai/v1',
-    apiKey: process.env.MISTRAL_API_KEY,
+    apiKey: localStorage.getItem('finnexus_mistral_key') || '',
     model: 'mistral-small-latest',
     name: 'Mistral',
     extraHeaders: {},
   },
   openrouter: {
-    baseUrl: process.env.AI_BASE_URL || 'https://openrouter.ai/api/v1',
-    apiKey: process.env.OPENAI_API_KEY,
-    model: process.env.AI_MODEL || 'xiaomi/mimo-v2-flash:free',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    apiKey: localStorage.getItem('finnexus_openai_key') || '',
+    model: 'xiaomi/mimo-v2-flash:free',
     name: 'OpenRouter',
     extraHeaders: {
       'HTTP-Referer': 'https://finnexus.enterprise',
       'X-Title': 'FinNexus Enterprise',
     },
   },
-};
+});
 
 // Fallback order: primary → others that have keys
 const getProviderChain = (): ProviderConfig[] => {
+  const configs = getProviderConfigs();
   const order: AIProvider[] = PROVIDER === 'groq'
     ? ['groq', 'mistral', 'openrouter']
     : PROVIDER === 'mistral'
       ? ['mistral', 'groq', 'openrouter']
       : ['openrouter', 'groq', 'mistral'];
 
-  return order.map(p => PROVIDER_CONFIGS[p]).filter(c => !!c.apiKey);
+  return order.map(p => configs[p]).filter(c => !!c.apiKey);
 };
 
 const getActiveConfig = (): ProviderConfig => {
   const chain = getProviderChain();
-  return chain.length > 0 ? chain[0] : PROVIDER_CONFIGS[PROVIDER];
+  return chain.length > 0 ? chain[0] : getProviderConfigs()[PROVIDER];
 };
 
 // Export for UI display

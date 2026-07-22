@@ -17,10 +17,13 @@ import { Transaction, FinancialSummary, TaxSetting, UserProfile } from './types'
 import { Menu, Lock, User } from 'lucide-react';
 import { checkAndTriggerKeepAlive } from './services/keepAliveService';
 
-const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => void }) => {
+const LoginScreen = ({ onLogin, onSignUp }: { onLogin: (email: string, pass: string) => Promise<void>, onSignUp: (email: string, pass: string) => Promise<void> }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden font-sans">
@@ -52,8 +55,26 @@ const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => vo
         </div>
 
         {/* Form */}
-        <form onSubmit={(e) => { e.preventDefault(); onLogin(email, password); }} className="w-full space-y-5">
+        <form onSubmit={async (e) => { 
+          e.preventDefault(); 
+          setLoading(true);
+          setError('');
+          try {
+            if (isSignUp) await onSignUp(email, password);
+            else await onLogin(email, password);
+          } catch(err: any) {
+            setError(err.message || 'Erro ao autenticar');
+          } finally {
+            setLoading(false);
+          }
+        }} className="w-full space-y-5">
           
+          {error && (
+            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm px-4 py-3 rounded-[14px]">
+              {error}
+            </div>
+          )}
+
           <div className="space-y-2">
             <label className="text-[13px] font-normal text-white/70 block">Email</label>
             <div className="relative">
@@ -98,9 +119,17 @@ const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => vo
             </div>
           </div>
 
-          <div className="pt-4">
-            <button type="submit" className="w-full bg-white text-slate-900 font-medium py-3.5 rounded-full shadow-lg transition-transform hover:scale-[1.02] text-[15px]">
-              Entrar
+          <div className="pt-4 space-y-3">
+            <button disabled={loading} type="submit" className="w-full bg-white text-slate-900 font-medium py-3.5 rounded-full shadow-lg transition-transform hover:scale-[1.02] text-[15px] disabled:opacity-50 flex items-center justify-center">
+              {loading ? <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div> : (isSignUp ? 'Criar Conta' : 'Entrar')}
+            </button>
+            
+            <button 
+              type="button" 
+              onClick={() => { setIsSignUp(!isSignUp); setError(''); }} 
+              className="w-full text-white/60 hover:text-white transition-colors text-[13px] font-medium"
+            >
+              {isSignUp ? 'Já tem uma conta? Faça login' : 'Não tem conta? Criar Conta'}
             </button>
           </div>
         </form>
@@ -143,10 +172,13 @@ function App() {
 
   // Check login persistence and handle hash-based tab navigation
   useEffect(() => {
-    const storedAuth = localStorage.getItem('finnexus_auth');
-    if (storedAuth === 'true') {
-      setIsAuthenticated(true);
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
 
     const handleHashChange = () => {
       const hash = window.location.hash;
@@ -161,24 +193,33 @@ function App() {
 
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const handleLogin = (email: string, pass: string) => {
-    // Credenciais Definitivas
-    const VALID_EMAIL = 'intechfin@financeiro.com.br';
-    const VALID_PASS = 'Intech2026#';
-
-    if (email === VALID_EMAIL && pass === VALID_PASS) {
-      localStorage.setItem('finnexus_auth', 'true');
-      setIsAuthenticated(true);
-    } else {
-      alert('Credenciais inválidas. Verifique seu e-mail e senha.');
+  const handleLogin = async (email: string, pass: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if (error) {
+      if (error.message.includes('Invalid login credentials')) {
+        throw new Error('E-mail ou senha incorretos.');
+      }
+      throw error;
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('finnexus_auth');
+  const handleSignUp = async (email: string, pass: string) => {
+    const { error } = await supabase.auth.signUp({ email, password: pass });
+    if (error) {
+      throw error;
+    }
+    // Note: User might need to confirm email depending on Supabase settings.
+    // Assuming auto-confirm is enabled for this project, or they will see an error.
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setIsAuthenticated(false);
   }
 
@@ -391,7 +432,7 @@ function App() {
   };
 
   if (!isAuthenticated) {
-    return <LoginScreen onLogin={handleLogin} />;
+    return <LoginScreen onLogin={handleLogin} onSignUp={handleSignUp} />;
   }
 
   const getHeaderTitle = (tab: string) => {

@@ -6,6 +6,7 @@ import {
     TrendingUp, Users, Scissors, Target, UserCheck, DollarSign,
     BarChart3, Zap, MessageSquare, X, ChevronDown
 } from 'lucide-react';
+import DOMPurify from 'dompurify';
 
 interface Props {
     summary: FinancialSummary;
@@ -308,7 +309,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                             </div>
                         ) : (
                             <div className="prose prose-invert prose-sm">
-                                <div dangerouslySetInnerHTML={{ __html: insights }} />
+                                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(insights) }} />
                             </div>
                         )}
                     </div>
