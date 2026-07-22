@@ -175,6 +175,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                         <span className="text-indigo-500 font-semibold">{t.employeeName}</span>
                     )}
                 </div>
+                </div>
             </div>
 
             {/* Valor & Ação Mobile Wrapper */}
