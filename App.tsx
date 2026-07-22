@@ -428,7 +428,7 @@ function App() {
   ];
 
   return (
-    <div className="flex h-screen supports-[height:100dvh]:h-[100dvh] bg-[#F3F4F6] dark:bg-[#070b14] overflow-hidden font-sans transition-colors duration-300 p-4 pl-24">
+    <div className="flex flex-col md:flex-row h-screen supports-[height:100dvh]:h-[100dvh] bg-[#F3F4F6] dark:bg-[#070b14] overflow-hidden font-sans transition-colors duration-300 p-0 md:p-4 md:pl-24 pb-16 md:pb-4">
       {/* Sidebar Compacta Flutuante */}
       <Sidebar
         activeTab={activeTab}
@@ -439,7 +439,7 @@ function App() {
       />
 
       {/* Main Container com borda ultra arredondada, estilo tablet/dashboard Finexy */}
-      <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-900 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[32px] overflow-hidden shadow-premium-lg w-full relative">
+      <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-900 md:border md:border-[#EEF2F7] md:dark:border-white/[0.06] rounded-none md:rounded-[32px] overflow-hidden shadow-none md:shadow-premium-lg w-full relative">
         
         {/* Top Header - Navegação por pílulas + Perfil + Search */}
         <header className="px-8 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex items-center justify-between z-20 shrink-0 bg-white dark:bg-slate-900 gap-3">
@@ -450,10 +450,10 @@ function App() {
                 <img
                   src={profile.avatarUrl}
                   alt="FinIntech Logo"
-                  className="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-slate-100 dark:ring-slate-800 shrink-0"
+                  className="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-slate-100 dark:ring-slate-800 shrink-0 block md:hidden"
                 />
             ) : (
-                <div className="w-8 h-8 rounded-full bg-finexyOrange flex items-center justify-center shadow-md shadow-finexyOrange/20 shrink-0">
+                <div className="w-8 h-8 rounded-full bg-finexyOrange flex items-center justify-center shadow-md shadow-finexyOrange/20 shrink-0 block md:hidden">
                   <span className="font-extrabold text-white text-sm">FI</span>
                 </div>
             )}
@@ -478,9 +478,9 @@ function App() {
           </div>
 
           {/* Lado Direito: Ações rápidas & Info Perfil */}
-          <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {/* Ícones de Ações Minimalistas */}
-            <div className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/30">
+            <div className="hidden sm:flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/30">
               <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
               </button>
@@ -489,20 +489,20 @@ function App() {
                 <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-finexyOrange rounded-full"></span>
               </button>
               <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               </button>
             </div>
 
             {/* Informações do Usuário com avatar */}
-            <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-3 md:pl-3 md:border-l border-slate-200 dark:border-slate-800">
               {profile.avatarUrl ? (
                 <img
                   src={profile.avatarUrl}
                   alt="Avatar"
-                  className="h-9 w-9 rounded-full object-cover shadow-sm ring-2 ring-slate-100 dark:ring-slate-800"
+                  className="h-8 w-8 md:h-9 md:w-9 rounded-full object-cover shadow-sm ring-2 ring-slate-100 dark:ring-slate-800 hidden md:block"
                 />
               ) : (
-                <div className="h-9 w-9 bg-finexyOrange text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md shadow-finexyOrange/15">
+                <div className="h-8 w-8 md:h-9 md:w-9 bg-finexyOrange text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md shadow-finexyOrange/15 hidden md:flex">
                   {getInitials(profile.name)}
                 </div>
               )}
@@ -515,7 +515,7 @@ function App() {
         </header>
 
         {/* Conteúdo Principal com scroll e fundo cinza claro para isolar os cards internos */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-8 pb-20 scroll-smooth bg-[#FAFAFC] dark:bg-slate-900 transition-colors duration-300">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 pb-20 scroll-smooth bg-[#FAFAFC] dark:bg-slate-900 transition-colors duration-300">
           <div className="max-w-[1600px] mx-auto min-w-0">
             {isLoading ? (
               <div className="flex flex-col justify-center items-center h-[50vh] text-slate-500 gap-5">
