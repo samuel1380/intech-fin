@@ -118,10 +118,10 @@ interface NotifItemProps {
 const NotifItem: React.FC<NotifItemProps> = ({
   icon, iconBg, title, description, enabled, onToggle, disabled = false, children
 }) => (
-  <div className={`rounded-2xl border transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md
+  <div className={`rounded-[24px] border transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md
     ${enabled && !disabled
       ? 'border-indigo-500/30 bg-gradient-to-br from-indigo-50/60 to-violet-50/60 dark:from-indigo-950/20 dark:to-violet-950/20 backdrop-blur-md'
-      : 'border-slate-200/60 bg-white/40 dark:border-slate-800/40 dark:bg-slate-900/10 backdrop-blur-md'
+      : 'border-transparent hover:border-slate-200/60 bg-white/40 dark:bg-slate-900/10 backdrop-blur-md'
     }`}
   >
     <div className="flex items-center justify-between p-5">
@@ -395,7 +395,7 @@ const Settings: React.FC<SettingsProps> = ({
       )}
 
       {/* ===== SEÇÃO: CONFIGURAÇÕES DE PERFIL ===== */}
-      <div className="bg-white dark:bg-[#0F172A]/60 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none transition-all duration-300">
+      <div className="bg-white dark:bg-slate-800 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[32px] shadow-premium transition-all duration-300">
         <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
             <User className="h-6 w-6 text-white" />
@@ -499,9 +499,8 @@ const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* ===== SEÇÃO: NOTIFICAÇÕES ===== */}
-      <div className="bg-white dark:bg-[#0F172A]/60 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none transition-all duration-300">
-        {/* Header da seção */}
-        <div className="flex items-start justify-between mb-8 gap-4">
+      <div className="bg-white dark:bg-slate-800 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[32px] shadow-premium transition-all duration-300">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <Bell className="h-6 w-6 text-white" />
@@ -807,7 +806,7 @@ const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* ===== SEÇÃO: IMPOSTOS ===== */}
-      <div className="bg-white dark:bg-[#0F172A]/60 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none transition-all duration-300">
+      <div className="bg-white dark:bg-slate-800 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[32px] shadow-premium transition-all duration-300">
         <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
             <Percent className="h-6 w-6 text-white" />
@@ -883,7 +882,7 @@ const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* ===== SEÇÃO: ANTI-INATIVIDADE DO BANCO DE DADOS (SUPABASE KEEPALIVE) ===== */}
-      <div className="bg-white dark:bg-[#0F172A]/60 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none transition-all duration-300">
+      <div className="bg-white dark:bg-slate-800 backdrop-blur-md border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[32px] shadow-premium transition-all duration-300">
         <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
             <Database className="h-6 w-6 text-white" />

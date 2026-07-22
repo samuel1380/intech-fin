@@ -14,7 +14,7 @@ const DatabaseManager: React.FC<DatabaseManagerProps> = ({ onResetDatabase }) =>
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
       {/* ===== SEÇÃO: DADOS ===== */}
-      <div className="bg-white dark:bg-[#0F172A]/80 border border-[#EEF2F7] dark:border-slate-700/40 p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none">
+      <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[32px] shadow-premium transition-all duration-300">
         <h2 className="text-xl font-semibold text-[#0F172A] dark:text-white mb-6 flex items-center gap-2">
           <Database className="h-6 w-6 text-indigo-600" />
           Gerenciamento de Dados

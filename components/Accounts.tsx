@@ -138,7 +138,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
     };
 
     const renderTransactionRow = (t: Transaction) => (
-        <div key={t.id} className="flex items-center gap-4 p-4 bg-white dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-700/40 hover:border-slate-300 dark:hover:border-slate-600 transition-all group">
+        <div key={t.id} className="flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-[24px] border border-transparent hover:border-slate-100 dark:hover:border-slate-700/50 hover:shadow-sm transition-all group">
             {/* Icon */}
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                 t.type === TransactionType.INCOME 
@@ -220,10 +220,10 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {/* Alertas urgentes */}
-                <div className={`p-5 rounded-2xl border shadow-sm transition-all cursor-pointer ${
+                <div className={`p-6 rounded-[32px] shadow-premium transition-all cursor-pointer ${
                     activeTab === 'alerts' 
-                        ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700/50 ring-2 ring-amber-300 dark:ring-amber-700'
-                        : 'bg-white dark:bg-[#0F172A]/80 border-[#EEF2F7] dark:border-slate-700/40 hover:border-amber-200'
+                        ? 'bg-amber-50 dark:bg-amber-900/20 ring-2 ring-amber-300 dark:ring-amber-700'
+                        : 'bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] hover:border-amber-200'
                 }`} onClick={() => setActiveTab('alerts')}>
                     <div className="flex items-center gap-3 mb-3">
                         <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30">
@@ -249,10 +249,10 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                 </div>
 
                 {/* A Receber */}
-                <div className={`p-5 rounded-2xl border shadow-sm transition-all cursor-pointer ${
+                <div className={`p-6 rounded-[32px] shadow-premium transition-all cursor-pointer ${
                     activeTab === 'receivable' 
-                        ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700/50 ring-2 ring-emerald-300 dark:ring-emerald-700'
-                        : 'bg-white dark:bg-[#0F172A]/80 border-[#EEF2F7] dark:border-slate-700/40 hover:border-emerald-200'
+                        ? 'bg-emerald-50 dark:bg-emerald-900/20 ring-2 ring-emerald-300 dark:ring-emerald-700'
+                        : 'bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] hover:border-emerald-200'
                 }`} onClick={() => setActiveTab('receivable')}>
                     <div className="flex items-center gap-3 mb-3">
                         <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
@@ -265,10 +265,10 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                 </div>
 
                 {/* A Pagar */}
-                <div className={`p-5 rounded-2xl border shadow-sm transition-all cursor-pointer ${
+                <div className={`p-6 rounded-[32px] shadow-premium transition-all cursor-pointer ${
                     activeTab === 'payable' 
-                        ? 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-700/50 ring-2 ring-rose-300 dark:ring-rose-700'
-                        : 'bg-white dark:bg-[#0F172A]/80 border-[#EEF2F7] dark:border-slate-700/40 hover:border-rose-200'
+                        ? 'bg-rose-50 dark:bg-rose-900/20 ring-2 ring-rose-300 dark:ring-rose-700'
+                        : 'bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] hover:border-rose-200'
                 }`} onClick={() => setActiveTab('payable')}>
                     <div className="flex items-center gap-3 mb-3">
                         <div className="p-2 rounded-lg bg-rose-100 dark:bg-rose-900/30">
@@ -281,7 +281,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                 </div>
 
                 {/* Saldo Contas */}
-                <div className="p-5 rounded-[20px] bg-white dark:bg-[#0F172A]/80 border border-[#EEF2F7] dark:border-slate-700/40 shadow-sm">
+                <div className="p-6 rounded-[32px] bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
                     <div className="flex items-center gap-3 mb-3">
                         <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
                             <DollarSign className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
@@ -296,13 +296,13 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
             </div>
 
             {/* Search */}
-            <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-1.5 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-slate-700/40">
+            <div className="bg-white dark:bg-slate-800 p-2 rounded-full shadow-sm border border-[#EEF2F7] dark:border-white/[0.06]">
                 <div className="relative">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <input
                         type="text"
                         placeholder="Buscar contas por descrição, categoria ou funcionário..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-transparent rounded-xl text-sm focus:outline-none focus:bg-slate-50 dark:focus:bg-slate-900/50 transition-all placeholder:text-slate-400 font-medium text-slate-700 dark:text-slate-200"
+                        className="w-full pl-11 pr-4 py-3 bg-transparent rounded-full text-sm focus:outline-none focus:bg-slate-50 dark:focus:bg-slate-900/50 transition-all placeholder:text-slate-400 font-medium text-slate-700 dark:text-slate-200"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -346,7 +346,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                                 {filterBySearch(alerts).map(renderTransactionRow)}
                             </div>
                         ) : (
-                            <div className="p-12 text-center bg-white dark:bg-[#0F172A]/80 rounded-2xl border border-[#EEF2F7] dark:border-slate-700/40">
+                            <div className="p-12 text-center bg-white dark:bg-slate-800 rounded-[32px] border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm">
                                 <CheckCircle className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
                                 <h3 className="font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Tudo em dia!</h3>
                                 <p className="text-sm text-slate-400">Nenhuma conta com vencimento próximo (7 dias). 🎉</p>
@@ -366,7 +366,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                                 {filterBySearch(receivables).map(renderTransactionRow)}
                             </div>
                         ) : (
-                            <div className="p-12 text-center bg-white dark:bg-[#0F172A]/80 rounded-2xl border border-[#EEF2F7] dark:border-slate-700/40">
+                            <div className="p-12 text-center bg-white dark:bg-slate-800 rounded-[32px] border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm">
                                 <CheckCircle className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
                                 <h3 className="font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Nenhuma conta a receber</h3>
                                 <p className="text-sm text-slate-400">Todas as receitas foram recebidas. 💰</p>
@@ -386,7 +386,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                                 {filterBySearch(payables).map(renderTransactionRow)}
                             </div>
                         ) : (
-                            <div className="p-12 text-center bg-white dark:bg-[#0F172A]/80 rounded-2xl border border-[#EEF2F7] dark:border-slate-700/40">
+                            <div className="p-12 text-center bg-white dark:bg-slate-800 rounded-[32px] border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm">
                                 <CheckCircle className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
                                 <h3 className="font-semibold text-[#0F172A] dark:text-slate-200 mb-1">Nenhuma conta a pagar</h3>
                                 <p className="text-sm text-slate-400">Todas as despesas foram pagas. ✅</p>

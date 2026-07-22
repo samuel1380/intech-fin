@@ -275,77 +275,65 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
 
     return (<div className="space-y-5 animate-fade-in w-full pb-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 border-b border-[#EEF2F7] dark:border-white/[0.06] pb-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-5">
             <div>
-                <h2 className="text-[22px] font-semibold text-[#0F172A] dark:text-white tracking-[-0.01em]">Transações</h2>
-                <p className="text-[#64748B] dark:text-slate-400 mt-1 font-medium text-[13px]">Controle de caixa e histórico financeiro.</p>
+                <h2 className="text-[22px] font-bold text-[#0F172A] dark:text-white tracking-tight">Atividades Recentes</h2>
+                <p className="text-[#94A3B8] dark:text-slate-400 mt-1 font-medium text-[13px]">Controle de caixa e histórico financeiro.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
                 <button
                     onClick={handleExportCSV}
-                    className="flex items-center justify-center px-4 py-2.5 bg-white dark:bg-slate-800/60 border border-[#EEF2F7] dark:border-slate-700/40 text-[#0F172A] dark:text-slate-200 rounded-[12px] hover:bg-[#F8F9FC] dark:hover:bg-slate-800 transition-all duration-200 shadow-sm font-medium text-[13px] hover:shadow-md w-full sm:w-auto"
+                    className="flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-800/60 border border-[#EEF2F7] dark:border-slate-700/40 text-[#0F172A] dark:text-slate-200 rounded-full hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 shadow-sm font-bold text-[13px] w-full sm:w-auto"
                 >
-                    <Download className="h-4 w-4 mr-2 text-[#64748B]" />
-                    Exportar CSV
+                    <Download className="h-4 w-4 mr-2" />
+                    Exportar
                 </button>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="flex items-center justify-center px-5 py-2.5 bg-indigo-600 text-white rounded-[12px] hover:bg-indigo-700 transition-all duration-200 shadow-md shadow-indigo-500/15 hover:shadow-lg hover:shadow-indigo-500/20 font-semibold text-[13px] active:scale-[0.98] w-full sm:w-auto"
+                    className="flex items-center justify-center px-6 py-3 bg-finexyBlack dark:bg-white text-white dark:text-slate-900 rounded-full hover:opacity-90 transition-all duration-200 shadow-md font-bold text-[13px] w-full sm:w-auto"
                 >
                     <Plus className="h-4 w-4 mr-2" />
-                    Novo Lançamento
+                    Adicionar Novo
                 </button>
-            </div>
-        </div>
-
-        {/* Toolbar */}
-        <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-1.5 rounded-[16px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] flex flex-col lg:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full lg:w-96">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94A3B8]" />
-                <input
-                    type="text"
-                    placeholder="Buscar por descrição..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-transparent rounded-[12px] text-[13px] focus:outline-none focus:bg-[#F8F9FC] dark:focus:bg-slate-800/40 transition-all duration-200 placeholder:text-[#94A3B8] font-medium text-[#0F172A] dark:text-slate-200"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-            </div>
-
-            <div className="flex bg-[#F8F9FC] dark:bg-slate-800/40 p-1 rounded-[14px] w-full lg:w-auto border border-[#EEF2F7] dark:border-slate-700/30">
-                {[
-                    { label: 'Todos', value: 'ALL' },
-                    { label: 'Receitas', value: TransactionType.INCOME },
-                    { label: 'Despesas', value: TransactionType.EXPENSE }
-                ].map((opt) => (
-                    <button
-                        key={opt.value}
-                        onClick={() => setFilter(opt.value)}
-                        className={`flex-1 px-5 py-2 rounded-[10px] text-[13px] font-semibold transition-all duration-200 whitespace-nowrap ${filter === opt.value
-                            ? 'bg-white dark:bg-slate-700 text-[#0F172A] dark:text-white shadow-sm'
-                            : 'text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200'
-                            }`}
-                    >
-                        {opt.label}
-                    </button>
-                ))}
             </div>
         </div>
 
         {/* Main Table Card */}
-        <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] overflow-hidden w-full flex flex-col h-[600px]">
-            <div className="overflow-auto custom-scrollbar flex-1 relative">
+        <div className="bg-white dark:bg-slate-800 rounded-[32px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] overflow-hidden w-full flex flex-col h-[650px] p-2">
+            
+            {/* Inner Header with Search */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06]">
+                <h3 className="font-bold text-slate-800 dark:text-white text-[16px]">Atividades</h3>
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder="Buscar..."
+                            className="w-48 pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600/50 rounded-full text-[13px] focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition-all text-slate-700 dark:text-slate-200 font-medium placeholder:text-slate-400"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-600/50 rounded-full text-slate-600 dark:text-slate-300 text-[13px] font-bold hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                        Filter <Filter className="h-3.5 w-3.5" />
+                    </button>
+                </div>
+            </div>
+
+            <div className="overflow-auto custom-scrollbar flex-1 relative px-2">
                 <table className="hidden md:table w-full text-left border-collapse min-w-[900px]">
-                    <thead className="bg-[#F8F9FC] dark:bg-[#0B1120]/80 backdrop-blur-sm border-b border-[#EEF2F7] dark:border-white/[0.06] sticky top-0 z-10">
+                    <thead className="bg-white dark:bg-slate-800 sticky top-0 z-10">
                         <tr>
-                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em] w-[120px]">Data</th>
-                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em]">Descrição</th>
-                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em] w-[150px]">Categoria</th>
-                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em] text-right w-[150px]">Valor</th>
-                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em] text-center w-[140px]">Status</th>
-                            <th className="px-6 py-3.5 text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.06em] text-center w-[140px]">Ações</th>
+                            <th className="px-6 py-4 text-[12px] font-semibold text-slate-400 border-b border-slate-100 dark:border-slate-700/50 w-[120px]">Data</th>
+                            <th className="px-6 py-4 text-[12px] font-semibold text-slate-400 border-b border-slate-100 dark:border-slate-700/50">Atividade</th>
+                            <th className="px-6 py-4 text-[12px] font-semibold text-slate-400 border-b border-slate-100 dark:border-slate-700/50 w-[150px]">Categoria</th>
+                            <th className="px-6 py-4 text-[12px] font-semibold text-slate-400 border-b border-slate-100 dark:border-slate-700/50 w-[150px]">Preço</th>
+                            <th className="px-6 py-4 text-[12px] font-semibold text-slate-400 border-b border-slate-100 dark:border-slate-700/50 w-[140px]">Status</th>
+                            <th className="px-6 py-4 text-[12px] font-semibold text-slate-400 border-b border-slate-100 dark:border-slate-700/50 w-[100px] text-center"></th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#EEF2F7] dark:divide-white/[0.04]">
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-700/30">
                         {paginatedTransactions.map((t) => {
                             const [year, month, day] = t.date.split('-');
                             const isPending = canMarkAsPaid(t);
@@ -382,11 +370,10 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F8F9FC] dark:bg-slate-800/40 text-[#64748B] dark:text-slate-300 border border-[#EEF2F7] dark:border-slate-700/30 whitespace-nowrap">
                                             {t.category}
                                         </span>
+                                                     <td className={`px-6 py-5 font-bold font-mono text-[14px] ${t.type === TransactionType.INCOME ? 'text-slate-800 dark:text-white' : 'text-slate-800 dark:text-white'}`}>
+                                        {formatBRL(t.amount)}
                                     </td>
-                                    <td className={`px-6 py-4 text-right font-semibold font-mono text-[13px] ${t.type === TransactionType.INCOME ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
-                                        {t.type === TransactionType.INCOME ? '+' : '-'}{formatBRL(t.amount)}
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
+                                    <td className="px-6 py-5 text-left">
                                         <button
                                             onClick={() => {
                                                 const nextStatus = t.status === TransactionStatus.COMPLETED ? TransactionStatus.PENDING :
@@ -394,15 +381,15 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                                         TransactionStatus.COMPLETED;
                                                 onUpdateStatus(t.id, nextStatus);
                                             }}
-                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold transition-all duration-200 border cursor-pointer whitespace-nowrap ${t.status === TransactionStatus.COMPLETED ? 'bg-emerald-50 text-emerald-600 border-emerald-200/60 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' :
-                                                    t.status === TransactionStatus.PARTIAL ? 'bg-amber-50 text-amber-600 border-amber-200/60 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20' :
-                                                        'bg-rose-50 text-rose-600 border-rose-200/60 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20'
-                                                }`}
+                                            className="flex items-center gap-2 text-[12px] font-bold text-slate-700 dark:text-slate-300 transition-opacity hover:opacity-70"
                                         >
-                                            {t.status === TransactionStatus.COMPLETED ? <CheckCircle className="w-3 h-3" /> :
-                                                t.status === TransactionStatus.PARTIAL ? <AlertCircle className="w-3 h-3" /> :
-                                                    <Clock className="w-3 h-3" />}
-                                            {t.status}
+                                            <div className={`w-2 h-2 rounded-full ${
+                                                t.status === TransactionStatus.COMPLETED ? 'bg-emerald-500' :
+                                                t.status === TransactionStatus.PARTIAL ? 'bg-amber-500' :
+                                                'bg-rose-500'
+                                            }`}></div>
+                                            {t.status === TransactionStatus.COMPLETED ? 'Concluído' :
+                                             t.status === TransactionStatus.PARTIAL ? 'Em Andamento' : 'Pendente'}
                                         </button>
                                     </td>
                                     <td className="px-6 py-4 text-center">

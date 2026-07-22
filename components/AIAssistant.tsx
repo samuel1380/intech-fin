@@ -180,7 +180,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
 
             {/* Quick Metrics Bar */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white dark:bg-[#0F172A]/80 rounded-[16px] p-5 border border-[#EEF2F7] dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] p-6 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
                     <div className="flex items-center gap-2 mb-1">
                         <DollarSign className="h-4 w-4 text-emerald-500" />
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lucro</span>
@@ -189,7 +189,7 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                         {formatCurrency(summary.netProfit)}
                     </p>
                 </div>
-                <div className="bg-white dark:bg-[#0F172A]/80 rounded-[16px] p-5 border border-[#EEF2F7] dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] p-6 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
                     <div className="flex items-center gap-2 mb-1">
                         <BarChart3 className="h-4 w-4 text-indigo-500" />
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Margem</span>
@@ -198,14 +198,14 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                         {margin.toFixed(1)}%
                     </p>
                 </div>
-                <div className="bg-white dark:bg-[#0F172A]/80 rounded-[16px] p-5 border border-[#EEF2F7] dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] p-6 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
                     <div className="flex items-center gap-2 mb-1">
                         <Zap className="h-4 w-4 text-violet-500" />
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Concluídos/Mês</span>
                     </div>
                     <p className="text-xl font-extrabold text-slate-800 dark:text-white">{completedThisMonth}</p>
                 </div>
-                <div className="bg-white dark:bg-[#0F172A]/80 rounded-[16px] p-5 border border-[#EEF2F7] dark:border-slate-700/40 shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] p-6 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
                     <div className="flex items-center gap-2 mb-1">
                         <AlertTriangle className="h-4 w-4 text-amber-500" />
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pendentes</span>
@@ -242,8 +242,8 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
 
             {/* Quick Analysis Result Modal */}
             {activeQuickAnalysis && (
-                <div className="bg-white dark:bg-[#0F172A]/80 rounded-2xl border border-[#EEF2F7] dark:border-slate-700/40 shadow-lg dark:shadow-none overflow-hidden animate-fade-in">
-                    <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700/40 flex items-center justify-between bg-slate-50 dark:bg-[#0d1526]/60">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium overflow-hidden animate-fade-in">
+                    <div className="px-6 py-4 border-b border-[#EEF2F7] dark:border-white/[0.06] flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
                         <div className="flex items-center gap-3">
                             <div className={`p-2 rounded-lg bg-gradient-to-br ${colorMap[quickActions.find(a => a.id === activeQuickAnalysis)?.color || 'indigo']} shadow-lg`}>
                                 {(() => {
@@ -360,8 +360,8 @@ const AIAssistant: React.FC<Props> = ({ summary, transactions }) => {
                 </div>
 
                 {/* Chat Interface */}
-                <div className="lg:col-span-2 bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-slate-700/40 flex flex-col overflow-hidden">
-                    <div className="p-4 border-b border-slate-100 dark:border-slate-700/40 bg-slate-50 dark:bg-[#0d1526]/60 flex justify-between items-center">
+                <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-[32px] shadow-premium border border-[#EEF2F7] dark:border-white/[0.06] flex flex-col overflow-hidden">
+                    <div className="p-5 border-b border-[#EEF2F7] dark:border-white/[0.06] bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
                         <h3 className="font-semibold text-slate-700 dark:text-white flex items-center gap-2">
                             <Bot className="h-5 w-5 text-indigo-600" />
                             Chat com o Consultor

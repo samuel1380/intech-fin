@@ -416,9 +416,9 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
                 {/* Filters */}
                 <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                    <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex w-max border border-slate-200 dark:border-slate-700">
-                        <button onClick={() => setViewMode('month')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Mensal</button>
-                        <button onClick={() => setViewMode('day')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'day' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Diário</button>
+                    <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full inline-flex w-max border border-slate-200 dark:border-slate-700">
+                        <button onClick={() => setViewMode('month')} className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${viewMode === 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Mensal</button>
+                        <button onClick={() => setViewMode('day')} className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${viewMode === 'day' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Diário</button>
                     </div>
 
                     {viewMode === 'month' ? (
@@ -477,74 +477,74 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
                     <button
                         onClick={handleDownloadPDF}
                         disabled={!hasData}
-                        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl transition-all w-full sm:w-auto justify-center font-bold text-sm
+                        className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all w-full sm:w-auto justify-center font-bold text-sm
                             ${hasData
-                                ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800 shadow-lg shadow-indigo-500/20 active:scale-[0.98]'
+                                ? 'bg-finexyBlack dark:bg-white text-white dark:text-slate-900 shadow-md hover:opacity-90'
                                 : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
                             }`}
                     >
                         <FileText className="h-4 w-4" />
-                        PDF
+                        Gerar PDF
                     </button>
                 </div>
             </div>
 
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
-                    <div className="flex items-center gap-2 mb-2">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] p-5 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
+                    <div className="flex items-center gap-2 mb-3">
                         <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
                             <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                         </div>
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Receita</span>
                     </div>
-                    <p className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">{formatCompact(totalIncome)}</p>
+                    <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{formatCompact(totalIncome)}</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
-                    <div className="flex items-center gap-2 mb-2">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] p-5 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
+                    <div className="flex items-center gap-2 mb-3">
                         <div className="p-1.5 bg-rose-50 dark:bg-rose-900/30 rounded-lg">
                             <TrendingDown className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                         </div>
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Despesa</span>
                     </div>
-                    <p className="text-lg font-extrabold text-rose-600 dark:text-rose-400">{formatCompact(totalExpense)}</p>
+                    <p className="text-xl font-bold text-rose-600 dark:text-rose-400">{formatCompact(totalExpense)}</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
-                    <div className="flex items-center gap-2 mb-2">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] p-5 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
+                    <div className="flex items-center gap-2 mb-3">
                         <div className="p-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
                             <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                         </div>
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Comissões</span>
                     </div>
-                    <p className="text-lg font-extrabold text-amber-600 dark:text-amber-400">{formatCompact(totalCommissions)}</p>
+                    <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{formatCompact(totalCommissions)}</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
-                    <div className="flex items-center gap-2 mb-2">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] p-5 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
+                    <div className="flex items-center gap-2 mb-3">
                         <div className="p-1.5 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
                             <Receipt className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                         </div>
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Impostos</span>
                     </div>
-                    <p className="text-lg font-extrabold text-yellow-600 dark:text-yellow-400">{formatCompact(estimatedTax)}</p>
-                    <p className="text-[10px] text-slate-400 font-medium">{(totalTaxRate * 100).toFixed(1)}% sobre receita</p>
+                    <p className="text-xl font-bold text-yellow-600 dark:text-yellow-400">{formatCompact(estimatedTax)}</p>
+                    <p className="text-[10px] text-slate-400 font-medium mt-1">{(totalTaxRate * 100).toFixed(1)}% sobre receita</p>
                 </div>
 
-                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
-                    <div className="flex items-center gap-2 mb-2">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] p-5 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
+                    <div className="flex items-center gap-2 mb-3">
                         <div className="p-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
                             <DollarSign className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Líquido</span>
                     </div>
-                    <p className={`text-lg font-extrabold ${netAfterTax >= 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                    <p className={`text-xl font-bold ${netAfterTax >= 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'}`}>
                         {formatCompact(netAfterTax)}
                     </p>
                 </div>
 
-                <div className="bg-white dark:bg-[#0F172A]/80 rounded-xl p-4 border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm dark:shadow-none">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] p-5 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
                     <div className="flex items-center gap-2 mb-2">
                         <div className="p-1.5 bg-violet-50 dark:bg-violet-900/30 rounded-lg">
                             <Percent className="h-4 w-4 text-violet-600 dark:text-violet-400" />
@@ -560,7 +560,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
 
             {/* ===== FUNCIONÁRIOS & COMISSÕES ===== */}
             {employees.length > 0 && (
-                <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] overflow-hidden">
+                <div className="bg-white dark:bg-slate-800 rounded-[32px] shadow-premium border border-[#EEF2F7] dark:border-white/[0.06] overflow-hidden">
                     <div className="p-6 border-b border-[#EEF2F7] dark:border-white/[0.06]">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
