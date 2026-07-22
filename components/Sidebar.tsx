@@ -6,9 +6,10 @@ interface SidebarProps {
   setActiveTab: (tab: string) => void;
   onLogout: () => void;
   isOpen: boolean;
+  avatarUrl?: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, isOpen }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, isOpen, avatarUrl }) => {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -44,9 +45,17 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
     >
       {/* Brand Icon */}
       <div className="flex flex-col items-center gap-1 shrink-0">
-        <div className="w-10 h-10 rounded-full bg-finexyOrange flex items-center justify-center shadow-md shadow-finexyOrange/20">
-          <span className="font-extrabold text-white text-[18px]">F</span>
-        </div>
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt="FinIntech Logo"
+            className="w-10 h-10 rounded-full object-cover shadow-sm ring-2 ring-slate-100 dark:ring-slate-800 shrink-0"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-finexyOrange flex items-center justify-center shadow-md shadow-finexyOrange/20">
+            <span className="font-extrabold text-white text-[18px]">FI</span>
+          </div>
+        )}
       </div>
 
       {/* Theme Toggles (Sun & Moon Stack) */}

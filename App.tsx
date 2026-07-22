@@ -390,14 +390,14 @@ function App() {
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'Overview' },
-    { id: 'transactions', label: 'Activity' },
-    { id: 'receivables', label: 'Manage' },
-    { id: 'payables', label: 'Program' },
-    { id: 'reports', label: 'Reports' },
-    { id: 'ai-advisor', label: 'AI advisor' },
-    { id: 'settings', label: 'Account' },
-    { id: 'database', label: 'Database' }
+    { id: 'dashboard', label: 'Visão Geral' },
+    { id: 'transactions', label: 'Atividades' },
+    { id: 'receivables', label: 'A Receber' },
+    { id: 'payables', label: 'A Pagar' },
+    { id: 'reports', label: 'Relatórios' },
+    { id: 'ai-advisor', label: 'IA Consultor' },
+    { id: 'settings', label: 'Configurações' },
+    { id: 'database', label: 'Banco de Dados' }
   ];
 
   return (
@@ -408,6 +408,7 @@ function App() {
         setActiveTab={handleTabChange}
         onLogout={handleLogout}
         isOpen={false}
+        avatarUrl={profile.avatarUrl}
       />
 
       {/* Main Container com borda ultra arredondada, estilo tablet/dashboard Finexy */}
@@ -416,12 +417,20 @@ function App() {
         {/* Top Header - Navegação por pílulas + Perfil + Search */}
         <header className="px-8 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex items-center justify-between z-20 shrink-0 bg-white dark:bg-slate-900 gap-3">
           
-          {/* Lado Esquerdo: Logo Finexy minimalista e texto */}
+          {/* Lado Esquerdo: Logo minimalista e texto */}
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-finexyOrange flex items-center justify-center shadow-md shadow-finexyOrange/20 shrink-0">
-              <span className="font-extrabold text-white text-sm">F</span>
-            </div>
-            <span className="font-bold text-slate-800 dark:text-white text-[16px] tracking-tight">Finexy</span>
+            {profile.avatarUrl ? (
+                <img
+                  src={profile.avatarUrl}
+                  alt="FinIntech Logo"
+                  className="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-slate-100 dark:ring-slate-800 shrink-0"
+                />
+            ) : (
+                <div className="w-8 h-8 rounded-full bg-finexyOrange flex items-center justify-center shadow-md shadow-finexyOrange/20 shrink-0">
+                  <span className="font-extrabold text-white text-sm">FI</span>
+                </div>
+            )}
+            <span className="font-bold text-slate-800 dark:text-white text-[16px] tracking-tight">FinIntech</span>
           </div>
 
           {/* Centro: Barra de Pílulas de Navegação */}
