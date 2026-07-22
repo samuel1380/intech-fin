@@ -42,8 +42,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
   return (
     <aside
       className={`fixed z-40 bg-white dark:bg-slate-900 border-[#EEF2F7] dark:border-white/[0.06] shadow-premium select-none transition-all duration-300
-        bottom-0 left-0 right-0 h-16 w-full rounded-t-[24px] border-t flex flex-row items-center px-2 pb-safe
-        md:left-4 md:top-1/2 md:-translate-y-1/2 md:bottom-auto md:w-16 md:h-[90vh] md:rounded-[24px] md:border md:py-6 md:flex-col md:px-0`}
+        bottom-0 left-0 right-0 min-h-[4rem] pb-[env(safe-area-inset-bottom)] w-full rounded-t-[24px] border-t flex flex-row items-center px-2
+        md:left-4 md:top-1/2 md:-translate-y-1/2 md:bottom-auto md:w-16 md:h-[90vh] md:rounded-[24px] md:border md:py-6 md:flex-col md:px-0 md:pb-6`}
     >
       {/* Brand Icon */}
       <div className="hidden md:flex flex-col items-center gap-1 shrink-0">

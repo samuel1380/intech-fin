@@ -428,7 +428,7 @@ function App() {
   ];
 
   return (
-    <div className="flex flex-col md:flex-row h-screen supports-[height:100dvh]:h-[100dvh] bg-[#F3F4F6] dark:bg-[#070b14] overflow-hidden font-sans transition-colors duration-300 p-0 md:p-4 md:pl-24 pb-16 md:pb-4">
+    <div className="flex flex-col md:flex-row h-screen supports-[height:100dvh]:h-[100dvh] bg-[#F3F4F6] dark:bg-[#070b14] overflow-hidden font-sans transition-colors duration-300 p-0 md:p-4 md:pl-24 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-4">
       {/* Sidebar Compacta Flutuante */}
       <Sidebar
         activeTab={activeTab}
@@ -442,7 +442,7 @@ function App() {
       <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-900 md:border md:border-[#EEF2F7] md:dark:border-white/[0.06] rounded-none md:rounded-[32px] overflow-hidden shadow-none md:shadow-premium-lg w-full relative">
         
         {/* Top Header - Navegação por pílulas + Perfil + Search */}
-        <header className="px-8 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex items-center justify-between z-20 shrink-0 bg-white dark:bg-slate-900 gap-3">
+        <header className="px-8 pb-5 pt-[calc(1.25rem+env(safe-area-inset-top))] md:pt-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex items-center justify-between z-20 shrink-0 bg-white dark:bg-slate-900 gap-3">
           
           {/* Lado Esquerdo: Logo minimalista e texto */}
           <div className="flex items-center gap-2.5">
