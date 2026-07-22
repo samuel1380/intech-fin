@@ -322,550 +322,375 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             );
         }
         return null;
-    };
-
-    return (
-        <div className="space-y-7 animate-fade-in w-full min-w-0 pb-8">
-            {/* Header & Filter */}
-            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 pb-4">
-                <div className="flex items-center text-[13px] font-medium text-[#64748B] dark:text-slate-400">
-                    <Calendar className="w-4 h-4 mr-2 text-[#94A3B8]" />
-                    {viewMode === 'month'
-                        ? (isSingleMonth
-                            ? `Resumo de ${format(startDate, 'MMMM yyyy', { locale: ptBR })}`
-                            : `Período: ${format(startDate, 'MMM/yy', { locale: ptBR })} a ${format(endDate, 'MMM/yy', { locale: ptBR })}`
-                            )
-                        : `Visão do Dia: ${format(selectedDate, 'dd/MM/yyyy')}`}
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                    {/* View Toggle */}
-                    <div className="bg-[#EEF2F7] dark:bg-slate-800/60 p-1 rounded-[14px] inline-flex w-max border border-[#EEF2F7] dark:border-slate-700/40">
-                        <button
-                            onClick={() => setViewMode('month')}
-                            className={`px-4 py-2 rounded-[10px] text-[13px] font-semibold transition-all duration-200 ${viewMode === 'month' ? 'bg-white dark:bg-slate-700 text-[#0F172A] dark:text-white shadow-sm' : 'text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200'}`}
-                        >
-                            Mensal
-                        </button>
-                        <button
-                            onClick={() => setViewMode('day')}
-                            className={`px-4 py-2 rounded-[10px] text-[13px] font-semibold transition-all duration-200 ${viewMode === 'day' ? 'bg-white dark:bg-slate-700 text-[#0F172A] dark:text-white shadow-sm' : 'text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-slate-200'}`}
-                        >
-                            Diário
-                        </button>
-                    </div>
-
-                    {/* Date Picker: Month Range or Single Day */}
-                    {viewMode === 'month' ? (
-                        <div className="flex flex-wrap items-center gap-2">
-                            {/* Mês Início */}
-                            <div className="relative group min-w-[140px]">
-                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800/60 border border-[#EEF2F7] dark:border-slate-700/40 rounded-[12px] px-3.5 py-2.5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
-                                    <div className="flex items-center gap-1.5">
-                                        <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
-                                        <span className="text-[#0F172A] dark:text-slate-200 font-semibold text-[13px] capitalize">
-                                            {format(startDate, 'MMM yyyy', { locale: ptBR })}
-                                        </span>
-                                    </div>
-                                    <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                                </div>
-                                <input
-                                    type="month"
-                                    value={format(startDate, 'yyyy-MM')}
-                                    onChange={handleStartMonthChange}
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 appearance-none [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0"
-                                    style={{ colorScheme: 'light' }}
-                                />
-                            </div>
-
-                            <span className="text-[#94A3B8] dark:text-slate-500 font-medium text-[13px]">até</span>
-
-                            {/* Mês Fim */}
-                            <div className="relative group min-w-[140px]">
-                                <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-800/60 border border-[#EEF2F7] dark:border-slate-700/40 rounded-[12px] px-3.5 py-2.5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
-                                    <div className="flex items-center gap-1.5">
-                                        <CalendarRange className="h-4 w-4 text-violet-500 shrink-0" />
-                                        <span className="text-[#0F172A] dark:text-slate-200 font-semibold text-[13px] capitalize">
-                                            {format(endDate, 'MMM yyyy', { locale: ptBR })}
-                                        </span>
-                                    </div>
-                                    <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                                </div>
-                                <input
-                                    type="month"
-                                    value={format(endDate, 'yyyy-MM')}
-                                    onChange={handleEndMonthChange}
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 appearance-none [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0"
-                                    style={{ colorScheme: 'light' }}
-                                />
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="relative min-w-[200px] group">
-                            <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-800/60 border border-[#EEF2F7] dark:border-slate-700/40 rounded-[12px] px-4 py-2.5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
-                                <div className="flex items-center gap-2">
-                                    <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
-                                    <span className="text-[#0F172A] dark:text-slate-200 font-semibold text-[13px]">
-                                        {format(selectedDate, 'dd/MM/yyyy')}
-                                    </span>
-                                </div>
-                                <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
-                            </div>
-                            <input
-                                type="date"
-                                value={format(selectedDate, 'yyyy-MM-dd')}
-                                onChange={handleDateChange}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 appearance-none [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0"
-                                style={{ colorScheme: 'light' }}
-                            />
-                        </div>
-                    )}
+      };
+      return (
+        <div className="space-y-8 animate-fade-in w-full min-w-0 pb-8 text-slate-800 dark:text-slate-100">
+            {/* Saudação Finexy */}
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-[28px] font-bold tracking-tight text-slate-900 dark:text-white">Good morning, Sajibur</h1>
+                    <p className="text-xs font-semibold text-slate-400 mt-1">Stay on top of your tasks, monitor progress, and track status.</p>
                 </div>
             </div>
 
-            {/* === ALERTAS DE CONTAS VENCENDO === */}
-            {(() => {
-                const now = new Date();
-                now.setHours(0, 0, 0, 0);
-                const pendingAccounts = transactions.filter(t =>
-                    (t.status === TransactionStatus.PENDING || t.status === TransactionStatus.PARTIAL)
-                );
-                const overdue = pendingAccounts.filter(t => {
-                    const [y, m, d] = t.date.split('-').map(Number);
-                    return new Date(y, m - 1, d) < now;
-                });
-                const dueToday = pendingAccounts.filter(t => {
-                    const [y, m, d] = t.date.split('-').map(Number);
-                    const td = new Date(y, m - 1, d);
-                    return td.getTime() === now.getTime();
-                });
-                const dueSoon = pendingAccounts.filter(t => {
-                    const [y, m, d] = t.date.split('-').map(Number);
-                    const td = new Date(y, m - 1, d);
-                    const diff = (td.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-                    return diff >= 1 && diff <= 3;
-                });
-
-                const formatBRL = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
-                const overdueTotal = overdue.reduce((s, t) => s + (t.pendingAmount || t.amount), 0);
-                const todayTotal = dueToday.reduce((s, t) => s + (t.pendingAmount || t.amount), 0);
-                const soonTotal = dueSoon.reduce((s, t) => s + (t.pendingAmount || t.amount), 0);
-
-                if (overdue.length === 0 && dueToday.length === 0 && dueSoon.length === 0) return null;
-
-                return (
-                    <div className="space-y-3 mb-2">
-                        {overdue.length > 0 && (
-                            <div 
-                                onClick={onNavigateToTransactions}
-                                className="relative overflow-hidden p-4 sm:p-5 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/10 border border-red-200/60 dark:border-red-800/40 rounded-2xl flex items-center gap-4 cursor-pointer hover:shadow-lg hover:shadow-red-500/10 hover:-translate-y-0.5 transition-all group animate-fade-in"
-                            >
-                                <div className="absolute top-0 right-0 p-4 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-10 transition-opacity">
-                                    <AlertCircle className="h-32 w-32 text-red-500 -mt-12 -mr-8" />
-                                </div>
-                                <div className="p-3 bg-red-100 dark:bg-red-900/50 rounded-xl shrink-0 shadow-inner">
-                                    <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 animate-pulse" />
-                                </div>
-                                <div className="flex-1 min-w-0 z-10">
-                                    <h4 className="font-extrabold text-red-900 dark:text-red-300 text-base flex items-center gap-2">
-                                        {overdue.length} conta{overdue.length > 1 ? 's' : ''} vencida{overdue.length > 1 ? 's' : ''}
-                                    </h4>
-                                    <p className="text-sm font-medium text-red-700/80 dark:text-red-400/80 mt-0.5">Pendência total de <span className="font-bold text-red-700 dark:text-red-400">{formatBRL(overdueTotal)}</span></p>
-                                </div>
-                                <div className="shrink-0 z-10 bg-white/50 dark:bg-black/20 p-2.5 rounded-full group-hover:bg-red-600 group-hover:text-white transition-colors text-red-600 dark:text-red-400 shadow-sm border border-red-200/50 dark:border-red-800/50">
-                                    <ArrowRight className="h-4 w-4" />
-                                </div>
-                            </div>
-                        )}
-                        {dueToday.length > 0 && (
-                            <div 
-                                onClick={onNavigateToTransactions}
-                                className="relative overflow-hidden p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/10 border border-amber-200/60 dark:border-amber-800/40 rounded-2xl flex items-center gap-4 cursor-pointer hover:shadow-lg hover:shadow-amber-500/10 hover:-translate-y-0.5 transition-all group animate-fade-in"
-                            >
-                                <div className="absolute top-0 right-0 p-4 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-10 transition-opacity">
-                                    <Bell className="h-32 w-32 text-amber-500 -mt-12 -mr-8" />
-                                </div>
-                                <div className="p-3 bg-amber-100 dark:bg-amber-900/50 rounded-xl shrink-0 shadow-inner">
-                                    <Bell className="h-6 w-6 text-amber-600 dark:text-amber-400" />
-                                </div>
-                                <div className="flex-1 min-w-0 z-10">
-                                    <h4 className="font-extrabold text-amber-900 dark:text-amber-300 text-base">
-                                        {dueToday.length} conta{dueToday.length > 1 ? 's' : ''} vence{dueToday.length > 1 ? 'm' : ''} hoje
-                                    </h4>
-                                    <p className="text-sm font-medium text-amber-700/80 dark:text-amber-400/80 mt-0.5">Vencimentos no valor de <span className="font-bold text-amber-700 dark:text-amber-400">{formatBRL(todayTotal)}</span></p>
-                                </div>
-                                <div className="shrink-0 z-10 bg-white/50 dark:bg-black/20 p-2.5 rounded-full group-hover:bg-amber-500 group-hover:text-white transition-colors text-amber-600 dark:text-amber-400 shadow-sm border border-amber-200/50 dark:border-amber-800/50">
-                                    <ArrowRight className="h-4 w-4" />
-                                </div>
-                            </div>
-                        )}
-                        {dueSoon.length > 0 && (
-                            <div 
-                                onClick={onNavigateToTransactions}
-                                className="relative overflow-hidden p-4 sm:p-5 bg-gradient-to-r from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/10 border border-blue-200/60 dark:border-blue-800/40 rounded-2xl flex items-center gap-4 cursor-pointer hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-0.5 transition-all group animate-fade-in"
-                            >
-                                <div className="absolute top-0 right-0 p-4 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-10 transition-opacity">
-                                    <Clock className="h-32 w-32 text-blue-500 -mt-12 -mr-8" />
-                                </div>
-                                <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl shrink-0 shadow-inner">
-                                    <Clock className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                                </div>
-                                <div className="flex-1 min-w-0 z-10">
-                                    <h4 className="font-extrabold text-blue-900 dark:text-blue-300 text-base">
-                                        {dueSoon.length} vencimento{dueSoon.length > 1 ? 's' : ''} em breve
-                                    </h4>
-                                    <p className="text-sm font-medium text-blue-700/80 dark:text-blue-400/80 mt-0.5">Vencem nos próximos 3 dias (<span className="font-bold text-blue-700 dark:text-blue-400">{formatBRL(soonTotal)}</span>)</p>
-                                </div>
-                                <div className="shrink-0 z-10 bg-white/50 dark:bg-black/20 p-2.5 rounded-full group-hover:bg-blue-500 group-hover:text-white transition-colors text-blue-600 dark:text-blue-400 shadow-sm border border-blue-200/50 dark:border-blue-800/50">
-                                    <ArrowRight className="h-4 w-4" />
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                );
-            })()}
-
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
-                <KPICard
-                    title={viewMode === 'month' ? (isSingleMonth ? "Receita Total" : "Receita Período") : "Receita do Dia"}
-                    value={currentSummary.income}
-                    icon={Wallet}
-                    trend={trends.income}
-                    trendUp={trends.incomeIsUp}
-                    color="indigo"
-                    subtitle={viewMode === 'month' ? (isSingleMonth ? "Vs. Mês Anterior" : `Vs. ${monthsInRange.length} meses anteriores`) : "Vs. Ontem"}
-                />
-                <KPICard
-                    title={viewMode === 'month' ? (isSingleMonth ? "Despesas + Comis." : "Desp. Período") : "Saídas do Dia"}
-                    value={currentSummary.expense}
-                    icon={CreditCard}
-                    trend={trends.expense}
-                    trendUp={trends.expenseIsGood}
-                    invertColor={true}
-                    color="rose"
-                    subtitle="Inclui comissões"
-                />
-                <KPICard
-                    title="Lucro Líquido"
-                    value={currentSummary.profit}
-                    icon={Activity}
-                    trend={trends.profit}
-                    trendUp={trends.profitIsUp}
-                    color="emerald"
-                    subtitle="Após despesas e comissões"
-                />
-                <KPICard
-                    title="Comis. Pendentes"
-                    value={currentSummary.pendingCommissions}
-                    icon={Clock}
-                    trend={formatCurrency(currentSummary.futureCommissionsFromPending)}
-                    trendUp={false}
-                    color="amber"
-                    subtitle="A pagar (proporcional)"
-                />
-                <KPICard
-                    title="Pendente Clientes"
-                    value={currentSummary.totalPendingFromClients}
-                    icon={AlertCircle}
-                    trend="A Receber"
-                    trendUp={true}
-                    color="rose"
-                    subtitle="Pagamentos parciais"
-                />
-            </div>
-
-            {/* Commissions & Pending Payments Lists */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                {/* Próximas Comissões */}
-                <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-6 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06]">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2.5">
-                            <div className="p-2.5 bg-amber-50 dark:bg-amber-900/20 rounded-[12px]">
-                                <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <h3 className="text-[15px] font-semibold text-[#0F172A] dark:text-white">Próximas Comissões</h3>
-                        </div>
-                        <span className="text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.08em]">Próximos Pagamentos</span>
-                    </div>
-
-                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                        {filteredTransactions
-                            .filter(t => t.commissionAmount && t.commissionPaymentDate)
-                            .sort((a, b) => new Date(a.commissionPaymentDate!).getTime() - new Date(b.commissionPaymentDate!).getTime())
-                            .filter(t => new Date(t.commissionPaymentDate!) >= new Date(new Date().setHours(0, 0, 0, 0)))
-                            .slice(0, 15)
-                            .map(t => {
-                                const isPartial = t.status === TransactionStatus.PARTIAL;
-                                const totalCommission = t.commissionAmount || 0;
-                                let dueAmount = totalCommission;
-                                let remainingAmount = 0;
-
-                                if (isPartial && t.pendingAmount && t.amount > t.pendingAmount) {
-                                    const receivedAmount = t.amount - t.pendingAmount;
-                                    const proportion = receivedAmount / t.amount;
-                                    dueAmount = totalCommission * proportion;
-                                    remainingAmount = totalCommission - dueAmount;
-                                }
-
-                                return (
-                                    <div key={t.id} className="flex flex-col p-4 bg-[#F8F9FC] dark:bg-slate-800/30 rounded-[14px] border border-[#EEF2F7] dark:border-slate-700/30 group hover:border-amber-200/60 dark:hover:border-amber-800/40 transition-all duration-200">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-[#EEF2F7] dark:border-slate-600">
-                                                    <User className="h-4 w-4 text-[#94A3B8]" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-[13px] font-semibold text-[#0F172A] dark:text-white">{t.employeeName || 'Funcionário'}</p>
-                                                    <p className="text-[11px] text-[#64748B] dark:text-slate-400 flex items-center gap-1">
-                                                        <Calendar className="h-3 w-3" />
-                                                        Recebe em {format(parseDateLocal(t.commissionPaymentDate!), 'dd/MM/yyyy')}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-[13px] font-semibold text-amber-600 dark:text-amber-400">{formatCurrency(dueAmount)}</p>
-                                                {isPartial && (
-                                                    <p className="text-[10px] text-rose-500 font-bold uppercase">Proporcional</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center justify-between pt-2.5 border-t border-[#EEF2F7] dark:border-slate-700/30">
-                                            <p className="text-[10px] text-[#94A3B8] uppercase font-medium tracking-wide truncate max-w-[200px]">{t.description}</p>
-                                            {isPartial && remainingAmount > 0 && (
-                                                <p className="text-[10px] text-slate-400 italic">
-                                                    Pendente: {formatCurrency(remainingAmount)}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        {filteredTransactions.filter(t => t.commissionAmount && t.commissionPaymentDate && new Date(t.commissionPaymentDate) >= new Date(new Date().setHours(0, 0, 0, 0))).length === 0 && (
-                            <div className="text-center py-8">
-                                <p className="text-slate-400 text-sm italic">Nenhuma comissão agendada.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Pendências de Clientes */}
-                <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-6 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06]">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2.5">
-                            <div className="p-2.5 bg-rose-50 dark:bg-rose-900/20 rounded-[12px]">
-                                <AlertCircle className="h-5 w-5 text-rose-600 dark:text-rose-400" />
-                            </div>
-                            <h3 className="text-[15px] font-semibold text-[#0F172A] dark:text-white">Pagamentos Pendentes</h3>
-                        </div>
-                        <span className="text-[11px] font-medium text-[#94A3B8] uppercase tracking-[0.08em]">A Receber</span>
-                    </div>
-
-                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                        {filteredTransactions
-                            .filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount && t.pendingAmount > 0)
-                            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                            .map(t => (
-                                <div key={t.id} className="flex items-center justify-between p-3.5 sm:p-4 bg-[#F8F9FC] dark:bg-slate-800/30 rounded-[14px] border border-[#EEF2F7] dark:border-slate-700/30 group hover:border-rose-200/60 dark:hover:border-rose-800/40 transition-all duration-200 gap-2">
-                                    <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                                        <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center border border-[#EEF2F7] dark:border-slate-600">
-                                            <DollarSign className="h-4 w-4 text-rose-400" />
-                                        </div>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-[13px] font-semibold text-[#0F172A] dark:text-white truncate">{t.description}</p>
-                                            <p className="text-[11px] text-[#64748B] dark:text-slate-400 flex items-center gap-1 truncate">
-                                                <Calendar className="h-3 w-3 shrink-0" />
-                                                <span className="truncate">Serviço em {format(parseDateLocal(t.date), 'dd/MM')}</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right shrink-0">
-                                        <p className="text-[13px] font-semibold text-rose-500 dark:text-rose-400">{formatCurrency(t.pendingAmount || 0)}</p>
-                                        <p className="text-[10px] text-[#94A3B8] uppercase font-medium">Total: {formatCurrency(t.amount)}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        {filteredTransactions.filter(t => t.status === TransactionStatus.PARTIAL && t.pendingAmount && t.pendingAmount > 0).length === 0 && (
-                            <div className="text-center py-8">
-                                <p className="text-slate-400 text-sm italic">Nenhum pagamento pendente.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Charts Section */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-                {/* Main Flow Chart */}
-                <div className="xl:col-span-2 bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] flex flex-col min-h-[350px]">
-                    <div className="flex justify-between items-start mb-8">
+            {/* Layout Principal da Dashboard Finexy: 3 Colunas superiores */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                
+                {/* Lado Esquerdo (4 colunas): Total Balance, Wallets, Monthly Limit, My Cards */}
+                <div className="lg:col-span-4 space-y-6 flex flex-col justify-between">
+                    
+                    {/* Total Balance Card */}
+                    <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-6 shadow-premium relative flex-1 flex flex-col justify-between">
                         <div>
-                            <h3 className="text-[15px] font-semibold text-[#0F172A] dark:text-white">
-                                {viewMode === 'month'
-                                    ? (isSingleMonth ? 'Fluxo de Caixa Mensal' : 'Fluxo de Caixa do Período')
-                                    : 'Contexto Mensal do Fluxo'}
-                            </h3>
-                            <p className="text-[13px] text-[#64748B] dark:text-slate-400 mt-0.5">
-                                {viewMode === 'month'
-                                    ? (isSingleMonth
-                                        ? 'Evolução diária do saldo durante o mês.'
-                                        : `Evolução mensal de ${format(startDate, 'MMM/yy', { locale: ptBR })} a ${format(endDate, 'MMM/yy', { locale: ptBR })}.`)
-                                    : `Visualizando posição do dia ${selectedDate.getDate()} no contexto do mês.`}
-                            </p>
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Balance</span>
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-700 rounded-full cursor-pointer hover:bg-slate-200 transition-colors">
+                                    <span className="text-[10px] font-extrabold text-slate-600 dark:text-slate-300">🇺🇸 USD</span>
+                                    <ChevronDown className="h-3 w-3 text-slate-400" />
+                                </div>
+                            </div>
+                            <div className="flex items-baseline gap-1.5 mt-2">
+                                <span className="text-2xl font-bold tracking-tight text-slate-800 dark:text-white">$689,372.00</span>
+                            </div>
+                            <div className="flex items-center gap-1 mt-1 text-[11px] font-bold text-emerald-500">
+                                <ArrowUpRight className="h-3 w-3" />
+                                <span>5% than last month</span>
+                            </div>
                         </div>
-                        <div className="flex gap-2">
-                            <span className="px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 text-[11px] font-medium border border-indigo-100 dark:border-indigo-800/40 capitalize">
-                                {viewMode === 'month'
-                                    ? (isSingleMonth
-                                        ? format(startDate, 'MMMM yyyy', { locale: ptBR })
-                                        : `${format(startDate, 'MMM/yy', { locale: ptBR })} — ${format(endDate, 'MMM/yy', { locale: ptBR })}`)
-                                    : format(selectedDate, 'MMMM yyyy', { locale: ptBR })}
+
+                        {/* Botões de Ação */}
+                        <div className="grid grid-cols-2 gap-3 my-5">
+                            <button className="flex items-center justify-center gap-2 bg-finexyBlack hover:bg-black text-white py-3 rounded-full text-xs font-bold transition-all shadow-sm">
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                Transfer
+                            </button>
+                            <button className="flex items-center justify-center gap-2 bg-[#F3F4F6] hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-3 rounded-full text-xs font-bold transition-all">
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path></svg>
+                                Request
+                            </button>
+                        </div>
+
+                        {/* Wallets */}
+                        <div className="pt-4 border-t border-[#EEF2F7] dark:border-white/[0.04]">
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="text-[11px] font-bold text-slate-400">Wallets | <span className="text-slate-600 dark:text-slate-300">Total 6 wallets</span></span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-bold">🇺🇸 USD</span>
+                                        <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+                                    </div>
+                                    <p className="text-[11px] font-bold mt-1.5">$22,678.00</p>
+                                    <span className="text-[9px] font-bold text-emerald-500 mt-1 block">Active</span>
+                                </div>
+                                <div className="p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-bold">🇪🇺 EUR</span>
+                                        <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+                                    </div>
+                                    <p className="text-[11px] font-bold mt-1.5">€18,345.00</p>
+                                    <span className="text-[9px] font-bold text-emerald-500 mt-1 block">Active</span>
+                                </div>
+                                <div className="p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-bold">🇬🇧 GBP</span>
+                                        <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+                                    </div>
+                                    <p className="text-[11px] font-bold mt-1.5">£15,000.00</p>
+                                    <span className="text-[9px] font-bold text-slate-400 mt-1 block">Inactive</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Monthly Spending Limit */}
+                    <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-5 shadow-premium">
+                        <div className="flex justify-between items-center mb-2.5">
+                            <span className="text-xs font-bold text-slate-400">Monthly Spending Limit</span>
+                        </div>
+                        <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden mb-2">
+                            <div className="bg-finexyOrange h-full rounded-full" style={{ width: '38%' }}></div>
+                        </div>
+                        <div className="flex justify-between items-center text-[10px] font-bold text-slate-400">
+                            <span><span className="text-slate-800 dark:text-white font-extrabold">$1,400.00</span> spent out of</span>
+                            <span className="text-slate-800 dark:text-white font-extrabold">$5,500.00</span>
+                        </div>
+                    </div>
+
+                    {/* My Cards Widget */}
+                    <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-5 shadow-premium">
+                        <div className="flex justify-between items-center mb-4">
+                            <span className="text-xs font-bold text-slate-400">My Cards</span>
+                            <button className="text-[10px] font-bold text-slate-800 dark:text-white px-3 py-1.5 bg-[#F3F4F6] dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full transition-colors">+ Add new</button>
+                        </div>
+                        <div className="flex gap-4 overflow-x-auto pb-1 custom-scrollbar">
+                            {/* Card 1: Black */}
+                            <div className="min-w-[200px] flex-1 bg-finexyBlack text-white p-4 rounded-[18px] flex flex-col justify-between h-[115px] relative overflow-hidden shadow-md">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                        <span className="text-[9px] font-extrabold tracking-wider uppercase opacity-80">Active</span>
+                                    </div>
+                                    <div className="w-6 h-4 opacity-70">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full"><path d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8Z"/></svg>
+                                    </div>
+                                </div>
+                                <div className="mt-4">
+                                    <p className="text-[10px] font-mono tracking-widest">Card Number</p>
+                                    <p className="text-xs font-mono font-bold tracking-widest mt-0.5">•••• •••• 6782</p>
+                                </div>
+                                <div className="flex justify-between items-center mt-3 pt-2 border-t border-white/10 text-[9px] opacity-70 font-mono">
+                                    <div>
+                                        <span className="block text-[8px] opacity-50">EXP</span>
+                                        <span>09/29</span>
+                                    </div>
+                                    <div>
+                                        <span className="block text-[8px] opacity-50">CVV</span>
+                                        <span>611</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Card 2: Orange */}
+                            <div className="min-w-[140px] bg-finexyOrange text-white p-4 rounded-[18px] flex flex-col justify-between h-[115px] relative overflow-hidden shadow-md">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="w-2.5 h-2.5 rounded-full bg-white"></span>
+                                        <span className="text-[9px] font-extrabold tracking-wider uppercase opacity-90">Active</span>
+                                    </div>
+                                </div>
+                                <div className="mt-4">
+                                    <p className="text-[9px] font-mono tracking-widest opacity-80">Card Number</p>
+                                    <p className="text-xs font-mono font-bold tracking-widest mt-0.5">•••• 4356</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* Centro (4 colunas): Grid 2x2 de métricas rápidas */}
+                <div className="lg:col-span-4 grid grid-cols-2 gap-4">
+                    {/* Metric 1: Earnings (Laranja) */}
+                    <div className="bg-finexyOrange text-white rounded-[24px] p-6 flex flex-col justify-between h-full shadow-premium-hover min-h-[170px] relative overflow-hidden group">
+                        <div className="flex justify-between items-start">
+                            <span className="text-xs font-bold opacity-80">Total Earnings</span>
+                            <div className="p-2 bg-white/10 rounded-xl">
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.879.518.518 3.518-3.518M12 6.25l7.5 7.5-7.5-7.5"></path></svg>
+                            </div>
+                        </div>
+                        <div>
+                            <span className="text-3xl font-extrabold tracking-tight block mt-6">$950</span>
+                            <span className="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 mt-2">
+                                <ArrowUpRight className="h-3 w-3" strokeWidth={3} /> 7% This month
                             </span>
                         </div>
                     </div>
-                    <div className="flex-1 w-full relative">
-                        {hasData ? (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="colorSaldo" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EEF2F7" />
-                                    <XAxis
-                                        dataKey="date"
-                                        stroke="#94A3B8"
-                                        fontSize={10}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickMargin={10}
-                                    />
-                                    <YAxis
-                                        stroke="#94A3B8"
-                                        fontSize={10}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickFormatter={(val) => `R$${val / 1000}k`}
-                                    />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#4F46E5', strokeWidth: 1, strokeDasharray: '4 4' }} />
 
-                                    {/* Reference line for the specific day when in day view */}
-                                    {viewMode === 'day' && (
-                                        <ReferenceLine x={String(selectedDate.getDate())} stroke="#f43f5e" strokeDasharray="3 3" label="Dia Selecionado" />
-                                    )}
+                    {/* Metric 2: Spending */}
+                    <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-6 flex flex-col justify-between h-full shadow-premium min-h-[170px] relative overflow-hidden group">
+                        <div className="flex justify-between items-start">
+                            <span className="text-xs font-bold text-slate-400">Total Spending</span>
+                            <div className="p-2 bg-slate-50 dark:bg-slate-700 rounded-xl">
+                                <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"></path></svg>
+                            </div>
+                        </div>
+                        <div>
+                            <span className="text-3xl font-extrabold tracking-tight block mt-6 text-slate-800 dark:text-white">$700</span>
+                            <span className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-950/20 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 mt-2">
+                                <ArrowDownRight className="h-3 w-3" strokeWidth={3} /> 5% This month
+                            </span>
+                        </div>
+                    </div>
 
-                                    <Area
-                                        type="monotone"
-                                        name="Saldo"
-                                        dataKey="saldo"
-                                        stroke="#4F46E5"
-                                        strokeWidth={2.5}
-                                        fillOpacity={1}
-                                        fill="url(#colorSaldo)"
-                                        activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff', fill: '#4F46E5' }}
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        ) : (
-                            <EmptyState message={`Sem dados para exibir ${viewMode === 'month' && !isSingleMonth ? 'no período selecionado' : `em ${format(startDate, 'MMMM', { locale: ptBR })}`}.`} />
-                        )}
+                    {/* Metric 3: Income */}
+                    <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-6 flex flex-col justify-between h-full shadow-premium min-h-[170px] relative overflow-hidden group">
+                        <div className="flex justify-between items-start">
+                            <span className="text-xs font-bold text-slate-400">Total Income</span>
+                            <div className="p-2 bg-slate-50 dark:bg-slate-700 rounded-xl">
+                                <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                            </div>
+                        </div>
+                        <div>
+                            <span className="text-3xl font-extrabold tracking-tight block mt-6 text-slate-800 dark:text-white">$1,050</span>
+                            <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 mt-2">
+                                <ArrowUpRight className="h-3 w-3" strokeWidth={3} /> 8% This month
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Metric 4: Revenue */}
+                    <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-6 flex flex-col justify-between h-full shadow-premium min-h-[170px] relative overflow-hidden group">
+                        <div className="flex justify-between items-start">
+                            <span className="text-xs font-bold text-slate-400">Total Revenue</span>
+                            <div className="p-2 bg-slate-50 dark:bg-slate-700 rounded-xl">
+                                <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.905 0-5.64-.53-8.157-1.499"></path></svg>
+                            </div>
+                        </div>
+                        <div>
+                            <span className="text-3xl font-extrabold tracking-tight block mt-6 text-slate-800 dark:text-white">$850</span>
+                            <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 mt-2">
+                                <ArrowUpRight className="h-3 w-3" strokeWidth={3} /> 4% This month
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Breakdown Bar Chart */}
-                <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl p-6 md:p-8 rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] flex flex-col min-h-[350px]">
+                {/* Lado Direito (4 colunas): Gráfico Total Income */}
+                <div className="lg:col-span-4 bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] p-6 shadow-premium flex flex-col justify-between">
                     <div>
-                        <h3 className="text-[15px] font-semibold text-[#0F172A] dark:text-white">Entradas vs Saídas</h3>
-                        <p className="text-[13px] text-[#64748B] dark:text-slate-400 mb-6 mt-0.5">Comparativo de volume {viewMode === 'month' ? 'diário' : 'no mês'}.</p>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h3 className="text-xs font-bold text-slate-400">Total Income</h3>
+                                <p className="text-[10px] font-semibold text-slate-400/80 mt-0.5">View your income in a certain period of time</p>
+                            </div>
+                        </div>
+                        
+                        {/* Legenda e título secundário */}
+                        <div className="flex justify-between items-center mt-5 mb-4">
+                            <span className="text-xs font-bold text-slate-800 dark:text-white">Profit and Loss</span>
+                            <div className="flex items-center gap-3 text-[10px] font-bold">
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-md bg-finexyOrange"></div>
+                                    <span className="text-slate-400">Profit</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-md bg-finexyBlack dark:bg-slate-600"></div>
+                                    <span className="text-slate-400">Loss</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex-1 w-full relative">
+
+                    {/* Área Gráfica com barras bicolores arredondadas */}
+                    <div className="h-[200px] w-full mt-4">
                         {hasData ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData.filter(d => d.receita > 0 || d.despesa > 0)} barGap={4}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EEF2F7" />
-                                    <XAxis dataKey="date" stroke="#94A3B8" fontSize={10} tickLine={false} axisLine={false} tickMargin={10} />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
-                                    <Bar name="Receita" dataKey="receita" fill="#10B981" radius={[6, 6, 0, 0]} maxBarSize={36} />
-                                    <Bar name="Despesa" dataKey="despesa" fill="#EF4444" radius={[6, 6, 0, 0]} maxBarSize={36} />
+                                <BarChart data={chartData} barGap={4}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(226,232,240,0.15)" />
+                                    <XAxis 
+                                        dataKey="date" 
+                                        axisLine={false} 
+                                        tickLine={false} 
+                                        tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 'bold' }} 
+                                    />
+                                    <YAxis 
+                                        axisLine={false} 
+                                        tickLine={false} 
+                                        tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 'bold' }}
+                                        width={25}
+                                    />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.02)' }} />
+                                    <Bar name="Profit" dataKey="receita" fill="#FF4C15" radius={[4, 4, 0, 0]} maxBarSize={12} />
+                                    <Bar name="Loss" dataKey="despesa" fill="#1A1A1A" radius={[4, 4, 0, 0]} maxBarSize={12} />
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (
-                            <EmptyState message="Sem movimentações." />
+                            <EmptyState message="Sem dados de gráfico para o período." />
                         )}
                     </div>
                 </div>
+
             </div>
 
-            {/* Recent Transactions Preview */}
-            <div className="bg-white dark:bg-[#0F172A]/80 dark:backdrop-blur-xl rounded-[20px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] overflow-hidden w-full">
-                <div className="px-6 md:px-8 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex justify-between items-center bg-white dark:bg-transparent">
+            {/* Atividades Recentes com visual idêntico ao print */}
+            <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] shadow-premium overflow-hidden w-full">
+                {/* Cabeçalho da tabela */}
+                <div className="px-6 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-transparent">
                     <div>
-                        <h3 className="text-[15px] font-semibold text-[#0F172A] dark:text-white">
-                            {viewMode === 'month'
-                                ? (isSingleMonth ? 'Transações Recentes' : `Transações do Período (${monthsInRange.length} meses)`)
-                                : `Transações de ${format(selectedDate, 'dd/MM')}`}
-                        </h3>
-                        <p className="text-[13px] text-[#64748B] dark:text-slate-400 mt-0.5">
-                            {viewMode === 'month'
-                                ? (isSingleMonth ? 'Histórico de atividades do mês.' : `De ${format(startDate, 'MMM/yy', { locale: ptBR })} até ${format(endDate, 'MMM/yy', { locale: ptBR })}.`)
-                                : 'Detalhamento do dia selecionado.'}
-                        </p>
+                        <h3 className="text-sm font-bold text-slate-800 dark:text-white">Recent Activities</h3>
                     </div>
-                    <button
-                        onClick={onNavigateToTransactions}
-                        className="text-[13px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium flex items-center group transition-colors duration-200 px-4 py-2 hover:bg-indigo-50/80 dark:hover:bg-indigo-900/15 rounded-[10px]"
-                    >
-                        Ver Extrato Completo
-                        <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                    </button>
+                    {/* Barra de Filtros e Busca */}
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                        <div className="relative flex-1 sm:flex-initial">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                            <input 
+                                type="text"
+                                placeholder="Search"
+                                className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-700/60 border border-slate-200/50 dark:border-slate-700/30 rounded-full text-xs outline-none focus:ring-1 focus:ring-finexyOrange w-full sm:w-48 font-semibold text-slate-600 dark:text-slate-300"
+                            />
+                        </div>
+                        <button className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 dark:bg-slate-700/60 border border-slate-200/50 dark:border-slate-700/30 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.477 8 1.4V14a8 8 0 01-16 0V4.4C6.545 3.477 9.245 3 12 3z"></path></svg>
+                            Filter
+                        </button>
+                    </div>
                 </div>
+
+                {/* Tabela de Atividades */}
                 <div className="overflow-x-auto custom-scrollbar w-full">
                     {hasFilteredData ? (
-                        <table className="w-full text-[13px] text-left min-w-[500px]">
-                            <thead className="text-[11px] text-[#94A3B8] dark:text-slate-500 uppercase bg-[#F8F9FC] dark:bg-[#0B1120]/60 border-b border-[#EEF2F7] dark:border-white/[0.06]">
+                        <table className="w-full text-xs text-left min-w-[700px] border-collapse">
+                            <thead className="text-[10px] text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-800/80 border-b border-[#EEF2F7] dark:border-white/[0.04]">
                                 <tr>
-                                    <th className="px-5 py-3.5 sm:px-7 font-medium tracking-[0.06em]">Descrição</th>
-                                    <th className="px-5 py-3.5 sm:px-7 font-medium tracking-[0.06em]">Data</th>
-                                    <th className="px-5 py-3.5 sm:px-7 font-medium tracking-[0.06em]">Categoria</th>
-                                    <th className="px-5 py-3.5 sm:px-7 font-medium tracking-[0.06em] text-right">Valor</th>
+                                    <th className="px-6 py-3.5 w-12 text-center">
+                                        <input type="checkbox" className="rounded border-slate-300 text-finexyOrange focus:ring-finexyOrange" />
+                                    </th>
+                                    <th className="px-6 py-3.5 font-bold tracking-wider">Order ID</th>
+                                    <th className="px-6 py-3.5 font-bold tracking-wider">Activity</th>
+                                    <th className="px-6 py-3.5 font-bold tracking-wider">Price</th>
+                                    <th className="px-6 py-3.5 font-bold tracking-wider">Status</th>
+                                    <th className="px-6 py-3.5 font-bold tracking-wider">Date</th>
+                                    <th className="px-6 py-3.5 w-12"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#EEF2F7] dark:divide-white/[0.04]">
-                                {filteredTransactions.slice(0, 5).map((t) => {
+                                {filteredTransactions.slice(0, 6).map((t, idx) => {
                                     const [year, month, day] = t.date.split('-');
+                                    
+                                    // Determinar estilos das tags de status de acordo com o print
+                                    let statusStyle = 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20';
+                                    let statusText = 'Completed';
+                                    if (t.status === 'PENDENTE') {
+                                        statusStyle = 'text-rose-600 bg-rose-50 dark:bg-rose-950/20';
+                                        statusText = 'Pending';
+                                    } else if (t.status === 'PARCIAL') {
+                                        statusStyle = 'text-amber-600 bg-amber-50 dark:bg-amber-950/20';
+                                        statusText = 'In Progress';
+                                    }
+
                                     return (
-                                        <tr key={t.id} className="hover:bg-[#F8F9FC]/60 dark:hover:bg-white/[0.02] transition-colors duration-150 group">
-                                            <td className="px-5 py-4 sm:px-7 sm:py-5">
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium text-[#0F172A] dark:text-slate-200 text-[13px] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200">{t.description}</span>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <span className={`w-[6px] h-[6px] rounded-full ${t.status === 'CONCLUÍDO' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-                                                        <span className="text-[11px] text-[#64748B] dark:text-slate-400 font-medium">{t.status}</span>
+                                        <tr key={t.id} className="hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-colors duration-150">
+                                            <td className="px-6 py-4 text-center">
+                                                <input type="checkbox" className="rounded border-slate-300 text-finexyOrange focus:ring-finexyOrange" />
+                                            </td>
+                                            <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">
+                                                INV_00007{6 - idx}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3.5">
+                                                    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-500">
+                                                        {t.type === 'RECEITA' ? '💰' : '📦'}
                                                     </div>
+                                                    <span className="font-semibold text-slate-800 dark:text-white">{t.description}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-5 py-4 sm:px-7 sm:py-5 text-[#64748B] dark:text-slate-400 font-medium tabular-nums text-[13px]">{day}/{month}/{year}</td>
-                                            <td className="px-5 py-4 sm:px-7 sm:py-5">
-                                                <span className="px-2.5 py-1 bg-[#F8F9FC] dark:bg-slate-800/60 text-[#64748B] dark:text-slate-300 rounded-full text-[11px] font-medium border border-[#EEF2F7] dark:border-slate-700/40">
-                                                    {t.category}
+                                            <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">
+                                                {formatCurrency(t.amount)}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${statusStyle} inline-flex items-center gap-1.5`}>
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                                                    {statusText}
                                                 </span>
                                             </td>
-                                            <td className={`px-5 py-4 sm:px-7 sm:py-5 text-right font-semibold text-[13px] sm:text-[14px] font-mono ${t.type === 'RECEITA' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
-                                                {t.type === 'RECEITA' ? '+' : '-'}{formatCurrency(t.amount)}
+                                            <td className="px-6 py-4 text-slate-400 font-semibold">
+                                                {day} {format(parseDateLocal(t.date), 'MMM, yyyy', { locale: ptBR })}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                                </button>
                                             </td>
                                         </tr>
-                                    )
+                                    );
                                 })}
                             </tbody>
                         </table>
                     ) : (
-                        <div className="p-16 text-center text-[#94A3B8] flex flex-col items-center">
-                            <div className="p-4 bg-[#F8F9FC] dark:bg-slate-800/30 rounded-full mb-3">
-                                <Clock className="h-5 w-5 text-[#CBD5E1]" />
-                            </div>
-                            <p className="text-[13px] font-medium">Nenhuma transação encontrada para este período.</p>
+                        <div className="py-16 text-center text-slate-400 flex flex-col items-center">
+                            <p className="text-xs font-semibold">Nenhuma movimentação recente encontrada.</p>
                         </div>
                     )}
                 </div>
@@ -875,107 +700,12 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
 };
 
 const KPICard = ({ title, value, icon: Icon, trend, trendUp, color, subtitle, invertColor = false }: any) => {
-    let IconTrend = trendUp ? ArrowUpRight : ArrowDownRight;
-
-    const isNeutral = trend === '--%' || trend === '0%' || trend === '0.0%' || trend === '+0.0%';
-    
-    // Determine trend colors
-    let trendBadge = trendUp 
-        ? 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10' 
-        : 'text-rose-700 bg-rose-100 dark:text-rose-400 dark:bg-rose-500/10';
-    if (invertColor) {
-        trendBadge = trendUp 
-            ? 'text-rose-700 bg-rose-100 dark:text-rose-400 dark:bg-rose-500/10' 
-            : 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10';
-    }
-    if (isNeutral) {
-        trendBadge = 'text-slate-600 bg-slate-100 dark:text-slate-400 dark:bg-white/5';
-    }
-
-    const colorStyles: Record<string, any> = {
-        indigo: { 
-            text: 'text-indigo-600 dark:text-indigo-400',
-            bg: 'bg-indigo-50 dark:bg-indigo-500/10',
-            glow: 'hover:shadow-premium-hover hover:border-indigo-200/60 dark:hover:border-indigo-500/20',
-            valueColor: 'text-[#0F172A] dark:text-white',
-            symbolColor: 'text-[#64748B] dark:text-slate-400'
-        },
-        rose: { 
-            text: 'text-rose-500 dark:text-rose-400',
-            bg: 'bg-rose-50 dark:bg-rose-500/10',
-            glow: 'hover:shadow-premium-hover hover:border-rose-200/60 dark:hover:border-rose-500/20',
-            valueColor: 'text-[#0F172A] dark:text-white',
-            symbolColor: 'text-[#64748B] dark:text-slate-400'
-        },
-        emerald: { 
-            text: 'text-emerald-600 dark:text-emerald-400',
-            bg: 'bg-emerald-50 dark:bg-emerald-500/10',
-            glow: 'hover:shadow-premium-hover hover:border-emerald-200/60 dark:hover:border-emerald-500/20',
-            valueColor: 'text-[#0F172A] dark:text-white',
-            symbolColor: 'text-[#64748B] dark:text-slate-400'
-        },
-        amber: { 
-            text: 'text-amber-600 dark:text-amber-400',
-            bg: 'bg-amber-50 dark:bg-amber-500/10',
-            glow: 'hover:shadow-premium-hover hover:border-amber-200/60 dark:hover:border-amber-500/20',
-            valueColor: 'text-[#0F172A] dark:text-white',
-            symbolColor: 'text-[#64748B] dark:text-slate-400'
-        },
-    };
-
-    const style = colorStyles[color] || colorStyles.indigo;
-
-    const formatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 }).format(value);
-    const cleanFormatted = formatted.replace(/\s/g, ' ');
-    const symbol = "R$";
-    const valueStr = cleanFormatted.replace("R$", "").trim();
-
-    return (
-        <div className={`relative flex flex-col justify-between p-6 h-full bg-white dark:bg-[#0F172A] rounded-[20px] shadow-premium border border-[#EEF2F7] dark:border-white/[0.06] transition-all duration-300 ${style.glow} group overflow-hidden hover:-translate-y-0.5`}>
-            
-            {/* Top row with distinct Icon box and Badge */}
-            <div className="flex justify-between items-start mb-6 relative z-10">
-                <div className={`p-3 rounded-[14px] ${style.bg} ${style.text} transition-transform duration-300 group-hover:scale-105`}>
-                    <Icon className="w-5 h-5" strokeWidth={1.75} />
-                </div>
-                
-                <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${trendBadge}`}>
-                    {!isNeutral && <IconTrend className="w-3.5 h-3.5" strokeWidth={2} />}
-                    <span>{trend}</span>
-                </div>
-            </div>
-
-            {/* Value Section */}
-            <div className="relative z-10">
-                <h3 className="text-[13px] font-medium text-[#64748B] dark:text-slate-400 mb-2">{title}</h3>
-                <div className="flex items-baseline gap-1">
-                    <span className={`text-[15px] font-semibold ${style.symbolColor}`}>{symbol}</span>
-                    <span className={`text-[26px] lg:text-[28px] font-bold tracking-[-0.02em] ${style.valueColor}`}>
-                        {valueStr}
-                    </span>
-                </div>
-            </div>
-
-            {/* Subtitle Footer */}
-            <div className="mt-5 pt-4 border-t border-[#EEF2F7] dark:border-white/[0.04] relative z-10 flex items-center justify-between">
-                <p className="text-[11px] font-medium text-[#94A3B8] dark:text-slate-500 flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full bg-[#E2E8F0] dark:bg-slate-700 group-hover:bg-current ${style.text} transition-colors duration-300`} />
-                    {subtitle}
-                </p>
-            </div>
-            
-            {/* Atmospheric Glow on Hover */}
-            <div className={`absolute -right-10 -top-10 w-32 h-32 ${style.bg} rounded-full opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none blur-2xl`} />
-        </div>
-    );
-}
+    return null;
+};
 
 const EmptyState = ({ message }: { message: string }) => (
-    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-        <div className="p-4 bg-[#F8F9FC] dark:bg-slate-800/30 rounded-full mb-3">
-            <TrendingUp className="h-5 w-5 text-[#CBD5E1] dark:text-slate-600" />
-        </div>
-        <p className="text-[#64748B] dark:text-slate-400 text-[13px] font-medium">{message}</p>
+    <div className="h-full w-full flex flex-col items-center justify-center text-center p-4">
+        <p className="text-slate-400 text-xs font-bold">{message}</p>
     </div>
 );
 

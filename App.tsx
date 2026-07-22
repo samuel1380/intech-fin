@@ -389,66 +389,105 @@ function App() {
     }
   };
 
-  return (
-    <div className="flex h-screen supports-[height:100dvh]:h-[100dvh] bg-[#F8F9FC] dark:bg-[#0B1120] overflow-hidden font-sans transition-colors duration-300">
-      {/* Overlay para fechar sidebar no mobile */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 lg:hidden transition-opacity duration-300"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+  const menuItems = [
+    { id: 'dashboard', label: 'Overview' },
+    { id: 'transactions', label: 'Activity' },
+    { id: 'receivables', label: 'Manage' },
+    { id: 'payables', label: 'Program' },
+    { id: 'reports', label: 'Reports' },
+    { id: 'ai-advisor', label: 'AI advisor' },
+    { id: 'settings', label: 'Account' },
+    { id: 'database', label: 'Database' }
+  ];
 
+  return (
+    <div className="flex h-screen supports-[height:100dvh]:h-[100dvh] bg-[#F3F4F6] dark:bg-[#070b14] overflow-hidden font-sans transition-colors duration-300 p-4 pl-24">
+      {/* Sidebar Compacta Flutuante */}
       <Sidebar
         activeTab={activeTab}
         setActiveTab={handleTabChange}
         onLogout={handleLogout}
-        isOpen={sidebarOpen}
+        isOpen={false}
       />
 
-      <div className={`flex-1 flex flex-col h-full transition-[margin] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} w-full`}>
-
-        <header className="bg-white/70 dark:bg-[#0F172A]/70 backdrop-blur-xl border-b border-[#EEF2F7] dark:border-white/[0.06] px-5 md:px-8 py-4 safe-padding-top flex items-center justify-between z-20 shrink-0 sticky top-0 transition-colors duration-300 gap-3">
-          <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2.5 hover:bg-slate-100/80 dark:hover:bg-white/[0.06] rounded-[10px] text-slate-500 dark:text-slate-400 focus:outline-none transition-colors duration-200 shrink-0"
-            >
-              <Menu className="h-5 w-5" strokeWidth={1.75} />
-            </button>
-            <h1 className="text-lg sm:text-xl md:text-[22px] font-semibold text-[#0F172A] dark:text-white tracking-[-0.01em] truncate leading-tight">
-              {getHeaderTitle(activeTab)}
-            </h1>
-          </div>
-          <div className="flex items-center gap-2 md:gap-4 shrink-0">
-            <ThemeToggle />
-            <div className="text-right hidden sm:block">
-              <p className="text-[13px] font-semibold text-[#0F172A] dark:text-white">{profile.name}</p>
-              <p className="text-[11px] text-[#64748B] dark:text-slate-400 font-medium">{profile.companyName}</p>
+      {/* Main Container com borda ultra arredondada, estilo tablet/dashboard Finexy */}
+      <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-900 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[32px] overflow-hidden shadow-premium-lg w-full relative">
+        
+        {/* Top Header - Navegação por pílulas + Perfil + Search */}
+        <header className="px-8 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex items-center justify-between z-20 shrink-0 bg-white dark:bg-slate-900 gap-3">
+          
+          {/* Lado Esquerdo: Logo Finexy minimalista e texto */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-finexyOrange flex items-center justify-center shadow-md shadow-finexyOrange/20 shrink-0">
+              <span className="font-extrabold text-white text-sm">F</span>
             </div>
-            {profile.avatarUrl ? (
-              <img
-                src={profile.avatarUrl}
-                alt="Foto de Perfil"
-                className="h-9 w-9 md:h-10 md:w-10 rounded-full object-cover shadow-md shrink-0 cursor-pointer ring-2 ring-white dark:ring-slate-800"
-              />
-            ) : (
-              <div className="h-9 w-9 md:h-10 md:w-10 bg-gradient-to-br from-indigo-600 to-violet-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md shadow-indigo-500/15 shrink-0 cursor-pointer hover:shadow-lg hover:shadow-indigo-500/20 transition-all duration-200 ring-2 ring-white dark:ring-slate-800 text-[13px]">
-                {getInitials(profile.name)}
+            <span className="font-bold text-slate-800 dark:text-white text-[16px] tracking-tight">Finexy</span>
+          </div>
+
+          {/* Centro: Barra de Pílulas de Navegação */}
+          <div className="hidden lg:flex items-center bg-[#F3F4F6] dark:bg-slate-800 p-1 rounded-full border border-slate-200/40 dark:border-slate-700/30">
+            {menuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleTabChange(item.id)}
+                className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${
+                  activeTab === item.id
+                    ? 'bg-finexyBlack text-white dark:bg-white dark:text-slate-900 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Lado Direito: Ações rápidas & Info Perfil */}
+          <div className="flex items-center gap-4 shrink-0">
+            {/* Ícones de Ações Minimalistas */}
+            <div className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/30">
+              <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              </button>
+              <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors relative">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-finexyOrange rounded-full"></span>
+              </button>
+              <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </button>
+            </div>
+
+            {/* Informações do Usuário com avatar */}
+            <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-800">
+              {profile.avatarUrl ? (
+                <img
+                  src={profile.avatarUrl}
+                  alt="Avatar"
+                  className="h-9 w-9 rounded-full object-cover shadow-sm ring-2 ring-slate-100 dark:ring-slate-800"
+                />
+              ) : (
+                <div className="h-9 w-9 bg-finexyOrange text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md shadow-finexyOrange/15">
+                  {getInitials(profile.name)}
+                </div>
+              )}
+              <div className="text-left hidden md:block">
+                <p className="text-xs font-bold text-slate-800 dark:text-white leading-tight">{profile.name}</p>
+                <p className="text-[10px] text-slate-400 leading-tight mt-0.5">{profile.companyName}</p>
               </div>
-            )}
+            </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-5 md:p-8 pb-20 scroll-smooth bg-[#F8F9FC] dark:bg-[#0B1120] transition-colors duration-300">
+        {/* Conteúdo Principal com scroll e fundo cinza claro para isolar os cards internos */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-8 pb-20 scroll-smooth bg-[#FAFAFC] dark:bg-slate-900 transition-colors duration-300">
           <div className="max-w-[1600px] mx-auto min-w-0">
             {isLoading ? (
-              <div className="flex flex-col justify-center items-center h-[60vh] text-slate-500 gap-5">
+              <div className="flex flex-col justify-center items-center h-[50vh] text-slate-500 gap-5">
                 <div className="relative">
                   <div className="w-12 h-12 border-[3px] border-[#EEF2F7] dark:border-slate-800 rounded-full"></div>
-                  <div className="w-12 h-12 border-[3px] border-indigo-500 rounded-full border-t-transparent animate-spin absolute inset-0"></div>
+                  <div className="w-12 h-12 border-[3px] border-finexyOrange rounded-full border-t-transparent animate-spin absolute inset-0"></div>
                 </div>
-                <p className="font-medium text-[#64748B] text-sm">Sincronizando dados seguros...</p>
+                <p className="font-semibold text-slate-500 text-xs tracking-wider">Sincronizando dados seguros...</p>
               </div>
             ) : (
               <>
@@ -514,13 +553,6 @@ function App() {
           </div>
         </main>
       </div>
-
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 z-30 lg:hidden backdrop-blur-sm transition-opacity duration-300"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
     </div>
   );
 }
