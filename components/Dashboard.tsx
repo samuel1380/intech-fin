@@ -362,7 +362,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 </div>
                 
                 {/* Painel de Filtro de Datas */}
-                <div className="flex items-center gap-3 bg-white dark:bg-slate-800 p-2.5 rounded-[18px] border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm">
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-white dark:bg-slate-800 p-2.5 rounded-[18px] border border-[#EEF2F7] dark:border-white/[0.06] shadow-sm w-full md:w-auto">
                     <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-1 flex items-center">
                         <button 
                             onClick={() => setViewMode('month')}
@@ -439,7 +439,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                         </div>
 
                         {/* Botões de Ação */}
-                        <div className="grid grid-cols-2 gap-3 my-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-5">
                             <button className="flex items-center justify-center gap-2 bg-finexyBlack hover:bg-black text-white py-3 rounded-full text-xs font-bold transition-all shadow-sm">
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
                                 Novo Serviço
@@ -455,7 +455,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                             <div className="flex justify-between items-center mb-3">
                                 <span className="text-[11px] font-bold text-slate-400">Top Técnicos | <span className="text-slate-600 dark:text-slate-300">Comissões</span></span>
                             </div>
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                 {topTechnicians.map((tech, idx) => (
                                     <div key={idx} className="p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-800">
                                         <div className="flex justify-between items-center">
@@ -528,7 +528,7 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                 </div>
 
                 {/* Centro (4 colunas): Grid 2x2 de métricas rápidas */}
-                <div className="lg:col-span-4 grid grid-cols-2 gap-4">
+                <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Metric 1: Earnings (Laranja) */}
                     <div className="bg-finexyOrange text-white rounded-[24px] p-6 flex flex-col justify-between h-full shadow-premium-hover min-h-[170px] relative overflow-hidden group">
                         <div className="flex justify-between items-start">

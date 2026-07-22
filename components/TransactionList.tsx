@@ -302,15 +302,15 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
         <div className="bg-white dark:bg-slate-800 rounded-[32px] shadow-premium dark:shadow-none border border-[#EEF2F7] dark:border-white/[0.06] overflow-hidden w-full flex flex-col h-[650px] p-2">
             
             {/* Inner Header with Search */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06]">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 sm:px-6 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06]">
                 <h3 className="font-bold text-slate-800 dark:text-white text-[16px]">Atividades</h3>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                         <input
                             type="text"
                             placeholder="Buscar..."
-                            className="w-48 pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600/50 rounded-full text-[13px] focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition-all text-slate-700 dark:text-slate-200 font-medium placeholder:text-slate-400"
+                            className="w-full sm:w-48 pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600/50 rounded-full text-[13px] focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600 transition-all text-slate-700 dark:text-slate-200 font-medium placeholder:text-slate-400"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />

@@ -138,7 +138,8 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
     };
 
     const renderTransactionRow = (t: Transaction) => (
-        <div key={t.id} className="flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-[24px] border border-transparent hover:border-slate-100 dark:hover:border-slate-700/50 hover:shadow-sm transition-all group">
+        <div key={t.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-[24px] border border-transparent hover:border-slate-100 dark:hover:border-slate-700/50 hover:shadow-sm transition-all group">
+            <div className="flex items-start gap-4 w-full sm:w-auto flex-1 min-w-0">
             {/* Icon */}
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                 t.type === TransactionType.INCOME 
@@ -176,8 +177,10 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                 </div>
             </div>
 
+            {/* Valor & Ação Mobile Wrapper */}
+            <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto shrink-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-700/50 pt-3 sm:pt-0 mt-1 sm:mt-0">
             {/* Valor */}
-            <div className="text-right shrink-0">
+            <div className="text-left sm:text-right shrink-0">
                 <div className={`font-bold font-mono text-sm ${
                     t.type === TransactionType.INCOME ? 'text-emerald-600' : 'text-rose-600'
                 }`}>
@@ -206,6 +209,7 @@ const Accounts: React.FC<Props> = ({ transactions, onUpdateTransaction, initialT
                 )}
                 {t.type === TransactionType.INCOME ? 'Recebido' : 'Pago'}
             </button>
+            </div>
         </div>
     );
 

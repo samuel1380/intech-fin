@@ -490,7 +490,7 @@ const Reports: React.FC<Props> = ({ transactions, taxSettings }) => {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div className="bg-white dark:bg-slate-800 rounded-[32px] p-5 border border-[#EEF2F7] dark:border-white/[0.06] shadow-premium">
                     <div className="flex items-center gap-2 mb-3">
                         <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
