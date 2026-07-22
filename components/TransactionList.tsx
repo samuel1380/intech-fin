@@ -370,7 +370,8 @@ const TransactionList: React.FC<Props> = ({ transactions, onAddTransaction, onDe
                                         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F8F9FC] dark:bg-slate-800/40 text-[#64748B] dark:text-slate-300 border border-[#EEF2F7] dark:border-slate-700/30 whitespace-nowrap">
                                             {t.category}
                                         </span>
-                                                     <td className={`px-6 py-5 font-bold font-mono text-[14px] ${t.type === TransactionType.INCOME ? 'text-slate-800 dark:text-white' : 'text-slate-800 dark:text-white'}`}>
+                                    </td>
+                                    <td className={`px-6 py-5 font-bold font-mono text-[14px] ${t.type === TransactionType.INCOME ? 'text-slate-800 dark:text-white' : 'text-slate-800 dark:text-white'}`}>
                                         {formatBRL(t.amount)}
                                     </td>
                                     <td className="px-6 py-5 text-left">
