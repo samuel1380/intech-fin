@@ -10,7 +10,7 @@ import Settings from './components/Settings';
 import DatabaseManager from './components/DatabaseManager';
 import { getAllTransactionsFromDb, addTransactionToDb, calculateSummary, deleteTransactionFromDb, clearDatabase, updateTransactionStatus, updateTransactionInDb } from './services/transactionService';
 import { getTaxSettingsFromDb, addTaxSettingToDb, deleteTaxSettingFromDb } from './services/taxService';
-import { isSupabaseConfigured } from './services/supabase';
+import { supabase, isSupabaseConfigured } from './services/supabase';
 import { loadNotificationPrefs, checkAndTriggerLocalNotifications } from './services/notificationService';
 import { getProfileConfig, saveProfileConfig, DEFAULT_PROFILE } from './services/profileService';
 import { Transaction, FinancialSummary, TaxSetting, UserProfile } from './types';
