@@ -3,17 +3,39 @@
 -- Execute este script no SQL Editor do Supabase
 -- ============================================================
 
+-- 0. GARANTIR QUE TODAS AS TABELAS EXISTEM ANTES DE APLICAR RLS
+CREATE TABLE IF NOT EXISTS transactions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now()
+  -- Outras colunas serão geridas pelo frontend ou podem ser adicionadas depois
+);
+
+CREATE TABLE IF NOT EXISTS tax_settings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text,
+  percentage numeric,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS notification_preferences (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  preferences jsonb NOT NULL DEFAULT '{}',
+  push_subscription jsonb,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS system_settings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  key text UNIQUE,
+  value jsonb NOT NULL DEFAULT '{}',
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
 -- 1. ADICIONAR COLUNA user_id À TABELA transactions E OUTRAS
 ALTER TABLE transactions 
 ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES auth.users(id) DEFAULT auth.uid();
-
--- Criar a tabela tax_settings se não existir
-CREATE TABLE IF NOT EXISTS tax_settings (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name text NOT NULL,
-  percentage numeric NOT NULL,
-  created_at timestamptz DEFAULT now()
-);
 
 ALTER TABLE tax_settings 
 ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES auth.users(id) DEFAULT auth.uid();
