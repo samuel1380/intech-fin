@@ -17,11 +17,10 @@ import { Transaction, FinancialSummary, TaxSetting, UserProfile } from './types'
 import { Menu, Lock, User } from 'lucide-react';
 import { checkAndTriggerKeepAlive } from './services/keepAliveService';
 
-const LoginScreen = ({ onLogin, onSignUp }: { onLogin: (email: string, pass: string) => Promise<void>, onSignUp: (email: string, pass: string) => Promise<void> }) => {
+const LoginScreen = ({ onLogin }: { onLogin: (email: string, pass: string) => Promise<void> }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -60,8 +59,7 @@ const LoginScreen = ({ onLogin, onSignUp }: { onLogin: (email: string, pass: str
           setLoading(true);
           setError('');
           try {
-            if (isSignUp) await onSignUp(email, password);
-            else await onLogin(email, password);
+            await onLogin(email, password);
           } catch(err: any) {
             setError(err.message || 'Erro ao autenticar');
           } finally {
@@ -119,17 +117,9 @@ const LoginScreen = ({ onLogin, onSignUp }: { onLogin: (email: string, pass: str
             </div>
           </div>
 
-          <div className="pt-4 space-y-3">
+          <div className="pt-4">
             <button disabled={loading} type="submit" className="w-full bg-white text-slate-900 font-medium py-3.5 rounded-full shadow-lg transition-transform hover:scale-[1.02] text-[15px] disabled:opacity-50 flex items-center justify-center">
-              {loading ? <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div> : (isSignUp ? 'Criar Conta' : 'Entrar')}
-            </button>
-            
-            <button 
-              type="button" 
-              onClick={() => { setIsSignUp(!isSignUp); setError(''); }} 
-              className="w-full text-white/60 hover:text-white transition-colors text-[13px] font-medium"
-            >
-              {isSignUp ? 'Já tem uma conta? Faça login' : 'Não tem conta? Criar Conta'}
+              {loading ? <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div> : 'Entrar'}
             </button>
           </div>
         </form>
@@ -207,15 +197,6 @@ function App() {
       }
       throw error;
     }
-  }
-
-  const handleSignUp = async (email: string, pass: string) => {
-    const { error } = await supabase.auth.signUp({ email, password: pass });
-    if (error) {
-      throw error;
-    }
-    // Note: User might need to confirm email depending on Supabase settings.
-    // Assuming auto-confirm is enabled for this project, or they will see an error.
   }
 
   const handleLogout = async () => {
@@ -432,7 +413,7 @@ function App() {
   };
 
   if (!isAuthenticated) {
-    return <LoginScreen onLogin={handleLogin} onSignUp={handleSignUp} />;
+    return <LoginScreen onLogin={handleLogin} />;
   }
 
   const getHeaderTitle = (tab: string) => {
