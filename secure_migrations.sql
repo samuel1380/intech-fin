@@ -40,12 +40,15 @@ ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES auth.users(id) DEFAULT auth.uid
 ALTER TABLE tax_settings 
 ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES auth.users(id) DEFAULT auth.uid();
 
+-- Garantir coluna user_id em notification_preferences
+ALTER TABLE notification_preferences 
+ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES auth.users(id) DEFAULT auth.uid();
+
 -- Corrigir a coluna em tabelas existentes (se elas usavam text, mudar para uuid auth.users)
 DO $$ 
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'notification_preferences' AND column_name = 'user_id' AND data_type = 'text') THEN
-    ALTER TABLE notification_preferences DROP COLUMN user_id;
-    ALTER TABLE notification_preferences ADD COLUMN user_id uuid REFERENCES auth.users(id) DEFAULT auth.uid();
+    ALTER TABLE notification_preferences ALTER COLUMN user_id TYPE uuid USING user_id::uuid;
   END IF;
 END $$;
 
