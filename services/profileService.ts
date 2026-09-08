@@ -1,72 +1,53 @@
-import { supabase, isSupabaseConfigured } from './supabase';
+import { z } from 'zod';
 import { UserProfile } from '../types';
-
+import { requireUserId, supabase } from './supabase';
 export const DEFAULT_PROFILE: UserProfile = {
-  name: 'João Silva (CFO)',
-  email: 'intechfin@financeiro.com.br',
-  role: 'CFO',
-  companyName: 'TechCorp Brasil Ltda.',
+  name: 'Minha conta',
+  email: '',
+  role: '',
+  companyName: 'Minha empresa',
   avatarUrl: '',
 };
-
-const STORAGE_KEY = 'finnexus_user_profile';
-
-/**
- * Carrega as informações do perfil do usuário do Supabase (tabela system_settings)
- * ou do localStorage se offline/não configurado.
- */
-export const getProfileConfig = async (): Promise<UserProfile> => {
-  try {
-    const localData = localStorage.getItem(STORAGE_KEY);
-    const localProfile = localData ? JSON.parse(localData) : DEFAULT_PROFILE;
-
-    if (!isSupabaseConfigured) {
-      return localProfile;
-    }
-
-    const { data, error } = await supabase
-      .from('system_settings')
-      .select('value')
-      .eq('key', 'profile')
-      .maybeSingle();
-
-    if (error) {
-      console.warn('[Profile] Não foi possível carregar o perfil do Supabase:', error.message);
-    }
-
-    if (!error && data?.value) {
-      const dbProfile = { ...DEFAULT_PROFILE, ...data.value };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dbProfile));
-      return dbProfile;
-    }
-
-    return localProfile;
-  } catch {
-    return DEFAULT_PROFILE;
-  }
-};
-
-/**
- * Salva as informações do perfil do usuário no localStorage e
- * envia para a tabela system_settings do Supabase (se configurado).
- */
-export const saveProfileConfig = async (profile: UserProfile): Promise<void> => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-
-  if (!isSupabaseConfigured) return;
-
-  try {
-    const { error } = await supabase
-      .from('system_settings')
-      .upsert(
-        { key: 'profile', value: profile, updated_at: new Date().toISOString() },
-        { onConflict: 'key' }
-      );
-    
-    if (error) {
-      console.error('[Profile] Erro ao sincronizar perfil no Supabase:', error.message);
-    }
-  } catch (err) {
-    console.error('[Profile] Erro de conexão ao sincronizar perfil:', err);
-  }
-};
+const schema = z.object({
+  name: z.string().trim().min(1).max(100),
+  email: z.string().max(254),
+  role: z.string().max(80),
+  companyName: z.string().trim().max(160),
+  avatarUrl: z
+    .string()
+    .max(2800000)
+    .refine(
+      (v) =>
+        !v ||
+        /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(v) ||
+        /^\/(?!\/)/.test(v),
+    )
+    .optional(),
+});
+export async function getProfileConfig(): Promise<UserProfile> {
+  const user_id = await requireUserId();
+  const { data, error } = await supabase
+    .from('system_settings')
+    .select('value')
+    .eq('user_id', user_id)
+    .eq('key', 'profile')
+    .maybeSingle();
+  if (error) throw error;
+  const parsed = schema.safeParse({ ...DEFAULT_PROFILE, ...data?.value });
+  return parsed.success ? parsed.data : DEFAULT_PROFILE;
+}
+export async function saveProfileConfig(profile: UserProfile): Promise<void> {
+  const user_id = await requireUserId();
+  const { error } = await supabase
+    .from('system_settings')
+    .upsert(
+      {
+        user_id,
+        key: 'profile',
+        value: schema.parse(profile),
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id,key' },
+    );
+  if (error) throw error;
+}
