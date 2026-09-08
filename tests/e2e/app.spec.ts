@@ -69,7 +69,7 @@ async function mockApi(page: Page, authenticated = false) {
     const url = new URL(route.request().url());
     let data: unknown = [];
     if (url.pathname.includes('/rest/v1/transactions'))
-      data = sampleTransactions;
+      data = sampleTransactions.slice(Number(url.searchParams.get('offset') || 0), Number(url.searchParams.get('offset') || 0) + Number(url.searchParams.get('limit') || 500));
     if (url.pathname.includes('/auth/v1/user')) data = user;
     else if (url.pathname.includes('/auth/v1/token')) data = session;
     else if (url.pathname.includes('/rpc/generate_recurrences')) data = 0;

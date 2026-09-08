@@ -66,18 +66,38 @@ export async function addTransactionsToDb(
 // Ler todas as transações
 export const getAllTransactionsFromDb = async (): Promise<Transaction[]> => {
   ensureConfig();
+  const userId = await requireUserId();
   const rows: Transaction[] = [];
-  for (let offset = 0; ; offset += 500) {
+  const seen = new Set<string>();
+  // PostgREST may cap responses below the requested range. Advance by what
+  // was actually returned and stop only at an empty page, never a short one.
+  for (let offset = 0; ;) {
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
-      .eq('user_id', await requireUserId())
+      .eq('user_id', userId)
       .order('date', { ascending: false })
       .order('id')
       .range(offset, offset + 499);
-    if (error) throw error;
-    rows.push(...(data || []));
-    if (!data || data.length < 500) return rows;
+    if (error) {
+      // PostgREST can return 416 when the next offset is beyond the last row.
+      if (error.code === 'PGRST103' && rows.length > 0) return rows;
+      throw error;
+    }
+    if (!data || data.length === 0) return rows;
+    let added = 0;
+    for (const row of data) {
+      if (!seen.has(row.id)) {
+        seen.add(row.id);
+        rows.push(row);
+        added++;
+      }
+    }
+    if (!added)
+      throw new Error(
+        'A paginação do Supabase não avançou. Tente carregar novamente.',
+      );
+    offset += data.length;
   }
 };
 
