@@ -219,3 +219,51 @@ test('unsupported notifications do not crash settings', async ({ page }) => {
     0,
   );
 });
+
+test('loads existing Supabase transactions when optional migrations are missing', async ({
+  page,
+}) => {
+  await mockApi(page, true);
+  await page.route('**/rest/v1/rpc/generate_recurrences', (route) =>
+    route.fulfill({
+      status: 404,
+      contentType: 'application/json',
+      body: JSON.stringify({ code: 'PGRST202', message: 'Function not found' }),
+    }),
+  );
+  await page.route('**/rest/v1/system_settings?**', (route) =>
+    route.fulfill({
+      status: 400,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        code: '42703',
+        message: 'user_id column not found',
+      }),
+    }),
+  );
+  await page.goto('/#transactions');
+  await expect(
+    page.getByText('Contrato de manutenção', { exact: true }).filter({visible:true}).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByText('Seus dados estão indisponíveis', { exact: true }),
+  ).toHaveCount(0);
+});
+
+test('does not hide a denied financial query behind empty balances', async ({
+  page,
+}) => {
+  await mockApi(page, true);
+  await page.route('**/rest/v1/transactions?**', (route) =>
+    route.fulfill({
+      status: 403,
+      contentType: 'application/json',
+      body: JSON.stringify({ code: '42501', message: 'permission denied' }),
+    }),
+  );
+  await page.goto('/');
+  await expect(
+    page.getByText('Seus dados estão indisponíveis', { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('main')).toContainText('42501');
+});

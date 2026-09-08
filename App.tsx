@@ -206,11 +206,23 @@ function App() {
       const { error: recurrenceError } = await supabase.rpc(
         'generate_recurrences',
       );
-      if (recurrenceError) throw recurrenceError;
+      if (recurrenceError) {
+        // Older production databases can serve transactions before optional RPCs are deployed.
+        if (!['PGRST202', '42883'].includes(recurrenceError.code))
+          throw recurrenceError;
+        console.warn(
+          '[Recurrences] Função ainda não instalada; consultando movimentações existentes.',
+        );
+      }
       const [data, taxes, profileData] = await Promise.all([
         getAllTransactionsFromDb(),
         getTaxSettingsFromDb(),
-        getProfileConfig(),
+        getProfileConfig().catch(() => {
+          console.warn(
+            '[Profile] Perfil indisponível; dados financeiros continuam sendo consultados.',
+          );
+          return DEFAULT_PROFILE;
+        }),
       ]);
 
       if (epoch !== authEpoch.current) return;
@@ -235,9 +247,17 @@ function App() {
       } catch (keepAliveError) {
         console.warn('Keep-alive check failed:', keepAliveError);
       }
-    } catch {
+    } catch (error) {
+      const code =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String(error.code)
+          : '';
+      console.error('[Data] Falha na consulta ao Supabase', { code });
       setDataError(
-        'Não foi possível carregar os dados. Verifique a conexão ou a configuração do serviço.',
+        ['42703', 'PGRST204'].includes(code)
+          ? 'O esquema do Supabase conectado ainda não contém os campos exigidos por esta versão. É necessário atualizar o esquema para consultar os dados com segurança.'
+          : 'Não foi possível consultar os dados do Supabase. Verifique a conexão e as permissões da sua conta.' +
+              (code ? ' Código: ' + code : ''),
       );
       notify(
         'Não foi possível carregar os dados. Verifique a conexão e tente novamente.',
