@@ -1,12 +1,14 @@
+import { AlertTriangle, Cloud, Database, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
-import { Database, AlertTriangle, Trash2, Cloud } from 'lucide-react';
 import { isSupabaseConfigured } from '../services/supabase';
 
 interface DatabaseManagerProps {
   onResetDatabase: () => Promise<void>;
 }
 
-const DatabaseManager: React.FC<DatabaseManagerProps> = ({ onResetDatabase }) => {
+const DatabaseManager: React.FC<DatabaseManagerProps> = ({
+  onResetDatabase,
+}) => {
   // Estados do Modal de Resetar DB
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetStep, setResetStep] = useState(1);
@@ -16,12 +18,16 @@ const DatabaseManager: React.FC<DatabaseManagerProps> = ({ onResetDatabase }) =>
       {/* ===== SEÇÃO: DADOS ===== */}
       <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] p-6 md:p-8 rounded-[32px] shadow-premium transition-all duration-300">
         <h2 className="text-xl font-semibold text-[#0F172A] dark:text-white mb-6 flex items-center gap-2">
-          <Database className="h-6 w-6 text-indigo-600" />
+          <Database className="h-6 w-6 text-primary-600" />
           Gerenciamento de Dados
         </h2>
         <p className="text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-          Os dados são armazenados de forma {isSupabaseConfigured ? 'segura na nuvem (Supabase)' : 'local no seu navegador (IndexedDB)'}.
-          Isso garante total privacidade e controle sobre suas informações financeiras.
+          Os dados são armazenados de forma{' '}
+          {isSupabaseConfigured
+            ? 'segura na nuvem (Supabase)'
+            : 'local no seu navegador (IndexedDB)'}
+          . Isso garante total privacidade e controle sobre suas informações
+          financeiras.
         </p>
 
         <div className="space-y-4">
@@ -31,8 +37,12 @@ const DatabaseManager: React.FC<DatabaseManagerProps> = ({ onResetDatabase }) =>
                 <Cloud className="h-6 w-6" />
               </div>
               <div>
-                <h4 className="font-bold text-emerald-800 dark:text-emerald-400">Banco de Dados em Nuvem Ativo</h4>
-                <p className="text-sm text-emerald-700 dark:text-emerald-500">Sincronização em tempo real ativada via Supabase.</p>
+                <h4 className="font-bold text-emerald-800 dark:text-emerald-400">
+                  Banco de Dados em Nuvem Ativo
+                </h4>
+                <p className="text-sm text-emerald-700 dark:text-emerald-500">
+                  Sincronização em tempo real ativada via Supabase.
+                </p>
               </div>
             </div>
           ) : (
@@ -41,8 +51,12 @@ const DatabaseManager: React.FC<DatabaseManagerProps> = ({ onResetDatabase }) =>
                 <AlertTriangle className="h-6 w-6" />
               </div>
               <div>
-                <h4 className="font-bold text-rose-800 dark:text-rose-400">Sistema Desconectado</h4>
-                <p className="text-sm text-rose-700 dark:text-rose-500 font-medium">O banco de dados da nuvem não está configurado.</p>
+                <h4 className="font-bold text-rose-800 dark:text-rose-400">
+                  Sistema Desconectado
+                </h4>
+                <p className="text-sm text-rose-700 dark:text-rose-500 font-medium">
+                  O banco de dados da nuvem não está configurado.
+                </p>
               </div>
             </div>
           )}
@@ -52,10 +66,15 @@ const DatabaseManager: React.FC<DatabaseManagerProps> = ({ onResetDatabase }) =>
               <h4 className="font-bold text-rose-800 dark:text-rose-400 flex items-center gap-2">
                 <Trash2 className="h-4 w-4" /> Zona de Perigo
               </h4>
-              <p className="text-sm text-rose-700 dark:text-rose-500 mt-1">A exclusão do banco de dados remove todo o histórico na nuvem.</p>
+              <p className="text-sm text-rose-700 dark:text-rose-500 mt-1">
+                A exclusão do banco de dados remove todo o histórico na nuvem.
+              </p>
             </div>
             <button
-              onClick={() => { setShowResetModal(true); setResetStep(1); }}
+              onClick={() => {
+                setShowResetModal(true);
+                setResetStep(1);
+              }}
               className="px-6 py-3 bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-700 text-rose-600 dark:text-rose-400 font-semibold rounded-lg hover:bg-rose-600 hover:text-white transition-all shadow-sm w-full sm:w-auto shrink-0"
             >
               Resetar Banco de Dados
@@ -67,27 +86,35 @@ const DatabaseManager: React.FC<DatabaseManagerProps> = ({ onResetDatabase }) =>
       {/* Modal de Confirmação de Reset Duplo */}
       {showResetModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowResetModal(false)} />
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+            onClick={() => setShowResetModal(false)}
+          />
           <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-rose-100 dark:border-rose-900/30 animate-fade-in-up">
             <div className="w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center mb-5 border border-rose-200 dark:border-rose-800/50">
               <AlertTriangle className="h-6 w-6 text-rose-600 dark:text-rose-400 animate-pulse" />
             </div>
             <h3 className="text-xl font-semibold text-[#0F172A] dark:text-white mb-2">
-              {resetStep === 1 ? 'Você tem certeza?' : 'Você tem certeza mesmo?'}
+              {resetStep === 1
+                ? 'Você tem certeza?'
+                : 'Você tem certeza mesmo?'}
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 font-medium">
-              {resetStep === 1 
-                ? 'Esta ação iniciará a exclusão de TODOS os seus dados financeiros.' 
+              {resetStep === 1
+                ? 'Esta ação iniciará a exclusão de TODOS os seus dados financeiros.'
                 : 'Esta é sua última chance. Todos os dados serão perdidos permanentemente e não poderão ser recuperados.'}
             </p>
             <div className="flex gap-3 justify-end mt-2">
-              <button 
-                onClick={() => { setShowResetModal(false); setResetStep(1); }}
+              <button
+                onClick={() => {
+                  setShowResetModal(false);
+                  setResetStep(1);
+                }}
                 className="px-4 py-2 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 onClick={() => {
                   if (resetStep === 1) {
                     setResetStep(2);

@@ -1,15 +1,19 @@
 {
-  "name": "FinNexus Enterprise",
-  "short_name": "FinNexus",
+  "name": "FinIntech",
+  "short_name": "FinIntech",
   "description": "Gestão Financeira Empresarial Inteligente",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0c1222",
-  "theme_color": "#4f46e5",
-  "orientation": "portrait-primary",
+  "theme_color": "#214d3f",
+  "orientation": "any",
   "scope": "/",
   "lang": "pt-BR",
-  "categories": ["finance", "business", "productivity"],
+  "categories": [
+    "finance",
+    "business",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -37,5 +41,6 @@
     }
   ],
   "screenshots": [],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "id": "/"
 }
