@@ -1,32 +1,21 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# FinIntech
 
-# Run and deploy your AI Studio app
+Aplicação React + TypeScript para gestão financeira, com Supabase Auth/RLS, PWA e relatórios.
 
-This contains everything you need to run your app locally.
+## Desenvolvimento
 
-View your app in AI Studio: https://ai.studio/apps/drive/17nJ7sxE2lHkJj1Eas8h9IOQCJDGD6Ghe
+Use Node.js 22. Copie os valores públicos de `.env.example` para `.env.local`, execute `npm ci` e `npm run dev`.
+Nunca coloque chaves de serviço, credenciais de IA ou a chave privada VAPID em variáveis `VITE_*`.
 
-## Run Locally
+## Validação
 
-**Prerequisites:**  Node.js
+- `npm run check`: lint, testes de unidade/integração PostgreSQL local, TypeScript estrito e build.
+- `npx playwright install chromium` e `npm run test:e2e`: navegação em 1440, 768 e 390 pixels, usando APIs simuladas.
+- `npm audit`: auditoria de dependências.
+- `npx deno check supabase/functions/finance-ai/index.ts`: checagem da Edge Function.
 
+## Publicação
 
-1. Install dependencies:
-   `npm install`
-2. Set the `OPENAI_API_KEY` in [.env.local](.env.local) to your OpenRouter API key
-3. Run the app:
-   `npm run dev`
+A publicação exige as migrações em `supabase/migrations`, configuração da Edge Function, dos secrets do GitHub e das variáveis públicas do Render. Siga a ordem e os testes manuais em [docs/AUDIT.md](docs/AUDIT.md).
 
-## Deploy to Render
-
-Para subir este projeto no **Render**, siga estes passos:
-
-1. **Crie um novo Static Site** no seu painel do Render.
-2. **Conecte seu repositório** GitHub ou GitLab.
-3. O Render detectará automaticamente o arquivo `render.yaml` e configurará os campos:
-   - **Build Command:** `npm install && npm run build`
-   - **Publish Directory:** `dist`
-4. **Variáveis de Ambiente:** Adicione a variável `OPENAI_API_KEY` nas configurações do Render com sua chave da API do OpenRouter. As outras variáveis (`AI_BASE_URL`, `AI_MODEL`, `AI_PROVIDER`) já estão configuradas no `render.yaml`.
-5. O Render cuidará do roteamento de SPA automaticamente graças à configuração no `render.yaml`.
+O site estático usa `render.yaml` para headers, CSP e roteamento. O servidor de desenvolvimento/preview não é o servidor de produção.
