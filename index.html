@@ -1,267 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- SEO & PWA Primary -->
+    <title>FinNexus Enterprise - Gestão Financeira</title>
+    <meta
+      name="description"
+      content="Plataforma enterprise de gestão financeira com IA, relatórios avançados e controle total de fluxo de caixa."
+    />
+    <meta
+      name="keywords"
+      content="gestão financeira, enterprise, fluxo de caixa, relatórios financeiros, contabilidade"
+    />
+    <meta name="author" content="InTech Finance" />
 
-  <!-- SEO & PWA Primary -->
-  <title>FinNexus Enterprise - Gestão Financeira</title>
-  <meta name="description" content="Plataforma enterprise de gestão financeira com IA, relatórios avançados e controle total de fluxo de caixa." />
-  <meta name="keywords" content="gestão financeira, enterprise, fluxo de caixa, relatórios financeiros, contabilidade" />
-  <meta name="author" content="InTech Finance" />
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
 
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="/manifest.json" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png" />
+    <link rel="shortcut icon" href="/icons/icon-192x192.png" />
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="/icons/icon-192x192.png" />
-  <link rel="shortcut icon" href="/icons/icon-192x192.png" />
+    <!-- Apple PWA (iOS) -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="FinNexus" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="/icons/icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="512x512"
+      href="/icons/icon-512x512.png"
+    />
 
-  <!-- Apple PWA (iOS) -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="FinNexus" />
-  <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-144x144.png" />
-  <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png" />
+    <!-- Theme & Color -->
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="msapplication-TileColor" content="#4f46e5" />
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
 
-  <!-- Theme & Color -->
-  <meta name="theme-color" content="#4f46e5" />
-  <meta name="msapplication-TileColor" content="#4f46e5" />
-  <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+    <!-- Open Graph -->
+    <meta property="og:title" content="FinNexus Enterprise" />
+    <meta
+      property="og:description"
+      content="Gestão Financeira Empresarial Inteligente"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/icons/icon-512x512.png" />
+  </head>
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="FinNexus Enterprise" />
-  <meta property="og:description" content="Gestão Financeira Empresarial Inteligente" />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="/icons/icon-512x512.png" />
+  <body
+    class="text-slate-900 dark:text-slate-100 bg-[#F8F9FC] dark:bg-[#0B1120] antialiased selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300"
+  >
+    <div id="root"></div>
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-            mono: ['SF Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
-          },
-          colors: {
-            primary: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              200: '#c7d2fe',
-              300: '#a5b4fc',
-              400: '#818cf8',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              800: '#3730a3',
-              900: '#312e81',
-            },
-            finexyOrange: {
-              50: '#fff3ee',
-              100: '#ffe4d7',
-              200: '#ffcca8',
-              300: '#ffa370',
-              400: '#ff723b',
-              500: '#ff4c15',
-              600: '#f03108',
-              700: '#c82107',
-              800: '#9e1c0c',
-              900: '#7f1b0f',
-              DEFAULT: '#FF4C15',
-            },
-            finexyBlack: {
-              50: '#f6f6f6',
-              100: '#e7e7e7',
-              200: '#d1d1d1',
-              300: '#b0b0b0',
-              400: '#888888',
-              500: '#6d6d6d',
-              600: '#5d5d5d',
-              700: '#4f4f4f',
-              800: '#1A1A1A',
-              900: '#111111',
-              DEFAULT: '#1A1A1A',
-            },
-            surface: {
-              50: '#FAFBFE',
-              100: '#F8F9FC',
-              200: '#EEF2F7',
-              300: '#E2E8F0',
-            },
-            ink: {
-              900: '#0F172A',
-              700: '#334155',
-              500: '#64748B',
-              400: '#94A3B8',
-              300: '#CBD5E1',
-            },
-            success: { 500: '#10B981', 50: '#ECFDF5' },
-            danger: { 500: '#EF4444', 50: '#FEF2F2' },
-            warning: { 500: '#F59E0B', 50: '#FFFBEB' },
-            slate: {
-              850: '#1e293b',
-              900: '#0f172a',
-              950: '#020617',
-            }
-          },
-          borderRadius: {
-            'card': '24px',
-            'card-sm': '16px',
-            'card-lg': '32px',
-            'btn': '14px',
-            'input': '14px',
-            'pill': '9999px',
-          },
-          boxShadow: {
-            'premium': '0 1px 2px rgba(0,0,0,0.02), 0 4px 20px rgba(0,0,0,0.03)',
-            'premium-hover': '0 4px 12px rgba(0,0,0,0.03), 0 12px 36px rgba(0,0,0,0.05)',
-            'premium-lg': '0 4px 20px rgba(0,0,0,0.02), 0 20px 60px rgba(0,0,0,0.06)',
-            'glow-indigo': '0 8px 32px -8px rgba(79,70,229,0.15)',
-            'glow-orange': '0 8px 32px -8px rgba(255,76,21,0.25)',
-            'glow-emerald': '0 8px 32px -8px rgba(16,185,129,0.15)',
-            'glow-rose': '0 8px 32px -8px rgba(239,68,68,0.12)',
-            'glow-amber': '0 8px 32px -8px rgba(245,158,11,0.15)',
-            'inner-soft': 'inset 0 1px 2px rgba(0,0,0,0.02)',
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.4s cubic-bezier(0.16,1,0.3,1)',
-            'fade-in-up': 'fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1)',
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'slide-in-bottom': 'slideInBottom 0.3s cubic-bezier(0.16,1,0.3,1)',
-            'scale-in': 'scaleIn 0.2s cubic-bezier(0.16,1,0.3,1)',
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' },
-            },
-            fadeInUp: {
-              '0%': { opacity: '0', transform: 'translateY(8px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
-            },
-            slideInBottom: {
-              '0%': { opacity: '0', transform: 'translateX(-50%) translateY(12px)' },
-              '100%': { opacity: '1', transform: 'translateX(-50%) translateY(0)' },
-            },
-            scaleIn: {
-              '0%': { opacity: '0', transform: 'scale(0.95)' },
-              '100%': { opacity: '1', transform: 'scale(1)' },
-            }
-          }
-        }
-      }
-    }
-  </script>
-
-  <style>
-    /* ===== PREMIUM SCROLLBAR ===== */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 100px; }
-    ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
-    .dark ::-webkit-scrollbar-thumb { background: #1E293B; }
-    .dark ::-webkit-scrollbar-thumb:hover { background: #334155; }
-
-    /* ===== GLASSMORPHISM ===== */
-    .glass-panel {
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid rgba(238,242,247,0.8);
-    }
-    .dark .glass-panel {
-      background: rgba(15,23,42,0.80);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .glass-card-dark {
-      background: rgba(15,23,42,0.65);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    /* ===== TABLE ===== */
-    .table-row-hover:hover td { transition: background-color 0.15s ease; }
-
-    /* ===== SAFE AREAS (iOS/Android) ===== */
-    :root {
-      --sat: env(safe-area-inset-top, 0px);
-      --sab: env(safe-area-inset-bottom, 0px);
-    }
-
-    .safe-padding-bottom { 
-      padding-bottom: max(var(--sab), 1rem) !important; 
-    }
-    
-    .safe-padding-top { 
-      padding-top: max(var(--sat), 1rem) !important; 
-    }
-
-    @media all and (display-mode: standalone) and (max-width: 768px) {
-      .safe-padding-top {
-        padding-top: max(var(--sat), 45px) !important;
-      }
-      .safe-padding-bottom {
-        padding-bottom: max(var(--sab), 24px) !important;
-      }
-    }
-
-    /* ===== THEME TRANSITIONS ===== */
-    html { transition: background-color 0.3s ease; }
-    body { 
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
-    }
-    .dark body { background-color: #0B1120; }
-    .dark ::selection { background: rgba(99,102,241,0.25); color: #e0e7ff; }
-    ::selection { background: rgba(79,70,229,0.12); color: #312e81; }
-
-    /* ===== PREMIUM FOCUS RINGS ===== */
-    *:focus-visible {
-      outline: 2px solid rgba(79,70,229,0.5);
-      outline-offset: 2px;
-      border-radius: 8px;
-    }
-
-    /* ===== SMOOTH ALL TRANSITIONS ===== */
-    button, a, input, select, textarea {
-      transition-timing-function: cubic-bezier(0.16,1,0.3,1);
-    }
-  </style>
-
-  <!-- Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' })
-          .then(function (reg) {
-            console.log('[PWA] Service Worker registrado:', reg.scope);
-          })
-          .catch(function (err) {
-            console.warn('[PWA] Falha ao registrar SW:', err);
-          });
-      });
-    }
-  </script>
-</head>
-
-<body class="text-slate-900 dark:text-slate-100 bg-[#F8F9FC] dark:bg-[#0B1120] antialiased overflow-hidden selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300">
-  <div id="root"></div>
-
-  <script type="module" src="/index.tsx"></script>
-</body>
-
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>

@@ -1,5 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Receipt, BarChart3, Bot, Settings, LogOut, Wallet, X, FileText, Database, ArrowDownCircle, ArrowUpCircle, Sun, Moon } from 'lucide-react';
+import { useDarkMode } from '../hooks/useDarkMode';
+import {
+  ArrowDownCircle,
+  ArrowUpCircle,
+  BarChart3,
+  Bot,
+  Database,
+  LayoutDashboard,
+  LogOut,
+  Moon,
+  Receipt,
+  Settings,
+  Sun,
+} from 'lucide-react';
+import React from 'react';
 
 interface SidebarProps {
   activeTab: string;
@@ -9,24 +22,15 @@ interface SidebarProps {
   avatarUrl?: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, isOpen, avatarUrl }) => {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'));
-  }, []);
-
-  const toggleTheme = () => {
-    if (isDark) {
-      document.documentElement.classList.remove('dark');
-      localStorage.theme = 'light';
-      setIsDark(false);
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.theme = 'dark';
-      setIsDark(true);
-    }
-  };
+const Sidebar: React.FC<SidebarProps> = ({
+  activeTab,
+  setActiveTab,
+  onLogout,
+  avatarUrl,
+}) => {
+  const [theme, setTheme] = useDarkMode();
+  const isDark = theme === 'dark';
+  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -62,15 +66,21 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
 
       {/* Theme Toggles (Sun & Moon Stack) */}
       <div className="hidden md:flex flex-col items-center bg-[#F3F4F6] dark:bg-slate-800 p-1 rounded-full gap-1 my-4">
-        <button 
-          onClick={() => { if (isDark) toggleTheme(); }}
+        <button
+          aria-label="Tema claro"
+          onClick={() => {
+            if (isDark) toggleTheme();
+          }}
           className={`p-2 rounded-full transition-all duration-200 ${!isDark ? 'bg-white text-amber-500 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
         >
           <Sun className="h-4 w-4" />
         </button>
-        <button 
-          onClick={() => { if (!isDark) toggleTheme(); }}
-          className={`p-2 rounded-full transition-all duration-200 ${isDark ? 'bg-slate-700 text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+        <button
+          aria-label="Tema escuro"
+          onClick={() => {
+            if (!isDark) toggleTheme();
+          }}
+          className={`p-2 rounded-full transition-all duration-200 ${isDark ? 'bg-slate-700 text-primary-400 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
         >
           <Moon className="h-4 w-4" />
         </button>
@@ -83,10 +93,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
             key={item.id}
             onClick={() => setActiveTab(item.id)}
             title={item.label}
+            aria-label={item.label}
+            aria-current={activeTab === item.id ? 'page' : undefined}
             className={`w-10 h-10 md:w-11 md:h-11 shrink-0 flex items-center justify-center rounded-full transition-all duration-200 group relative
-                        ${activeTab === item.id
-                ? 'bg-finexyBlack text-white dark:bg-white dark:text-slate-900 shadow-md'
-                : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200'}
+                        ${
+                          activeTab === item.id
+                            ? 'bg-finexyBlack text-white dark:bg-white dark:text-slate-900 shadow-md'
+                            : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200'
+                        }
                         `}
           >
             <item.icon className="h-5 w-5 shrink-0" strokeWidth={2} />
@@ -104,7 +118,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, is
           title="Desconectar"
           className="w-11 h-11 flex items-center justify-center rounded-full text-slate-400 hover:bg-rose-500/10 hover:text-rose-500 transition-all duration-200 group"
         >
-          <LogOut className="h-5 w-5 group-hover:-translate-x-0.5 transition-transform" strokeWidth={2} />
+          <LogOut
+            className="h-5 w-5 group-hover:-translate-x-0.5 transition-transform"
+            strokeWidth={2}
+          />
         </button>
       </div>
     </aside>

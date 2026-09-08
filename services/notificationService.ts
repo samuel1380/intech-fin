@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from './supabase';
+import { isSupabaseConfigured, requireUserId, supabase } from './supabase';
 
 // ============================================================
 // TIPOS
@@ -67,207 +67,236 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPreferences = {
 // ============================================================
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
+export function supportsPush(): boolean {
+  return (
+    window.isSecureContext &&
+    'Notification' in window &&
+    'serviceWorker' in navigator &&
+    'PushManager' in window
+  );
 }
-
-// ============================================================
-// REGISTRO DO SERVICE WORKER
-// ============================================================
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
-  if (!('serviceWorker' in navigator)) {
-    console.warn('[PWA] Service Worker não suportado neste browser.');
-    return null;
-  }
+  if (!window.isSecureContext || !('serviceWorker' in navigator)) return null;
   try {
-    const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-    console.log('[PWA] Service Worker registrado:', registration.scope);
-    return registration;
-  } catch (err) {
-    console.error('[PWA] Erro ao registrar Service Worker:', err);
-    return null;
-  }
-}
-
-// ============================================================
-// SOLICITAR PERMISSÃO DE NOTIFICAÇÃO
-// ============================================================
-export async function requestNotificationPermission(): Promise<NotificationPermission> {
-  if (!('Notification' in window)) {
-    console.warn('[PWA] Notificações não suportadas.');
-    return 'denied';
-  }
-
-  if (Notification.permission === 'granted') return 'granted';
-  if (Notification.permission === 'denied') return 'denied';
-
-  // iOS Safari requer user gesture — já estamos dentro de um click handler
-  const permission = await Notification.requestPermission();
-  return permission;
-}
-
-// ============================================================
-// SUBSCREVER PARA PUSH
-// ============================================================
-export async function subscribeToPush(): Promise<PushSubscription | null> {
-  if (!VAPID_PUBLIC_KEY) {
-    console.warn('[PWA] VAPID_PUBLIC_KEY não configurada. Push desativado.');
-    return null;
-  }
-
-  const registration = await navigator.serviceWorker.ready;
-
-  try {
-    const existing = await registration.pushManager.getSubscription();
-    if (existing) return existing;
-
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+    return await navigator.serviceWorker.register('/sw.js', {
+      scope: '/',
+      updateViaCache: 'none',
     });
-
-    console.log('[PWA] Push subscription criada:', subscription.endpoint);
-    return subscription;
-  } catch (err) {
-    console.error('[PWA] Erro ao subscrever push:', err);
+  } catch {
+    console.warn('[PWA] Não foi possível registrar o Service Worker.');
     return null;
   }
 }
-
-// ============================================================
-// CANCELAR SUBSCRIÇÃO
-// ============================================================
-export async function unsubscribeFromPush(): Promise<void> {
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.getSubscription();
-  if (subscription) {
-    await subscription.unsubscribe();
-    console.log('[PWA] Push subscription cancelada.');
+async function readyWorker(): Promise<ServiceWorkerRegistration> {
+  const reg = await registerServiceWorker();
+  if (!reg) throw new Error('Service Worker indisponível.');
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(
+          () =>
+            reject(
+              new Error('Service Worker não ativou. Recarregue o aplicativo.'),
+            ),
+          8000,
+        );
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
   }
 }
-
-// ============================================================
-// SALVAR PREFERÊNCIAS NO SUPABASE
-// ============================================================
+export async function requestNotificationPermission(): Promise<NotificationPermission> {
+  if (!('Notification' in window) || !window.isSecureContext) return 'denied';
+  return Notification.permission === 'default'
+    ? Notification.requestPermission()
+    : Notification.permission;
+}
+export async function subscribeToPush(): Promise<PushSubscription | null> {
+  if (
+    !supportsPush() ||
+    !VAPID_PUBLIC_KEY ||
+    Notification.permission !== 'granted'
+  )
+    return null;
+  const raw = atob(VAPID_PUBLIC_KEY.replace(/-/g, '+').replace(/_/g, '/'));
+  const key = Uint8Array.from(raw, (c) => c.charCodeAt(0));
+  if (key.length !== 65 || key[0] !== 4)
+    throw new Error('Chave pública VAPID inválida.');
+  const reg = await readyWorker();
+  let sub = await reg.pushManager.getSubscription();
+  if (sub) {
+    const old = sub.options.applicationServerKey;
+    const rotated =
+      old &&
+      (old.byteLength !== key.length ||
+        new Uint8Array(old).some((v, i) => v !== key[i]));
+    if (rotated || (sub.expirationTime && sub.expirationTime <= Date.now())) {
+      await removeSubscription(sub);
+      await sub.unsubscribe();
+      sub = null;
+    }
+  }
+  return (
+    sub ||
+    reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: key,
+    })
+  );
+}
+async function removeSubscription(sub: PushSubscription) {
+  const user_id = await requireUserId();
+  const { error } = await supabase
+    .from('push_subscriptions')
+    .delete()
+    .eq('user_id', user_id)
+    .eq('endpoint', sub.endpoint);
+  if (error) throw error;
+}
+export async function unsubscribeFromPush(): Promise<void> {
+  if (!supportsPush()) return;
+  const reg = await navigator.serviceWorker.getRegistration('/');
+  const sub = await reg?.pushManager.getSubscription();
+  if (sub) {
+    let serverError: unknown;
+    try {
+      await removeSubscription(sub);
+    } catch (error) {
+      serverError = error;
+    }
+    if (!(await sub.unsubscribe()))
+      throw new Error('Não foi possível cancelar a inscrição.', {
+        cause: serverError,
+      });
+    if (serverError) throw serverError;
+  }
+}
+export function normalizePrefs(
+  input: Partial<NotificationPreferences> = {},
+): NotificationPreferences {
+  const result = { ...DEFAULT_NOTIFICATION_PREFS };
+  for (const key of Object.keys(result) as (keyof NotificationPreferences)[]) {
+    const value = input[key];
+    if (typeof value === typeof result[key])
+      (result as unknown as Record<string, unknown>)[key] = value;
+  }
+  for (const key of Object.keys(result) as (keyof NotificationPreferences)[]) {
+    if (typeof result[key] === 'number') {
+      const value = result[key] as number;
+      (result as unknown as Record<string, unknown>)[key] = Number.isFinite(
+        value,
+      )
+        ? Math.max(
+            1,
+            Math.min(value, key === 'lowBalanceThreshold' ? 1e9 : 365),
+          )
+        : DEFAULT_NOTIFICATION_PREFS[key];
+    }
+  }
+  if (!['seconds', 'minutes', 'hours'].includes(result.checkIntervalUnit))
+    result.checkIntervalUnit = 'minutes';
+  if (
+    !['seconds', 'minutes', 'hours', 'days'].includes(
+      result.dailySummaryIntervalUnit,
+    )
+  )
+    result.dailySummaryIntervalUnit = 'hours';
+  result.monthlyCloseDay = Math.min(31, result.monthlyCloseDay);
+  return result;
+}
 export async function saveNotificationPrefs(
   prefs: NotificationPreferences,
-  subscription: PushSubscription | null
+  subscription: PushSubscription | null,
 ): Promise<void> {
-  if (!isSupabaseConfigured) {
-    // Fallback: salvar no localStorage
-    localStorage.setItem('finnexus_notif_prefs', JSON.stringify(prefs));
-    if (subscription) {
-      localStorage.setItem('finnexus_push_subscription', JSON.stringify(subscription));
-    }
-    return;
-  }
-
-  const userId = 'intechfin_default'; // Single-user system
-
-  const payload = {
-    user_id: userId,
-    preferences: prefs,
-    push_subscription: subscription ? subscription.toJSON() : null,
-    updated_at: new Date().toISOString(),
-  };
-
-  const { error } = await supabase
-    .from('notification_preferences')
-    .upsert([payload], { onConflict: 'user_id' });
-
-  if (error) {
-    console.error('[Notifications] Erro ao salvar preferências:', error);
-    // Fallback to localStorage
-    localStorage.setItem('finnexus_notif_prefs', JSON.stringify(prefs));
+  const user_id = await requireUserId();
+  const { error } = await supabase.from('notification_preferences').upsert(
+    {
+      user_id,
+      preferences: normalizePrefs(prefs),
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id' },
+  );
+  if (error) throw error;
+  if (subscription && prefs.enabled) {
+    const { error: subError } = await supabase
+      .from('push_subscriptions')
+      .upsert(
+        {
+          user_id,
+          endpoint: subscription.endpoint,
+          subscription: subscription.toJSON(),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,endpoint' },
+      );
+    if (subError) throw subError;
   }
 }
-
-// ============================================================
-// CARREGAR PREFERÊNCIAS DO SUPABASE
-// ============================================================
 export async function loadNotificationPrefs(): Promise<NotificationPreferences> {
-  // Primeiro tenta localStorage (rápido e offline-friendly)
-  const localPrefs = localStorage.getItem('finnexus_notif_prefs');
-
-  if (!isSupabaseConfigured) {
-    return localPrefs ? JSON.parse(localPrefs) : DEFAULT_NOTIFICATION_PREFS;
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from('notification_preferences')
-      .select('preferences')
-      .eq('user_id', 'intechfin_default')
-      .single();
-
-    if (error) {
-      console.warn('[Notifications] Não foi possível carregar do Supabase:', error.message);
-      if (error.code === '42P01') {
-        console.error('[Notifications] A tabela "notification_preferences" não existe no Supabase. Execute o arquivo "supabase_migrations.sql" no SQL Editor do Supabase.');
-      }
-    }
-
-    if (!error && data?.preferences) {
-      // Merge com defaults para garantir novos campos
-      const merged = { ...DEFAULT_NOTIFICATION_PREFS, ...data.preferences };
-      localStorage.setItem('finnexus_notif_prefs', JSON.stringify(merged));
-      return merged;
-    }
-  } catch (err) {
-    console.warn('[Notifications] Erro ao carregar prefs do Supabase:', err);
-  }
-
-  return localPrefs ? { ...DEFAULT_NOTIFICATION_PREFS, ...JSON.parse(localPrefs) } : DEFAULT_NOTIFICATION_PREFS;
+  if (!isSupabaseConfigured) return { ...DEFAULT_NOTIFICATION_PREFS };
+  const user_id = await requireUserId();
+  const { data, error } = await supabase
+    .from('notification_preferences')
+    .select('preferences')
+    .eq('user_id', user_id)
+    .maybeSingle();
+  if (error) throw error;
+  return normalizePrefs(data?.preferences || {});
 }
-
-// ============================================================
-// ENVIAR NOTIFICAÇÃO LOCAL (para teste / feedback imediato)
-// ============================================================
+export async function syncPushSubscription(): Promise<void> {
+  if (!supportsPush() || Notification.permission !== 'granted') return;
+  const prefs = await loadNotificationPrefs();
+  if (prefs.enabled) {
+    const sub = await subscribeToPush();
+    if (sub) {
+      const user_id = await requireUserId();
+      const { error } = await supabase.from('push_subscriptions').upsert(
+        {
+          user_id,
+          endpoint: sub.endpoint,
+          subscription: sub.toJSON(),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,endpoint' },
+      );
+      if (error) throw error;
+    }
+  }
+}
+const delivered = new Map<string, number>();
 export async function sendLocalNotification(
   title: string,
   body: string,
-  url: string = '/'
+  url = '/',
 ): Promise<void> {
-  if (Notification.permission !== 'granted') return;
-
+  if (!('Notification' in window) || Notification.permission !== 'granted')
+    return;
+  const tag = title + '|' + body;
+  if (Date.now() - (delivered.get(tag) || 0) < 3600000) return;
+  const target = new URL(url, location.origin);
   const options: NotificationOptions = {
     body,
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-72x72.png',
-    data: { url },
-    vibrate: [200, 100, 200],
+    tag: title,
+    data: { url: target.origin === location.origin ? target.href : '/' },
   };
-
   try {
-    if ('serviceWorker' in navigator) {
-      const swReadyPromise = navigator.serviceWorker.ready;
-      // Promessa de timeout de 1.5s
-      const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
-      
-      const registration = await Promise.race([swReadyPromise, timeoutPromise]);
-      
-      if (registration) {
-        await registration.showNotification(title, options);
-        return;
-      }
-    }
-  } catch (err) {
-    console.warn('[PWA] Falha ao enviar notificação via Service Worker, usando fallback nativo:', err);
+    const reg = await readyWorker();
+    await reg.showNotification(title, options);
+  } catch {
+    window.dispatchEvent(
+      new CustomEvent('app:feedback', {
+        detail: { message: title + ': ' + body, type: 'info' },
+      }),
+    );
   }
-
-  // Fallback nativo
-  try {
-    new Notification(title, options);
-  } catch (err) {
-    console.error('[PWA] Falha no fallback nativo de notificação:', err);
-  }
+  if (delivered.size > 100) delivered.clear();
+  delivered.set(tag, Date.now());
 }
 
 function getLocalDateString(date: Date): string {
@@ -283,9 +312,14 @@ function getLocalDateString(date: Date): string {
 // ============================================================
 export async function checkAndTriggerLocalNotifications(
   transactions: any[],
-  prefs: NotificationPreferences
+  prefs: NotificationPreferences,
 ): Promise<void> {
-  if (!prefs.enabled || Notification.permission !== 'granted') return;
+  if (
+    !prefs.enabled ||
+    !('Notification' in window) ||
+    Notification.permission !== 'granted'
+  )
+    return;
 
   const today = new Date();
   const todayStr = getLocalDateString(today);
@@ -311,7 +345,7 @@ export async function checkAndTriggerLocalNotifications(
       await sendLocalNotification(
         '⚠️ Contas Prestes a Vencer',
         `${overdueBills.length} despesa(s) vencem nos próximos ${dueSoonDays} dias. Total: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-        '/index.html#accounts'
+        '/index.html#accounts',
       );
     }
   }
@@ -323,11 +357,14 @@ export async function checkAndTriggerLocalNotifications(
     });
 
     if (commissionsToday.length > 0) {
-      const total = commissionsToday.reduce((s: number, t: any) => s + (t.commissionAmount || 0), 0);
+      const total = commissionsToday.reduce(
+        (s: number, t: any) => s + (t.commissionAmount || 0),
+        0,
+      );
       await sendLocalNotification(
         '💳 Dia de Pagamento de Comissão',
         `${commissionsToday.length} comissão(ões) para pagar hoje. Total: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-        '/index.html#transactions'
+        '/index.html#transactions',
       );
     }
   }
@@ -353,7 +390,7 @@ export async function checkAndTriggerLocalNotifications(
       await sendLocalNotification(
         '💰 Recebimento Próximo',
         `${receivables.length} receita(s) para receber nos próximos ${receivableDays} dias. Total: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-        '/index.html#accounts'
+        '/index.html#accounts',
       );
     }
   }
@@ -379,7 +416,7 @@ export async function checkAndTriggerLocalNotifications(
       await sendLocalNotification(
         '🔁 Despesas Recorrentes',
         `${recurringDue.length} despesa(s) recorrente(s) vencem em até ${recurringDays} dias.`,
-        '/index.html#transactions'
+        '/index.html#transactions',
       );
     }
   }
@@ -391,7 +428,7 @@ export async function checkAndTriggerLocalNotifications(
       await sendLocalNotification(
         '📆 Lembrete de Fechamento Mensal',
         'Hoje é o dia de fechar o mês! Revise receitas, despesas e pendências.',
-        '/index.html#reports'
+        '/index.html#reports',
       );
     }
   }
@@ -408,7 +445,8 @@ export async function checkAndTriggerLocalNotifications(
     else if (unit === 'days') msInterval = val * 24 * 60 * 60 * 1000;
 
     const now = Date.now();
-    const lastDailySentStr = localStorage.getItem('finnexus_last_daily_summary_sent_time') || '0';
+    const lastDailySentStr =
+      localStorage.getItem('finnexus_last_daily_summary_sent_time') || '0';
     const lastDailySent = parseInt(lastDailySentStr, 10);
 
     if (now - lastDailySent >= msInterval) {
@@ -420,24 +458,30 @@ export async function checkAndTriggerLocalNotifications(
         );
       });
 
-      const totalFaturado = todayRevenue.reduce((s: number, t: any) => s + t.amount, 0);
+      const totalFaturado = todayRevenue.reduce(
+        (s: number, t: any) => s + t.amount,
+        0,
+      );
 
       const frases = [
-        "Ótimo trabalho hoje! Continue firme rumo ao sucesso financeiro! 🚀",
-        "Cada passo conta. O faturamento de hoje é o fruto do seu esforço! 💪",
-        "Mais um dia produtivo! Sua dedicação está transformando o negócio. 📈",
-        "Parabéns pelos resultados de hoje! O sucesso é a soma de pequenos esforços diários. ✨",
-        "O sucesso não é por acaso, é trabalho duro, perseverança e amor pelo que faz! 🏆"
+        'Ótimo trabalho hoje! Continue firme rumo ao sucesso financeiro! 🚀',
+        'Cada passo conta. O faturamento de hoje é o fruto do seu esforço! 💪',
+        'Mais um dia produtivo! Sua dedicação está transformando o negócio. 📈',
+        'Parabéns pelos resultados de hoje! O sucesso é a soma de pequenos esforços diários. ✨',
+        'O sucesso não é por acaso, é trabalho duro, perseverança e amor pelo que faz! 🏆',
       ];
       const fraseMotivadora = frases[Math.floor(Math.random() * frases.length)];
 
       await sendLocalNotification(
         '💰 Resumo de Faturamento',
         `Hoje você faturou R$ ${totalFaturado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. ${fraseMotivadora}`,
-        '/index.html#dashboard'
+        '/index.html#dashboard',
       );
 
-      localStorage.setItem('finnexus_last_daily_summary_sent_time', String(now));
+      localStorage.setItem(
+        'finnexus_last_daily_summary_sent_time',
+        String(now),
+      );
     }
   }
 }

@@ -1,70 +1,68 @@
-const { createClient } = require('@supabase/supabase-js');
-
-// Pega as variáveis de ambiente (injetadas pelo GitHub Actions)
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('❌ ERRO: As variáveis SUPABASE_URL e SUPABASE_ANON_KEY são obrigatórias.');
-  process.exit(1);
-}
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-async function runPing() {
-  const pingId = '00000000-0000-0000-0000-000000000000'; // ID fixo ou random para o ping do GitHub
-  const today = new Date().toISOString().split('T')[0];
-
-  console.log(`📡 Iniciando ping anti-inatividade em ${new Date().toLocaleString('pt-BR')}...`);
-
-  const dummyTransaction = {
-    id: pingId,
-    description: '⚡ PING AUTOMATICO GITHUB ACTIONS',
-    amount: 0.01,
-    type: 'RECEITA',
-    category: 'Outros',
-    status: 'CONCLUÍDO',
-    date: today,
-    notes: 'Registro de teste gerado automaticamente via GitHub Actions para evitar congelamento do banco de dados no Supabase.',
-  };
-
-  try {
-    // 1. Limpa qualquer ping residual antes de inserir
-    await supabase
-      .from('transactions')
-      .delete()
-      .eq('id', pingId);
-
-    // 2. Insere o registro de teste
-    console.log('Inserting dummy row...');
-    const { error: insertError } = await supabase
-      .from('transactions')
-      .insert([dummyTransaction]);
-
-    if (insertError) {
-      throw new Error(`Falha ao inserir ping: ${insertError.message}`);
+import { pathToFileURL } from 'node:url';
+export async function runPing({
+  env = process.env,
+  fetcher = fetch,
+  sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  log = console.log,
+} = {}) {
+  const { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = env;
+  if (!url || !key)
+    throw new Error(
+      'SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são obrigatórios no servidor.',
+    );
+  const target = new URL('/rest/v1/maintenance_health?id=eq.1', url);
+  if (target.protocol !== 'https:')
+    throw new Error('SUPABASE_URL deve usar HTTPS.');
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await fetcher(target, {
+        method: 'PATCH',
+        headers: {
+          apikey: key,
+          Authorization: 'Bearer ' + key,
+          'Content-Type': 'application/json',
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify({ checked_at: new Date().toISOString() }),
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!response.ok) {
+        const error = new Error('Ping HTTP ' + response.status);
+        error.retryable = response.status === 429 || response.status >= 500;
+        throw error;
+      }
+      const rows = await response.json();
+      if (!Array.isArray(rows) || rows.length !== 1)
+        throw new Error(
+          'Tabela de saúde não inicializada. Execute a migração.',
+        );
+      log(
+        JSON.stringify({
+          event: 'keepalive',
+          status: 'ok',
+          attempt,
+          at: new Date().toISOString(),
+        }),
+      );
+      return;
+    } catch (error) {
+      log(
+        JSON.stringify({
+          event: 'keepalive',
+          status: 'failed',
+          attempt,
+          at: new Date().toISOString(),
+        }),
+      );
+      if (attempt === 3 || error.retryable === false) throw error;
+      await sleep(1000 * 2 ** (attempt - 1));
     }
-
-    console.log('✅ Registro inserido com sucesso!');
-
-    // 3. Deleta o registro de teste imediatamente
-    console.log('Deleting dummy row...');
-    const { error: deleteError } = await supabase
-      .from('transactions')
-      .delete()
-      .eq('id', pingId);
-
-    if (deleteError) {
-      throw new Error(`Falha ao deletar ping: ${deleteError.message}`);
-    }
-
-    console.log('✅ Registro deletado com sucesso!');
-    console.log('🎉 Banco de dados Supabase mantido ativo com sucesso!');
-    process.exit(0);
-  } catch (error) {
-    console.error('❌ Ocorreu um erro no ping:', error.message || error);
-    process.exit(1);
   }
 }
-
-runPing();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
+  runPing().catch(() => {
+    console.error(
+      'Keep-alive falhou. Verifique os secrets, a migração e o estado do projeto.',
+    );
+    process.exitCode = 1;
+  });

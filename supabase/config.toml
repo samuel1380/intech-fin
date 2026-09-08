@@ -1,0 +1,3 @@
+[functions.finance-ai]
+verify_jwt = true
+# Defense in depth: the handler also validates the user with auth.getUser().
