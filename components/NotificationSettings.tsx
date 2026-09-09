@@ -1,5 +1,5 @@
 import React from 'react';
-import { NotificationPreferences } from '../hooks/useNotifications';
+import { NotificationPreferences } from '../services/notificationService';
 import { NotificationToggle } from './NotificationToggle';
 import { 
   Bell, 
@@ -31,44 +31,44 @@ interface NotificationOption {
 
 const NOTIFICATION_OPTIONS: NotificationOption[] = [
   {
-    key: 'billsDueToday',
-    label: 'Contas a Pagar Hoje',
-    description: 'Receba um aviso quando tiver contas para pagar no dia',
+    key: 'billsDueSoon',
+    label: 'Contas Prestes a Vencer',
+    description: 'Receba alertas de despesas que vencem nos próximos dias',
     icon: <CreditCard className="w-5 h-5" />,
     color: 'text-rose-500',
   },
   {
-    key: 'billsDueTomorrow',
-    label: 'Contas para Amanhã',
-    description: 'Seja avisado sobre contas vencendo no dia seguinte',
-    icon: <CalendarClock className="w-5 h-5" />,
-    color: 'text-amber-500',
-  },
-  {
-    key: 'billsDueThisWeek',
-    label: 'Contas da Semana',
-    description: 'Resumo semanal das contas a pagar',
-    icon: <FileText className="w-5 h-5" />,
-    color: 'text-orange-500',
-  },
-  {
-    key: 'commissionDay',
+    key: 'commissionPaymentDay',
     label: 'Dia de Comissão',
-    description: 'Aviso quando for dia de receber comissões',
+    description: 'Aviso quando for dia de pagar comissões da equipe',
     icon: <TrendingUp className="w-5 h-5" />,
     color: 'text-emerald-500',
   },
   {
-    key: 'debtCollection',
-    label: 'Aviso de Cobrança',
-    description: 'Notificações sobre dívidas e recebíveis',
+    key: 'debtReceivable',
+    label: 'Recebíveis a Vencer',
+    description: 'Notificações sobre receitas e recebíveis próximos',
     icon: <DollarSign className="w-5 h-5" />,
     color: 'text-violet-500',
   },
   {
-    key: 'weeklyReport',
-    label: 'Relatório Semanal',
-    description: 'Resumo do desempenho financeiro semanal',
+    key: 'recurringBills',
+    label: 'Despesas Recorrentes',
+    description: 'Lembretes de pagamentos fixos recorrentes',
+    icon: <RefreshCw className="w-5 h-5" />,
+    color: 'text-blue-500',
+  },
+  {
+    key: 'monthlyClose',
+    label: 'Fechamento Mensal',
+    description: 'Lembrete no final do mês para fechar relatórios',
+    icon: <FileText className="w-5 h-5" />,
+    color: 'text-orange-500',
+  },
+  {
+    key: 'dailySummary',
+    label: 'Resumo de Faturamento',
+    description: 'Resumo motivacional de faturamento periódico',
     icon: <AlertTriangle className="w-5 h-5" />,
     color: 'text-indigo-500',
   },

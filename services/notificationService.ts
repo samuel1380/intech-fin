@@ -61,11 +61,14 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPreferences = {
 };
 
 // ============================================================
-// VAPID PUBLIC KEY (gerada com web-push, salva como env var)
+// VAPID PUBLIC KEY (gerada para FinNexus Enterprise)
 // Esta chave é PÚBLICA - pode ficar no frontend
-// A chave privada fica APENAS no backend (Supabase Edge Function)
+// A chave privada fica APENAS no backend/GitHub Actions (VAPID_PRIVATE_KEY)
 // ============================================================
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
+const DEFAULT_VAPID_PUBLIC_KEY = 'BAodVudiIhUOYKSHtxtt__f2gT5bVb3N3ITLNwgGAnSTMo4zxmUWnJPbmmfhm8La4QPiJCP2VSF46kKaLFN8Ago';
+const VAPID_PUBLIC_KEY = (import.meta.env.VITE_VAPID_PUBLIC_KEY && import.meta.env.VITE_VAPID_PUBLIC_KEY.trim() !== '')
+  ? import.meta.env.VITE_VAPID_PUBLIC_KEY
+  : DEFAULT_VAPID_PUBLIC_KEY;
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -277,13 +280,35 @@ function getLocalDateString(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+function hasNotifBeenSentToday(key: string, dateStr: string): boolean {
+  try {
+    return localStorage.getItem(`finnexus_notif_sent_${key}`) === dateStr;
+  } catch {
+    return false;
+  }
+}
+
+function markNotifAsSentToday(key: string, dateStr: string): void {
+  try {
+    localStorage.setItem(`finnexus_notif_sent_${key}`, dateStr);
+  } catch {
+    // Ignorar falhas de localStorage (ex: navegação privada restrita)
+  }
+}
+
+export function clearNotificationCooldowns(): void {
+  const keys = ['billsDueSoon', 'commissionPaymentDay', 'debtReceivable', 'recurringBills', 'monthlyClose'];
+  keys.forEach((k) => localStorage.removeItem(`finnexus_notif_sent_${k}`));
+  localStorage.removeItem('finnexus_last_daily_summary_sent_time');
+}
+
 // ============================================================
-// VERIFICAR NOTIFICAÇÕES LOCAIS (executa ao inicializar o app)
-// Simula o que o cron job faria no backend
+// VERIFICAR NOTIFICAÇÕES LOCAIS (com controle anti-spam de cooldown diário)
 // ============================================================
 export async function checkAndTriggerLocalNotifications(
   transactions: any[],
-  prefs: NotificationPreferences
+  prefs: NotificationPreferences,
+  force: boolean = false
 ): Promise<void> {
   if (!prefs.enabled || Notification.permission !== 'granted') return;
 
@@ -291,7 +316,7 @@ export async function checkAndTriggerLocalNotifications(
   const todayStr = getLocalDateString(today);
 
   // === CONTAS PRESTES A VENCER (DESPESAS PENDENTES) ===
-  if (prefs.billsDueSoon) {
+  if (prefs.billsDueSoon && (force || !hasNotifBeenSentToday('billsDueSoon', todayStr))) {
     const dueSoonDays = prefs.billsDueSoonDays || 3;
     const dueSoonDate = new Date(today);
     dueSoonDate.setDate(dueSoonDate.getDate() + dueSoonDays);
@@ -311,13 +336,14 @@ export async function checkAndTriggerLocalNotifications(
       await sendLocalNotification(
         '⚠️ Contas Prestes a Vencer',
         `${overdueBills.length} despesa(s) vencem nos próximos ${dueSoonDays} dias. Total: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-        '/index.html#accounts'
+        '/#payables'
       );
+      markNotifAsSentToday('billsDueSoon', todayStr);
     }
   }
 
   // === COMISSÕES A PAGAR ===
-  if (prefs.commissionPaymentDay) {
+  if (prefs.commissionPaymentDay && (force || !hasNotifBeenSentToday('commissionPaymentDay', todayStr))) {
     const commissionsToday = transactions.filter((t) => {
       return t.commissionAmount && t.commissionPaymentDate === todayStr;
     });
@@ -327,13 +353,14 @@ export async function checkAndTriggerLocalNotifications(
       await sendLocalNotification(
         '💳 Dia de Pagamento de Comissão',
         `${commissionsToday.length} comissão(ões) para pagar hoje. Total: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-        '/index.html#transactions'
+        '/#transactions'
       );
+      markNotifAsSentToday('commissionPaymentDay', todayStr);
     }
   }
 
   // === RECEBÍVEIS A VENCER ===
-  if (prefs.debtReceivable) {
+  if (prefs.debtReceivable && (force || !hasNotifBeenSentToday('debtReceivable', todayStr))) {
     const receivableDays = prefs.debtReceivableDays || 2;
     const receivableDate = new Date(today);
     receivableDate.setDate(receivableDate.getDate() + receivableDays);
@@ -353,13 +380,14 @@ export async function checkAndTriggerLocalNotifications(
       await sendLocalNotification(
         '💰 Recebimento Próximo',
         `${receivables.length} receita(s) para receber nos próximos ${receivableDays} dias. Total: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-        '/index.html#accounts'
+        '/#receivables'
       );
+      markNotifAsSentToday('debtReceivable', todayStr);
     }
   }
 
   // === CONTAS RECORRENTES ===
-  if (prefs.recurringBills) {
+  if (prefs.recurringBills && (force || !hasNotifBeenSentToday('recurringBills', todayStr))) {
     const recurringDays = prefs.recurringBillsDays || 3;
     const recurringDate = new Date(today);
     recurringDate.setDate(recurringDate.getDate() + recurringDays);
@@ -379,20 +407,22 @@ export async function checkAndTriggerLocalNotifications(
       await sendLocalNotification(
         '🔁 Despesas Recorrentes',
         `${recurringDue.length} despesa(s) recorrente(s) vencem em até ${recurringDays} dias.`,
-        '/index.html#transactions'
+        '/#payables'
       );
+      markNotifAsSentToday('recurringBills', todayStr);
     }
   }
 
   // === FECHAMENTO MENSAL ===
-  if (prefs.monthlyClose) {
+  if (prefs.monthlyClose && (force || !hasNotifBeenSentToday('monthlyClose', todayStr))) {
     const closeDay = prefs.monthlyCloseDay || 28;
     if (today.getDate() === closeDay) {
       await sendLocalNotification(
         '📆 Lembrete de Fechamento Mensal',
         'Hoje é o dia de fechar o mês! Revise receitas, despesas e pendências.',
-        '/index.html#reports'
+        '/#reports'
       );
+      markNotifAsSentToday('monthlyClose', todayStr);
     }
   }
 
@@ -411,7 +441,7 @@ export async function checkAndTriggerLocalNotifications(
     const lastDailySentStr = localStorage.getItem('finnexus_last_daily_summary_sent_time') || '0';
     const lastDailySent = parseInt(lastDailySentStr, 10);
 
-    if (now - lastDailySent >= msInterval) {
+    if (force || now - lastDailySent >= msInterval) {
       const todayRevenue = transactions.filter((t) => {
         return (
           t.type === 'RECEITA' &&
@@ -434,7 +464,7 @@ export async function checkAndTriggerLocalNotifications(
       await sendLocalNotification(
         '💰 Resumo de Faturamento',
         `Hoje você faturou R$ ${totalFaturado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. ${fraseMotivadora}`,
-        '/index.html#dashboard'
+        '/#dashboard'
       );
 
       localStorage.setItem('finnexus_last_daily_summary_sent_time', String(now));

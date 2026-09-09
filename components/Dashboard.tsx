@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Transaction, FinancialSummary, TransactionType, TransactionStatus, TaxSetting } from '../types';
-import { ArrowUpRight, ArrowDownRight, Activity, AlertCircle, TrendingUp, Calendar, ArrowRight, Wallet, CreditCard, ChevronDown, Clock, User, DollarSign, Bell, CalendarRange, Search } from 'lucide-react';
+import { Transaction, FinancialSummary, TransactionType, TransactionCategory, TransactionStatus, TaxSetting } from '../types';
+import { ArrowUpRight, ArrowDownRight, Activity, AlertCircle, TrendingUp, Calendar, ArrowRight, Wallet, CreditCard, ChevronDown, Clock, User, DollarSign, Bell, CalendarRange, Search, X, CheckCircle, Plus, Filter } from 'lucide-react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar, ReferenceLine
@@ -14,6 +14,9 @@ interface DashboardProps {
     onNavigateToTransactions: () => void;
     taxSettings?: TaxSetting[];
     userName?: string;
+    onAddTransaction?: (t: Omit<Transaction, 'id'>) => Promise<void>;
+    onUpdateTransaction?: (id: string, updates: Partial<Transaction>) => Promise<void>;
+    onDeleteTransaction?: (id: string) => Promise<void>;
 }
 
 type ViewMode = 'month' | 'day';
@@ -31,11 +34,78 @@ const subDays = (date: Date, amount: number) => {
     return newDate;
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransactions, taxSettings = [], userName = 'Administrador' }) => {
+const Dashboard: React.FC<DashboardProps> = ({ 
+    transactions, 
+    onNavigateToTransactions, 
+    taxSettings = [], 
+    userName = 'Administrador',
+    onAddTransaction,
+    onUpdateTransaction,
+    onDeleteTransaction
+}) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [viewMode, setViewMode] = useState<ViewMode>('month');
+
+    // Estado da barra de pesquisa e filtro da tabela
+    const [tableSearch, setTableSearch] = useState('');
+    const [tableStatusFilter, setTableStatusFilter] = useState<'ALL' | TransactionStatus>('ALL');
+    const [showFilterMenu, setShowFilterMenu] = useState(false);
+    const [activeActionMenuId, setActiveActionMenuId] = useState<string | null>(null);
+
+    // Estado do Modal Rápido de Novo Lançamento (Novo Serviço / Nova Despesa)
+    const [isQuickModalOpen, setIsQuickModalOpen] = useState(false);
+    const [quickModalType, setQuickModalType] = useState<TransactionType>(TransactionType.INCOME);
+    const [isSubmittingQuick, setIsSubmittingQuick] = useState(false);
+    const [quickForm, setQuickForm] = useState({
+        description: '',
+        amount: '',
+        category: TransactionCategory.SERVICE_OUTROS,
+        date: format(new Date(), 'yyyy-MM-dd'),
+        status: TransactionStatus.COMPLETED,
+        employeeName: ''
+    });
+
+    const openQuickModal = (type: TransactionType) => {
+        setQuickModalType(type);
+        setQuickForm({
+            description: '',
+            amount: '',
+            category: type === TransactionType.INCOME ? TransactionCategory.SERVICE_OUTROS : TransactionCategory.OPERATIONS,
+            date: format(new Date(), 'yyyy-MM-dd'),
+            status: TransactionStatus.COMPLETED,
+            employeeName: ''
+        });
+        setIsQuickModalOpen(true);
+    };
+
+    const handleQuickSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!quickForm.description || !quickForm.amount) return;
+        setIsSubmittingQuick(true);
+        try {
+            if (onAddTransaction) {
+                await onAddTransaction({
+                    description: quickForm.description,
+                    amount: parseFloat(quickForm.amount),
+                    type: quickModalType,
+                    category: quickForm.category,
+                    date: quickForm.date,
+                    serviceDate: quickForm.date,
+                    status: quickForm.status,
+                    employeeName: quickForm.employeeName || undefined
+                });
+                setIsQuickModalOpen(false);
+            } else {
+                onNavigateToTransactions();
+            }
+        } catch (err: any) {
+            alert('Erro ao adicionar: ' + (err.message || 'Erro desconhecido'));
+        } finally {
+            setIsSubmittingQuick(false);
+        }
+    };
 
     // Helper to parse "YYYY-MM-DD" to local Date object
     const parseDateLocal = (dateStr: string) => {
@@ -114,6 +184,22 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             }
         });
     }, [transactions, selectedDate, startDate, endDate, viewMode]);
+
+    // Transações filtradas para a tabela de Atividades Recentes (busca e status)
+    const tableFilteredTransactions = useMemo(() => {
+        return filteredTransactions.filter(t => {
+            if (tableStatusFilter !== 'ALL' && t.status !== tableStatusFilter) {
+                return false;
+            }
+            if (!tableSearch.trim()) return true;
+            const q = tableSearch.toLowerCase();
+            const osCode = `os_${t.id.slice(0, 6)}`.toLowerCase();
+            const desc = (t.description || '').toLowerCase();
+            const emp = (t.employeeName || '').toLowerCase();
+            const val = t.amount.toString();
+            return osCode.includes(q) || desc.includes(q) || emp.includes(q) || val.includes(q);
+        });
+    }, [filteredTransactions, tableSearch, tableStatusFilter]);
 
     // 2. Transactions for the previous period - For Trends
     // Se range = 1 mês, compara com mês anterior. Se range > 1, compara com range anterior equivalente.
@@ -424,10 +510,6 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                         <div>
                             <div className="flex justify-between items-center mb-1">
                                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Saldo Total (Lucro)</span>
-                                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-700 rounded-full cursor-pointer hover:bg-slate-200 transition-colors">
-                                    <span className="text-[10px] font-extrabold text-slate-600 dark:text-slate-300">🇧🇷 BRL</span>
-                                    <ChevronDown className="h-3 w-3 text-slate-400" />
-                                </div>
                             </div>
                             <div className="flex items-baseline gap-1.5 mt-2">
                                 <span className="text-2xl font-bold tracking-tight text-slate-800 dark:text-white">{formatCurrency(currentSummary.profit)}</span>
@@ -440,12 +522,18 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
 
                         {/* Botões de Ação */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-5">
-                            <button className="flex items-center justify-center gap-2 bg-finexyBlack hover:bg-black text-white py-3 rounded-full text-xs font-bold transition-all shadow-sm">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                            <button 
+                                onClick={() => openQuickModal(TransactionType.INCOME)}
+                                className="flex items-center justify-center gap-2 bg-finexyBlack hover:bg-black text-white py-3 rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                            >
+                                <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path></svg>
                                 Novo Serviço
                             </button>
-                            <button className="flex items-center justify-center gap-2 bg-[#F3F4F6] hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-3 rounded-full text-xs font-bold transition-all">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path></svg>
+                            <button 
+                                onClick={() => openQuickModal(TransactionType.EXPENSE)}
+                                className="flex items-center justify-center gap-2 bg-[#F3F4F6] hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-3 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                            >
+                                <svg className="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12h-15"></path></svg>
                                 Nova Despesa
                             </button>
                         </div>
@@ -657,75 +745,134 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
             </div>
 
             {/* Atividades Recentes com visual idêntico ao print */}
-            <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] shadow-premium overflow-hidden w-full">
+            <div className="bg-white dark:bg-slate-800 border border-[#EEF2F7] dark:border-white/[0.06] rounded-[24px] shadow-premium overflow-visible w-full relative">
                 {/* Cabeçalho da tabela */}
-                <div className="px-6 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-transparent">
-                    <div>
+                <div className="px-6 py-5 border-b border-[#EEF2F7] dark:border-white/[0.06] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-transparent rounded-t-[24px]">
+                    <div className="flex items-center gap-3">
                         <h3 className="text-sm font-bold text-slate-800 dark:text-white">Atividades Recentes</h3>
+                        {tableStatusFilter !== 'ALL' && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400">
+                                {tableStatusFilter}
+                            </span>
+                        )}
                     </div>
                     {/* Barra de Filtros e Busca */}
-                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <div className="flex items-center gap-3 w-full sm:w-auto relative">
                         <div className="relative flex-1 sm:flex-initial">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                             <input 
                                 type="text"
                                 placeholder="Pesquisar serviços..."
-                                className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-700/60 border border-slate-200/50 dark:border-slate-700/30 rounded-full text-xs outline-none focus:ring-1 focus:ring-finexyOrange w-full sm:w-48 font-semibold text-slate-600 dark:text-slate-300"
+                                value={tableSearch}
+                                onChange={(e) => setTableSearch(e.target.value)}
+                                className="pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-700/60 border border-slate-200/50 dark:border-slate-700/30 rounded-full text-xs outline-none focus:ring-1 focus:ring-finexyOrange w-full sm:w-56 font-semibold text-slate-600 dark:text-slate-300"
                             />
+                            {tableSearch && (
+                                <button 
+                                    onClick={() => setTableSearch('')}
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                >
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            )}
                         </div>
-                        <button className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 dark:bg-slate-700/60 border border-slate-200/50 dark:border-slate-700/30 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300">
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.477 8 1.4V14a8 8 0 01-16 0V4.4C6.545 3.477 9.245 3 12 3z"></path></svg>
-                            Filtrar
-                        </button>
+                        
+                        {/* Botão Filtrar com Dropdown de Status */}
+                        <div className="relative">
+                            <button 
+                                onClick={() => setShowFilterMenu(!showFilterMenu)}
+                                className={`flex items-center gap-1.5 px-3.5 py-2 border rounded-full text-xs font-bold transition-all ${
+                                    tableStatusFilter !== 'ALL' || showFilterMenu
+                                        ? 'bg-finexyBlack text-white border-finexyBlack dark:bg-white dark:text-slate-900 shadow-sm'
+                                        : 'bg-slate-50 dark:bg-slate-700/60 border-slate-200/50 dark:border-slate-700/30 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                                }`}
+                            >
+                                <Filter className="w-3.5 h-3.5" />
+                                Filtrar
+                            </button>
+
+                            {showFilterMenu && (
+                                <div className="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl shadow-xl z-50 p-1.5 space-y-1 animate-fade-in">
+                                    <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                        Status
+                                    </div>
+                                    <button 
+                                        onClick={() => { setTableStatusFilter('ALL'); setShowFilterMenu(false); }}
+                                        className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${tableStatusFilter === 'ALL' ? 'bg-slate-100 dark:bg-slate-700 text-finexyOrange' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}
+                                    >
+                                        Todos
+                                    </button>
+                                    <button 
+                                        onClick={() => { setTableStatusFilter(TransactionStatus.COMPLETED); setShowFilterMenu(false); }}
+                                        className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${tableStatusFilter === TransactionStatus.COMPLETED ? 'bg-slate-100 dark:bg-slate-700 text-emerald-500' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}
+                                    >
+                                        Concluído
+                                    </button>
+                                    <button 
+                                        onClick={() => { setTableStatusFilter(TransactionStatus.PENDING); setShowFilterMenu(false); }}
+                                        className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${tableStatusFilter === TransactionStatus.PENDING ? 'bg-slate-100 dark:bg-slate-700 text-rose-500' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}
+                                    >
+                                        Pendente
+                                    </button>
+                                    <button 
+                                        onClick={() => { setTableStatusFilter(TransactionStatus.PARTIAL); setShowFilterMenu(false); }}
+                                        className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${tableStatusFilter === TransactionStatus.PARTIAL ? 'bg-slate-100 dark:bg-slate-700 text-amber-500' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}
+                                    >
+                                        Em Andamento
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 {/* Tabela de Atividades */}
                 <div className="overflow-x-auto custom-scrollbar w-full">
-                    {hasFilteredData ? (
+                    {tableFilteredTransactions.length > 0 ? (
                         <table className="w-full text-xs text-left min-w-[700px] border-collapse">
                             <thead className="text-[10px] text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-800/80 border-b border-[#EEF2F7] dark:border-white/[0.04]">
                                 <tr>
-                                    <th className="px-6 py-3.5 w-12 text-center">
-                                        <input type="checkbox" className="rounded border-slate-300 text-finexyOrange focus:ring-finexyOrange" />
-                                    </th>
                                     <th className="px-6 py-3.5 font-bold tracking-wider">ID do Serviço</th>
                                     <th className="px-6 py-3.5 font-bold tracking-wider">Atividade</th>
                                     <th className="px-6 py-3.5 font-bold tracking-wider">Valor</th>
                                     <th className="px-6 py-3.5 font-bold tracking-wider">Status</th>
                                     <th className="px-6 py-3.5 font-bold tracking-wider">Data</th>
-                                    <th className="px-6 py-3.5 w-12"></th>
+                                    <th className="px-6 py-3.5 text-right font-bold tracking-wider">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#EEF2F7] dark:divide-white/[0.04]">
-                                {filteredTransactions.slice(0, 6).map((t, idx) => {
+                                {tableFilteredTransactions.slice(0, 8).map((t) => {
                                     const [year, month, day] = t.date.split('-');
                                     
                                     // Determinar estilos das tags de status
                                     let statusStyle = 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20';
                                     let statusText = 'Concluído';
-                                    if (t.status === 'PENDENTE') {
+                                    if (t.status === TransactionStatus.PENDING) {
                                         statusStyle = 'text-rose-600 bg-rose-50 dark:bg-rose-950/20';
                                         statusText = 'Pendente';
-                                    } else if (t.status === 'PARCIAL') {
+                                    } else if (t.status === TransactionStatus.PARTIAL) {
                                         statusStyle = 'text-amber-600 bg-amber-50 dark:bg-amber-950/20';
                                         statusText = 'Em Andamento';
                                     }
 
+                                    const isMenuOpen = activeActionMenuId === t.id;
+
                                     return (
                                         <tr key={t.id} className="hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-colors duration-150">
-                                            <td className="px-6 py-4 text-center">
-                                                <input type="checkbox" className="rounded border-slate-300 text-finexyOrange focus:ring-finexyOrange" />
-                                            </td>
                                             <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">
                                                 OS_{t.id.slice(0,6).toUpperCase()}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3.5">
                                                     <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-500">
-                                                        {t.type === 'RECEITA' ? '💰' : '📦'}
+                                                        {t.type === TransactionType.INCOME ? '💰' : '📦'}
                                                     </div>
-                                                    <span className="font-semibold text-slate-800 dark:text-white">{t.description}</span>
+                                                    <div>
+                                                        <span className="font-semibold text-slate-800 dark:text-white block">{t.description}</span>
+                                                        {t.employeeName && (
+                                                            <span className="text-[10px] text-slate-400">Técnico: {t.employeeName}</span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">
@@ -740,10 +887,54 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                                             <td className="px-6 py-4 text-slate-400 font-semibold">
                                                 {day} {format(parseDateLocal(t.date), 'MMM, yyyy', { locale: ptBR })}
                                             </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                                            <td className="px-6 py-4 text-right relative">
+                                                <button 
+                                                    onClick={() => setActiveActionMenuId(isMenuOpen ? null : t.id)}
+                                                    className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                                                    title="Opções da transação"
+                                                >
                                                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                                 </button>
+
+                                                {/* Menu de Ações da Linha */}
+                                                {isMenuOpen && (
+                                                    <div className="absolute right-6 top-10 w-44 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl z-50 p-1.5 space-y-1 animate-fade-in text-left">
+                                                        {t.status !== TransactionStatus.COMPLETED && onUpdateTransaction && (
+                                                            <button
+                                                                onClick={async () => {
+                                                                    await onUpdateTransaction(t.id, { status: TransactionStatus.COMPLETED, pendingAmount: undefined });
+                                                                    setActiveActionMenuId(null);
+                                                                }}
+                                                                className="w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 flex items-center gap-2"
+                                                            >
+                                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                                Marcar Concluído
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => {
+                                                                setActiveActionMenuId(null);
+                                                                onNavigateToTransactions();
+                                                            }}
+                                                            className="w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-2"
+                                                        >
+                                                            <ArrowRight className="w-3.5 h-3.5" />
+                                                            Ver em Atividades
+                                                        </button>
+                                                        {onDeleteTransaction && (
+                                                            <button
+                                                                onClick={async () => {
+                                                                    setActiveActionMenuId(null);
+                                                                    await onDeleteTransaction(t.id);
+                                                                }}
+                                                                className="w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center gap-2"
+                                                            >
+                                                                <X className="w-3.5 h-3.5" />
+                                                                Excluir
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </td>
                                         </tr>
                                     );
@@ -752,11 +943,157 @@ const Dashboard: React.FC<DashboardProps> = ({ transactions, onNavigateToTransac
                         </table>
                     ) : (
                         <div className="py-16 text-center text-slate-400 flex flex-col items-center">
-                            <p className="text-xs font-semibold">Nenhuma movimentação recente encontrada.</p>
+                            <p className="text-xs font-semibold">
+                                {tableSearch || tableStatusFilter !== 'ALL' 
+                                    ? 'Nenhum resultado encontrado para os filtros selecionados.' 
+                                    : 'Nenhuma movimentação recente encontrada.'}
+                            </p>
+                            {(tableSearch || tableStatusFilter !== 'ALL') && (
+                                <button 
+                                    onClick={() => { setTableSearch(''); setTableStatusFilter('ALL'); }}
+                                    className="mt-2 text-xs font-bold text-finexyOrange hover:underline"
+                                >
+                                    Limpar filtros
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
+
+                {tableFilteredTransactions.length > 8 && (
+                    <div className="p-3 border-t border-[#EEF2F7] dark:border-white/[0.04] text-center">
+                        <button 
+                            onClick={onNavigateToTransactions}
+                            className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors"
+                        >
+                            Ver todas as {tableFilteredTransactions.length} atividades →
+                        </button>
+                    </div>
+                )}
             </div>
+
+            {/* Modal Rápido: Novo Serviço ou Nova Despesa */}
+            {isQuickModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 w-full max-w-md rounded-[28px] shadow-2xl overflow-hidden animate-scale-up">
+                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold ${quickModalType === TransactionType.INCOME ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40' : 'bg-rose-100 text-rose-600 dark:bg-rose-950/40'}`}>
+                                    {quickModalType === TransactionType.INCOME ? '💰' : '📦'}
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-slate-800 dark:text-white text-base">
+                                        {quickModalType === TransactionType.INCOME ? 'Novo Serviço (Receita)' : 'Nova Despesa (Saída)'}
+                                    </h3>
+                                    <p className="text-xs text-slate-400">Lançamento rápido na Dashboard</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => setIsQuickModalOpen(false)}
+                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleQuickSubmit} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                                    Descrição
+                                </label>
+                                <input 
+                                    type="text"
+                                    required
+                                    placeholder={quickModalType === TransactionType.INCOME ? "Ex: Desentupimento de Ralo" : "Ex: Compra de Material"}
+                                    value={quickForm.description}
+                                    onChange={(e) => setQuickForm({ ...quickForm, description: e.target.value })}
+                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-finexyOrange"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                                        Valor (R$)
+                                    </label>
+                                    <input 
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                        placeholder="0,00"
+                                        value={quickForm.amount}
+                                        onChange={(e) => setQuickForm({ ...quickForm, amount: e.target.value })}
+                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold font-mono text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-finexyOrange"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                                        Data
+                                    </label>
+                                    <input 
+                                        type="date"
+                                        required
+                                        value={quickForm.date}
+                                        onChange={(e) => setQuickForm({ ...quickForm, date: e.target.value })}
+                                        className="w-full px-3 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-finexyOrange"
+                                    />
+                                </div>
+                            </div>
+
+                            {quickModalType === TransactionType.INCOME && (
+                                <div>
+                                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                                        Técnico / Funcionário (Opcional)
+                                    </label>
+                                    <input 
+                                        type="text"
+                                        placeholder="Nome do técnico responsável"
+                                        value={quickForm.employeeName}
+                                        onChange={(e) => setQuickForm({ ...quickForm, employeeName: e.target.value })}
+                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-finexyOrange"
+                                    />
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                                    Status
+                                </label>
+                                <select 
+                                    value={quickForm.status}
+                                    onChange={(e) => setQuickForm({ ...quickForm, status: e.target.value as TransactionStatus })}
+                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-finexyOrange cursor-pointer"
+                                >
+                                    <option value={TransactionStatus.COMPLETED}>Concluído / Pago</option>
+                                    <option value={TransactionStatus.PENDING}>Pendente</option>
+                                    <option value={TransactionStatus.PARTIAL}>Pagamento Parcial</option>
+                                </select>
+                            </div>
+
+                            <div className="pt-3 flex gap-3">
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsQuickModalOpen(false)}
+                                    className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-all"
+                                >
+                                    Cancelar
+                                </button>
+                                <button 
+                                    type="submit"
+                                    disabled={isSubmittingQuick}
+                                    className="flex-1 py-3 bg-finexyBlack dark:bg-white hover:opacity-90 text-white dark:text-slate-900 text-xs font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                                >
+                                    {isSubmittingQuick ? (
+                                        <div className="w-4 h-4 border-2 border-white dark:border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                                    ) : (
+                                        'Salvar Lançamento'
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

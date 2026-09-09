@@ -160,7 +160,7 @@ function App() {
     }
   };
 
-  // Check login persistence and handle hash-based tab navigation
+  // Check login persistence and handle hash/query-based tab navigation & Service Worker messages
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
@@ -170,21 +170,57 @@ function App() {
       setIsAuthenticated(!!session);
     });
 
-    const handleHashChange = () => {
+    const validTabs = ['dashboard', 'transactions', 'receivables', 'payables', 'accounts', 'reports', 'ai-advisor', 'settings', 'database'];
+
+    const handleNavigationFromUrl = () => {
+      // 1. Checar hash: e.g. #payables, #accounts, #/transactions
       const hash = window.location.hash;
       if (hash) {
-        const tab = hash.replace('#', '');
-        const validTabs = ['dashboard', 'transactions', 'receivables', 'payables', 'accounts', 'reports', 'ai-advisor', 'settings', 'database'];
+        const tab = hash.replace(/^#\/?/, '').split('?')[0];
         if (validTabs.includes(tab)) {
           setActiveTab(tab);
+          return;
+        }
+      }
+
+      // 2. Checar query parameter: e.g. ?tab=payables
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam && validTabs.includes(tabParam)) {
+        setActiveTab(tabParam);
+      }
+    };
+
+    const handleSwMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'NOTIFICATION_NAVIGATE') {
+        const rawUrl = event.data.url || '';
+        let targetTab = event.data.tab || '';
+        if (!targetTab && rawUrl.includes('#')) {
+          targetTab = rawUrl.split('#')[1].replace(/^\//, '').split('?')[0];
+        } else if (!targetTab && rawUrl.includes('tab=')) {
+          const match = rawUrl.match(/tab=([^&]+)/);
+          if (match) targetTab = match[1];
+        }
+
+        if (validTabs.includes(targetTab)) {
+          setActiveTab(targetTab);
+          window.location.hash = targetTab;
         }
       }
     };
 
-    handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
+    handleNavigationFromUrl();
+    window.addEventListener('hashchange', handleNavigationFromUrl);
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', handleSwMessage);
+    }
+
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('hashchange', handleNavigationFromUrl);
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleSwMessage);
+      }
       subscription.unsubscribe();
     };
   }, []);
@@ -433,6 +469,7 @@ function App() {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
+    window.location.hash = tab;
     if (window.innerWidth < 1024) {
       setSidebarOpen(false);
     }
@@ -503,14 +540,26 @@ function App() {
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {/* Ícones de Ações Minimalistas */}
             <div className="hidden sm:flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/30">
-              <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors">
+              <button 
+                onClick={() => handleTabChange('transactions')} 
+                title="Buscar em Atividades"
+                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors"
+              >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
               </button>
-              <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors relative">
+              <button 
+                onClick={() => handleTabChange('settings')} 
+                title="Configurações de Notificação"
+                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors relative"
+              >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                 <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-finexyOrange rounded-full"></span>
               </button>
-              <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors">
+              <button 
+                onClick={() => handleTabChange('ai-advisor')} 
+                title="Assistente / Ajuda IA"
+                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors"
+              >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               </button>
             </div>
@@ -556,6 +605,9 @@ function App() {
                     taxSettings={taxSettings}
                     userName={profile.name}
                     onNavigateToTransactions={() => setActiveTab('transactions')}
+                    onAddTransaction={handleAddTransaction}
+                    onUpdateTransaction={handleUpdateTransaction}
+                    onDeleteTransaction={handleDeleteTransaction}
                   />
                 )}
                 {activeTab === 'transactions' && (

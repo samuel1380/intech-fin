@@ -12,54 +12,50 @@ if (!supabaseUrl || !supabaseAnonKey) {
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function runPing() {
-  const pingId = '00000000-0000-0000-0000-000000000000'; // ID fixo ou random para o ping do GitHub
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const nowIso = now.toISOString();
 
-  console.log(`📡 Iniciando ping anti-inatividade em ${new Date().toLocaleString('pt-BR')}...`);
-
-  const dummyTransaction = {
-    id: pingId,
-    description: '⚡ PING AUTOMATICO GITHUB ACTIONS',
-    amount: 0.01,
-    type: 'RECEITA',
-    category: 'Outros',
-    status: 'CONCLUÍDO',
-    date: today,
-    notes: 'Registro de teste gerado automaticamente via GitHub Actions para evitar congelamento do banco de dados no Supabase.',
-  };
+  console.log(`📡 Iniciando ping anti-inatividade em ${now.toLocaleString('pt-BR')}...`);
 
   try {
-    // 1. Limpa qualquer ping residual antes de inserir
-    await supabase
-      .from('transactions')
-      .delete()
-      .eq('id', pingId);
+    // 1. Tenta upsert na tabela system_settings (RLS configurado com política aberta)
+    console.log('Gravando heartbeat na tabela system_settings...');
+    const { error: settingsError } = await supabase
+      .from('system_settings')
+      .upsert(
+        {
+          key: 'keepalive_heartbeat',
+          value: {
+            pinged_at: nowIso,
+            source: 'github_actions',
+            timestamp: Date.now(),
+          },
+          updated_at: nowIso,
+        },
+        { onConflict: 'key' }
+      );
 
-    // 2. Insere o registro de teste
-    console.log('Inserting dummy row...');
-    const { error: insertError } = await supabase
-      .from('transactions')
-      .insert([dummyTransaction]);
-
-    if (insertError) {
-      throw new Error(`Falha ao inserir ping: ${insertError.message}`);
+    if (!settingsError) {
+      console.log('✅ Heartbeat registrado com sucesso em system_settings!');
+      console.log('🎉 Banco de dados Supabase mantido ativo com segurança!');
+      process.exit(0);
     }
 
-    console.log('✅ Registro inserido com sucesso!');
+    console.warn('⚠️ Falha ao registrar em system_settings:', settingsError.message);
+    console.log('Acionando consulta de leitura segura como fallback...');
 
-    // 3. Deleta o registro de teste imediatamente
-    console.log('Deleting dummy row...');
-    const { error: deleteError } = await supabase
+    // 2. Fallback: consulta simples em transactions (mantém o pool/projeto acordado sem poluir nem violar RLS)
+    const { error: selectError } = await supabase
       .from('transactions')
-      .delete()
-      .eq('id', pingId);
+      .select('id')
+      .limit(1);
 
-    if (deleteError) {
-      throw new Error(`Falha ao deletar ping: ${deleteError.message}`);
+    if (selectError) {
+      throw new Error(`Falha na consulta de fallback: ${selectError.message}`);
     }
 
-    console.log('✅ Registro deletado com sucesso!');
-    console.log('🎉 Banco de dados Supabase mantido ativo com sucesso!');
+    console.log('✅ Consulta de fallback executada com sucesso!');
+    console.log('🎉 Banco de dados Supabase mantido ativo!');
     process.exit(0);
   } catch (error) {
     console.error('❌ Ocorreu um erro no ping:', error.message || error);

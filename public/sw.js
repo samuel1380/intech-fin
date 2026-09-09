@@ -123,20 +123,55 @@ self.addEventListener('notificationclick', (event) => {
   const targetUrl = (event.notification.data && event.notification.data.url) || '/';
   const fullUrl = new URL(targetUrl, self.location.origin).href;
 
+  // Extrair aba de navegação (ex: '/#payables' -> 'payables' ou '?tab=payables' -> 'payables')
+  let targetTab = '';
+  if (targetUrl.includes('#')) {
+    targetTab = targetUrl.split('#')[1].replace(/^\//, '');
+  } else if (targetUrl.includes('tab=')) {
+    const match = targetUrl.match(/tab=([^&]+)/);
+    if (match) targetTab = match[1];
+  }
+
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Focus existing window if open
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (clientList) => {
+      // 1. Verificar se já existe uma janela aberta do FinNexus
       for (const client of clientList) {
-        if (client.url === fullUrl && 'focus' in client) {
-          return client.focus();
+        if (client.url.startsWith(self.location.origin) && 'focus' in client) {
+          await client.focus();
+
+          // Notifica a aplicação React para trocar a aba instantaneamente
+          client.postMessage({
+            type: 'NOTIFICATION_NAVIGATE',
+            url: targetUrl,
+            tab: targetTab,
+          });
+
+          // Se a URL contém hash e o cliente suportar navigate, atualiza a barra de navegação
+          if ('navigate' in client && targetUrl !== '/' && !client.url.endsWith(targetUrl)) {
+            try {
+              await client.navigate(fullUrl);
+            } catch (navErr) {
+              // Ignora erro de navigate caso a janela já esteja focada e processando a mensagem
+            }
+          }
+          return;
         }
       }
-      // Open new window
+
+      // 2. Se não houver janela aberta, abre uma nova diretamente na rota
       if (clients.openWindow) {
         return clients.openWindow(fullUrl);
       }
     })
   );
+});
+
+// ===== SERVICE WORKER MESSAGES =====
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+    const { title, options } = event.data;
+    self.registration.showNotification(title, options || {});
+  }
 });
 
 // ===== BACKGROUND SYNC (for offline queuing) =====

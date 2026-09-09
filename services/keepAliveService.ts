@@ -1,5 +1,4 @@
 import { supabase, isSupabaseConfigured } from './supabase';
-import { TransactionType, TransactionCategory, TransactionStatus } from '../types';
 
 export interface KeepAliveConfig {
   enabled: boolean;
@@ -68,45 +67,50 @@ export const saveKeepAliveConfig = async (config: KeepAliveConfig): Promise<void
   }
 };
 
-// Realiza o ping no Supabase (insere e deleta)
+// Realiza o ping seguro no Supabase sem poluir transações e sem erro de RLS
 export const pingSupabase = async (): Promise<boolean> => {
   if (!isSupabaseConfigured) {
     throw new Error('Supabase não configurado.');
   }
 
-  const pingId = crypto.randomUUID();
-  const today = new Date().toISOString().split('T')[0];
+  const nowIso = new Date().toISOString();
 
-  const dummyTransaction = {
-    id: pingId,
-    description: '⚡ PING ANTI-INATIVIDADE',
-    amount: 0.01,
-    type: TransactionType.INCOME,
-    category: TransactionCategory.OTHER,
-    status: TransactionStatus.COMPLETED,
-    date: today,
-    notes: 'Registro de teste inserido e removido automaticamente para evitar o congelamento do banco de dados do Supabase.',
-  };
+  // 1. Tentar upsert na tabela de configurações 'system_settings'
+  // Esta tabela possui política RLS aberta (Allow all for system_settings)
+  try {
+    const { error: settingsError } = await supabase
+      .from('system_settings')
+      .upsert(
+        {
+          key: 'keepalive_heartbeat',
+          value: {
+            pinged_at: nowIso,
+            source: 'web_client',
+            timestamp: Date.now(),
+          },
+          updated_at: nowIso,
+        },
+        { onConflict: 'key' }
+      );
 
-  // 1. Inserir registro
-  const { error: insertError } = await supabase
-    .from('transactions')
-    .insert([dummyTransaction]);
+    if (!settingsError) {
+      return true;
+    }
 
-  if (insertError) {
-    console.error('Erro ao inserir ping:', insertError);
-    throw new Error(`Falha na inserção: ${insertError.message}`);
+    console.warn('[Keep-Alive] Falha ao registrar em system_settings, acionando consulta de fallback:', settingsError.message);
+  } catch (err) {
+    console.warn('[Keep-Alive] Erro ao tentar upsert em system_settings:', err);
   }
 
-  // 2. Deletar registro
-  const { error: deleteError } = await supabase
+  // 2. Fallback: Consulta leve para manter o banco ativo no Supabase sem criar dados fictícios
+  const { error: selectError } = await supabase
     .from('transactions')
-    .delete()
-    .eq('id', pingId);
+    .select('id')
+    .limit(1);
 
-  if (deleteError) {
-    console.error('Erro ao deletar ping:', deleteError);
-    throw new Error(`Falha na deleção: ${deleteError.message}`);
+  if (selectError) {
+    console.error('Erro na consulta de keep-alive:', selectError);
+    throw new Error(`Falha no keep-alive: ${selectError.message}`);
   }
 
   return true;

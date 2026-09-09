@@ -1,0 +1,33 @@
+name: FinNexus Background Push Notifications
+
+on:
+  schedule:
+    # Executa diariamente às 12:00 UTC (09:00 Horário de Brasília)
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+    # Permite executar manualmente pelo painel do GitHub Actions a qualquer momento
+
+jobs:
+  send-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js web-push
+
+      - name: Run Background Push Worker
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY || 'BAodVudiIhUOYKSHtxtt__f2gT5bVb3N3ITLNwgGAnSTMo4zxmUWnJPbmmfhm8La4QPiJCP2VSF46kKaLFN8Ago' }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY || 'zbz-l7HOEc-psjSYa6NGA5viNC7C9COffSsPTXT922A' }}
+          VAPID_EMAIL: ${{ secrets.VAPID_EMAIL || 'mailto:suporte@intechfin.com.br' }}
+        run: node scripts/send-background-push.js
