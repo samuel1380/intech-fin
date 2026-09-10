@@ -679,6 +679,9 @@ const Settings: React.FC<SettingsProps> = ({
                 As notificações estão desativadas nas configurações do navegador. Acesse as permissões do site na barra de endereços para liberar o acesso.
               </p>
             </div>
+          </div>
+        )}
+
         {/* Dica para iOS / iPhone quando não instalado na tela de início */}
         {isIos && !isStandalone && (
           <div className="mb-6 p-4 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40 rounded-2xl flex items-start gap-3">
