@@ -10,17 +10,11 @@ const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
 // Chaves VAPID do FinNexus Enterprise
 const vapidPublicKey = process.env.VAPID_PUBLIC_KEY || 'BAodVudiIhUOYKSHtxtt__f2gT5bVb3N3ITLNwgGAnSTMo4zxmUWnJPbmmfhm8La4QPiJCP2VSF46kKaLFN8Ago';
-const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY || 'zbz-l7HOEc-psjSYa6NGA5viNC7C9COffSsPTXT922A';
 const vapidEmail = process.env.VAPID_EMAIL || 'mailto:suporte@intechfin.com.br';
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('❌ ERRO: SUPABASE_URL e SUPABASE_ANON_KEY são obrigatórias.');
-  process.exit(1);
-}
-
-if (!vapidPrivateKey) {
-  console.error('❌ ERRO: VAPID_PRIVATE_KEY é obrigatória para envio de push em segundo plano.');
-  console.error('👉 Adicione VAPID_PRIVATE_KEY nos Secrets do GitHub ou no ambiente do servidor.');
   process.exit(1);
 }
 

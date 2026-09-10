@@ -15,6 +15,7 @@ import {
   saveNotificationPrefs,
   loadNotificationPrefs,
   sendLocalNotification,
+  scheduleTestNotification,
   checkAndTriggerLocalNotifications,
 } from '../services/notificationService';
 import { isSupabaseConfigured } from '../services/supabase';
@@ -57,6 +58,111 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ checked, onChange, disabled
           }`}
       />
     </button>
+  );
+};
+
+// ============================================================
+// COMPONENTE: NumberStepper (Robusto para Celular / PWA)
+// Permite digitação natural sem saltos de dígitos e botões +/-
+// ============================================================
+interface NumberStepperProps {
+  value: number;
+  onChange: (val: number) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+  disabled?: boolean;
+}
+
+const NumberStepper: React.FC<NumberStepperProps> = ({
+  value,
+  onChange,
+  min = 1,
+  max = 999,
+  step = 1,
+  disabled = false,
+}) => {
+  const [localText, setLocalText] = useState<string>(String(value || min));
+
+  useEffect(() => {
+    setLocalText(String(value || min));
+  }, [value, min]);
+
+  const commitValue = (val: number) => {
+    const clamped = Math.max(min, Math.min(max, val));
+    setLocalText(String(clamped));
+    onChange(clamped);
+  };
+
+  const handleBlur = () => {
+    let num = parseInt(localText, 10);
+    if (isNaN(num)) num = value || min;
+    commitValue(num);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
+    if (text === '') {
+      setLocalText('');
+      return;
+    }
+    if (/^\d+$/.test(text)) {
+      setLocalText(text);
+      const num = parseInt(text, 10);
+      if (!isNaN(num) && num >= min && num <= max) {
+        onChange(num);
+      }
+    }
+  };
+
+  const decrement = () => {
+    const current = parseInt(localText, 10) || value || min;
+    commitValue(current - step);
+  };
+
+  const increment = () => {
+    const current = parseInt(localText, 10) || value || min;
+    commitValue(current + step);
+  };
+
+  const numCurrent = parseInt(localText, 10) || value || min;
+
+  return (
+    <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-900/90 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0 select-none shadow-xs">
+      <button
+        type="button"
+        disabled={disabled || numCurrent <= min}
+        onClick={decrement}
+        className="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-700 disabled:opacity-25 disabled:cursor-not-allowed shadow-xs transition-all active:scale-95 text-lg leading-none"
+        aria-label="Diminuir"
+      >
+        −
+      </button>
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        disabled={disabled}
+        value={localText}
+        onChange={handleInputChange}
+        onBlur={handleBlur}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            (e.target as HTMLInputElement).blur();
+          }
+        }}
+        className="w-11 text-center text-sm font-bold bg-transparent border-none outline-none text-slate-800 dark:text-white p-0 m-0"
+      />
+      <button
+        type="button"
+        disabled={disabled || numCurrent >= max}
+        onClick={increment}
+        className="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-700 disabled:opacity-25 disabled:cursor-not-allowed shadow-xs transition-all active:scale-95 text-lg leading-none"
+        aria-label="Aumentar"
+      >
+        +
+      </button>
+    </div>
   );
 };
 
@@ -394,6 +500,11 @@ const Settings: React.FC<SettingsProps> = ({
 
   const isNotifSupported = typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator;
   const isNotifBlocked = permStatus === 'denied';
+  const isIos = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isStandalone = typeof window !== 'undefined' && (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator as any).standalone === true
+  );
 
   return (
     <div className="space-y-8 animate-fade-in max-w-4xl mx-auto pb-10">
@@ -568,6 +679,19 @@ const Settings: React.FC<SettingsProps> = ({
                 As notificações estão desativadas nas configurações do navegador. Acesse as permissões do site na barra de endereços para liberar o acesso.
               </p>
             </div>
+        {/* Dica para iOS / iPhone quando não instalado na tela de início */}
+        {isIos && !isStandalone && (
+          <div className="mb-6 p-4 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40 rounded-2xl flex items-start gap-3">
+            <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div className="text-xs text-amber-900 dark:text-amber-300 space-y-1">
+              <p className="font-bold text-sm">📱 Dica Importante para iPhone (iOS)</p>
+              <p className="leading-relaxed">
+                A Apple só permite notificações em segundo plano (com o app fechado) se o FinNexus estiver instalado na Tela de Início.
+              </p>
+              <p className="font-semibold leading-relaxed">
+                Toque no botão de <strong>Compartilhar</strong> do Safari (quadrado com seta para cima) ➔ <strong>"Adicionar à Tela de Início"</strong>. Em seguida, abra o app pelo ícone criado na tela inicial!
+              </p>
+            </div>
           </div>
         )}
 
@@ -625,12 +749,11 @@ const Settings: React.FC<SettingsProps> = ({
                 <label className="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
                   Avisar com
                 </label>
-                <input
-                  type="number"
-                  min={1} max={30}
-                  value={prefs.billsDueSoonDays}
-                  onChange={(e) => updatePref('billsDueSoonDays', Number(e.target.value))}
-                  className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                <NumberStepper
+                  value={prefs.billsDueSoonDays || 3}
+                  min={1}
+                  max={30}
+                  onChange={(v) => updatePref('billsDueSoonDays', v)}
                 />
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">dia(s) de antecedência</span>
               </div>
@@ -659,12 +782,11 @@ const Settings: React.FC<SettingsProps> = ({
                 <label className="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
                   Avisar com
                 </label>
-                <input
-                  type="number"
-                  min={1} max={14}
-                  value={prefs.debtReceivableDays}
-                  onChange={(e) => updatePref('debtReceivableDays', Number(e.target.value))}
-                  className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                <NumberStepper
+                  value={prefs.debtReceivableDays || 2}
+                  min={1}
+                  max={30}
+                  onChange={(v) => updatePref('debtReceivableDays', v)}
                 />
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">dia(s) de antecedência</span>
               </div>
@@ -683,12 +805,11 @@ const Settings: React.FC<SettingsProps> = ({
                 <label className="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
                   Avisar com
                 </label>
-                <input
-                  type="number"
-                  min={1} max={14}
-                  value={prefs.recurringBillsDays}
-                  onChange={(e) => updatePref('recurringBillsDays', Number(e.target.value))}
-                  className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                <NumberStepper
+                  value={prefs.recurringBillsDays || 3}
+                  min={1}
+                  max={30}
+                  onChange={(v) => updatePref('recurringBillsDays', v)}
                 />
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">dia(s) de antecedência</span>
               </div>
@@ -707,12 +828,11 @@ const Settings: React.FC<SettingsProps> = ({
                 <label className="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
                   Lembrar no dia
                 </label>
-                <input
-                  type="number"
-                  min={1} max={31}
-                  value={prefs.monthlyCloseDay}
-                  onChange={(e) => updatePref('monthlyCloseDay', Number(e.target.value))}
-                  className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                <NumberStepper
+                  value={prefs.monthlyCloseDay || 28}
+                  min={1}
+                  max={31}
+                  onChange={(v) => updatePref('monthlyCloseDay', v)}
                 />
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">de cada mês</span>
               </div>
@@ -732,12 +852,11 @@ const Settings: React.FC<SettingsProps> = ({
                   <label className="text-xs font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
                     Enviar a cada
                   </label>
-                  <input
-                    type="number"
-                    min={1}
+                  <NumberStepper
                     value={prefs.dailySummaryIntervalValue || 1}
-                    onChange={(e) => updatePref('dailySummaryIntervalValue', Number(e.target.value))}
-                    className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                    min={1}
+                    max={60}
+                    onChange={(v) => updatePref('dailySummaryIntervalValue', v)}
                   />
                   <select
                     value={prefs.dailySummaryIntervalUnit || 'hours'}
@@ -773,12 +892,11 @@ const Settings: React.FC<SettingsProps> = ({
                 </div>
               </div>
               <div className="flex items-center gap-2 self-end sm:self-center">
-                <input
-                  type="number"
-                  min={1}
+                <NumberStepper
                   value={prefs.checkIntervalValue || 15}
-                  onChange={(e) => updatePref('checkIntervalValue', Number(e.target.value))}
-                  className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                  min={1}
+                  max={60}
+                  onChange={(v) => updatePref('checkIntervalValue', v)}
                 />
                 <select
                   value={prefs.checkIntervalUnit || 'minutes'}
@@ -792,8 +910,8 @@ const Settings: React.FC<SettingsProps> = ({
               </div>
             </div>
 
-            {/* Botão de teste */}
-            <div className="mt-6 pt-6 border-t border-slate-200/50 dark:border-slate-800/40 flex justify-end">
+            {/* Botões de teste */}
+            <div className="mt-6 pt-6 border-t border-slate-200/50 dark:border-slate-800/40 flex flex-wrap items-center justify-end gap-3">
               <button
                 type="button"
                 onClick={async () => {
@@ -801,17 +919,33 @@ const Settings: React.FC<SettingsProps> = ({
                     await sendLocalNotification(
                       'Teste de Notificação',
                       'As notificações locais da sua conta estão ativas e funcionando!',
-                      '/'
+                      '/#dashboard'
                     );
-                    showToast('Notificação de teste enviada!', 'success');
+                    showToast('Notificação imediata enviada!', 'success');
                   } catch (err) {
                     showToast('Erro ao enviar teste. Verifique as permissões.', 'error');
                   }
                 }}
-                className="flex items-center gap-2 px-5 py-3 text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200/50 dark:border-indigo-900/30 rounded-2xl hover:bg-indigo-100 dark:hover:bg-indigo-900/40 active:scale-[0.98] transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200/50 dark:border-indigo-900/30 rounded-2xl hover:bg-indigo-100 dark:hover:bg-indigo-900/40 active:scale-[0.98] transition-all"
               >
                 <Cpu className="h-4 w-4" />
-                <span>Enviar Notificação de Teste</span>
+                <span>Notificação Imediata</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  const ok = await scheduleTestNotification(5000);
+                  if (ok) {
+                    showToast('⏳ Agendado para daqui a 5 segundos! Feche ou bloqueie o celular agora.', 'info');
+                  } else {
+                    showToast('Falha ao agendar teste. Certifique-se de que as notificações estão ativas.', 'error');
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/50 dark:border-emerald-900/30 rounded-2xl hover:bg-emerald-100 dark:hover:bg-emerald-900/40 active:scale-[0.98] transition-all shadow-xs"
+              >
+                <Bell className="h-4 w-4" />
+                <span>Testar com App Fechado (5s)</span>
               </button>
             </div>
           </div>
@@ -1012,12 +1146,12 @@ const Settings: React.FC<SettingsProps> = ({
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Padrão recomendado: 4 dias</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min={1} max={6}
+                  <NumberStepper
                     value={keepAliveConfig.intervalDays}
-                    onChange={(e) => handleIntervalChange(Number(e.target.value))}
-                    className="w-16 px-2.5 py-1.5 text-sm font-bold text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                    min={1}
+                    max={6}
+                    step={1}
+                    onChange={handleIntervalChange}
                   />
                   <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">dias</span>
                 </div>

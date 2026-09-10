@@ -117,6 +117,7 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 }
 
 // ============================================================
+// ============================================================
 // SUBSCREVER PARA PUSH
 // ============================================================
 export async function subscribeToPush(): Promise<PushSubscription | null> {
@@ -125,18 +126,31 @@ export async function subscribeToPush(): Promise<PushSubscription | null> {
     return null;
   }
 
-  const registration = await navigator.serviceWorker.ready;
+  if (!('serviceWorker' in navigator)) {
+    console.warn('[PWA] Service Worker não suportado neste navegador.');
+    return null;
+  }
 
   try {
-    const existing = await registration.pushManager.getSubscription();
-    if (existing) return existing;
+    const registration = await navigator.serviceWorker.ready;
+    if (!registration.pushManager) {
+      console.warn('[PWA] PushManager não disponível. No iOS, o app precisa ser adicionado à Tela de Início para habilitar Push.');
+      return null;
+    }
 
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-    });
+    let subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+    }
 
-    console.log('[PWA] Push subscription criada:', subscription.endpoint);
+    console.log('[PWA] Push subscription ativa:', subscription.endpoint);
+
+    // Salvar imediatamente no Supabase para nunca perder a subscrição
+    await saveNotificationPrefs(await loadNotificationPrefs(), subscription);
+
     return subscription;
   } catch (err) {
     console.error('[PWA] Erro ao subscrever push:', err);
@@ -148,12 +162,42 @@ export async function subscribeToPush(): Promise<PushSubscription | null> {
 // CANCELAR SUBSCRIÇÃO
 // ============================================================
 export async function unsubscribeFromPush(): Promise<void> {
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.getSubscription();
-  if (subscription) {
-    await subscription.unsubscribe();
-    console.log('[PWA] Push subscription cancelada.');
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    if (registration.pushManager) {
+      const subscription = await registration.pushManager.getSubscription();
+      if (subscription) {
+        await subscription.unsubscribe();
+        console.log('[PWA] Push subscription cancelada.');
+      }
+    }
+  } catch (err) {
+    console.warn('[PWA] Erro ao cancelar push subscription:', err);
   }
+}
+
+// ============================================================
+// AGENDAR TESTE COM APP FECHADO (via Service Worker)
+// ============================================================
+export async function scheduleTestNotification(delayMs: number = 5000): Promise<boolean> {
+  if (!('serviceWorker' in navigator)) return false;
+
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    if (registration.active) {
+      registration.active.postMessage({
+        type: 'SCHEDULE_TEST_NOTIFICATION',
+        delayMs,
+        title: '🔔 FinNexus: Teste em Segundo Plano!',
+        body: 'Notificação recebida com sucesso no celular mesmo com o app fechado.',
+      });
+      return true;
+    }
+  } catch (err) {
+    console.warn('[PWA] Falha ao agendar teste via Service Worker:', err);
+  }
+  return false;
 }
 
 // ============================================================
@@ -161,25 +205,32 @@ export async function unsubscribeFromPush(): Promise<void> {
 // ============================================================
 export async function saveNotificationPrefs(
   prefs: NotificationPreferences,
-  subscription: PushSubscription | null
+  subscription?: PushSubscription | null
 ): Promise<void> {
+  const hasExplicitSub = subscription !== undefined;
+  const subToSave = hasExplicitSub ? (subscription ? subscription.toJSON() : null) : undefined;
+
   if (!isSupabaseConfigured) {
     // Fallback: salvar no localStorage
     localStorage.setItem('finnexus_notif_prefs', JSON.stringify(prefs));
-    if (subscription) {
-      localStorage.setItem('finnexus_push_subscription', JSON.stringify(subscription));
+    if (hasExplicitSub) {
+      localStorage.setItem('finnexus_push_subscription', JSON.stringify(subToSave));
     }
     return;
   }
 
   const userId = 'intechfin_default'; // Single-user system
 
-  const payload = {
+  const payload: any = {
     user_id: userId,
     preferences: prefs,
-    push_subscription: subscription ? subscription.toJSON() : null,
     updated_at: new Date().toISOString(),
   };
+
+  // Preserva a subscrição existente caso não tenha sido passada explicitamente
+  if (hasExplicitSub) {
+    payload.push_subscription = subToSave;
+  }
 
   const { error } = await supabase
     .from('notification_preferences')
@@ -189,6 +240,9 @@ export async function saveNotificationPrefs(
     console.error('[Notifications] Erro ao salvar preferências:', error);
     // Fallback to localStorage
     localStorage.setItem('finnexus_notif_prefs', JSON.stringify(prefs));
+    if (hasExplicitSub) {
+      localStorage.setItem('finnexus_push_subscription', JSON.stringify(subToSave));
+    }
   }
 }
 

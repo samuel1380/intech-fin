@@ -168,9 +168,23 @@ self.addEventListener('notificationclick', (event) => {
 
 // ===== SERVICE WORKER MESSAGES =====
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+  if (!event.data) return;
+
+  if (event.data.type === 'SHOW_NOTIFICATION') {
     const { title, options } = event.data;
     self.registration.showNotification(title, options || {});
+  } else if (event.data.type === 'SCHEDULE_TEST_NOTIFICATION') {
+    const delay = event.data.delayMs || 5000;
+    setTimeout(() => {
+      self.registration.showNotification(event.data.title || '🔔 Teste com App Fechado!', {
+        body: event.data.body || 'As notificações com o PWA fechado no celular estão funcionando!',
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/icon-72x72.png',
+        tag: 'test-background-push',
+        data: { url: '/#dashboard' },
+        vibrate: [200, 100, 200],
+      });
+    }, delay);
   }
 });
 
